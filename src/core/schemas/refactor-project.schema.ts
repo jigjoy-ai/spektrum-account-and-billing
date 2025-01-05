@@ -1,8 +1,8 @@
 export const schema = {
 	type: "object",
-	required: ["message", "projectId"],
+	required: ["message", "id"],
     properties: {
-        projectId: {
+        id: {
             type: "string",
         },
         message: {

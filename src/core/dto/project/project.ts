@@ -1,12 +1,17 @@
 export type RefactorProjectDto = {
-    projectId: string,
-    message: string
+	id: string
+	message: string
 }
 
 export type ReturnProjectDto = {
-    files: Map<string, CodeDto>
+    id: string,
+	files: FileDto
 }
 
-export type CodeDto = {
-    code: string
+export interface FileDto {
+	[filePath: string]: FileContentDto
+}
+
+export interface FileContentDto {
+	code: string
 }

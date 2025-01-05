@@ -18,11 +18,11 @@ export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Pr
 
 		console.log(`project: ${JSON.stringify(refactorRequest)}`)
 
-		const refactredProject: ReturnProjectDto = await refactorProjectUseCase(refactorRequest)
+		const refactoredProject: ReturnProjectDto = await refactorProjectUseCase(refactorRequest)
 
-		console.log(`Refactored project: ${JSON.stringify(refactredProject)}`)
+		console.log(`Refactored project: ${JSON.stringify(refactoredProject)}`)
 
-		return Responses._201(refactredProject)
+		return Responses._201(refactoredProject)
 	} catch (error) {
 		return errorHandler(error)
 	}
