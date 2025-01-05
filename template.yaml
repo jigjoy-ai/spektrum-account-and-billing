@@ -11,7 +11,7 @@ Globals:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
       AllowHeaders: "'content-type'"
       AllowOrigin: "'*'"
-      
+
 Resources:
   refactoreProjectFunction:
     Type: AWS::Serverless::Function
@@ -23,12 +23,15 @@ Resources:
       MemorySize: 128
       Timeout: 100
       Description: Refactore project with AI
+      Environment:
+        Variables:
+          OPENAI_API_KEY: "{{resolve:secretsmanager:vars:SecretString:OpenaiApiKey}}"
       Events:
         Api:
           Type: Api
           Properties:
             Path: /project/refactor
-            Method: POST
+            Method: PUT
     Metadata: #Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:

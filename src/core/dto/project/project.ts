@@ -3,8 +3,8 @@ export type RefactorProjectDto = {
 	message: string
 }
 
-export type ReturnProjectDto = {
-    id: string,
+export type ProjectDto = {
+    id?: string,
 	files: FileDto
 }
 

@@ -4,9 +4,8 @@ import { errorHandler } from "@packages/apigw-error-handler"
 import { schema } from "@schemas/refactor-project.schema"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
-import { RefactorProjectDto, ReturnProjectDto } from "@dto/project"
-import { refactorProjectUseCase } from "@use-cases/refactor-project"
-
+import { RefactorProjectDto, ProjectDto } from "@dto/project"
+import { refactorProjectUseCase } from "@use-cases/refactor-project/refactor-project"
 
 export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	try {
@@ -18,7 +17,17 @@ export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Pr
 
 		console.log(`project: ${JSON.stringify(refactorRequest)}`)
 
-		const refactoredProject: ReturnProjectDto = await refactorProjectUseCase(refactorRequest)
+		// Example Usage
+		const existingProject: ProjectDto = {
+			id: "123e4567-e89b-12d3-a456-426614174000",
+			files: {
+				"/App.tsx": {
+					code: "export default function App(){return <div>Hello, World!</div>}",
+				},
+			},
+		}
+
+		const refactoredProject: ProjectDto = await refactorProjectUseCase(existingProject, refactorRequest.message)
 
 		console.log(`Refactored project: ${JSON.stringify(refactoredProject)}`)
 
