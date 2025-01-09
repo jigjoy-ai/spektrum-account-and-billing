@@ -1,5 +1,6 @@
-export type RefactorProjectDto = {
-	id: string
+export type ChangeRequestDto = {
+	id: string,
+	project: ProjectDto,
 	message: string
 }
 
