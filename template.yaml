@@ -13,35 +13,18 @@ Globals:
       AllowOrigin: "'*'"
 
 Resources:
-  refactoreProjectFunction:
-    Type: AWS::Serverless::Function
+
+  AuthStack:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      Handler: src/core/adapters/primary/refactor-project/refactor-project-adapter.refactorProjectHandler
-      Runtime: nodejs20.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description: Refactore project with AI
-      Environment:
-        Variables:
-          OPENAI_API_KEY: "{{resolve:secretsmanager:vars:SecretString:OpenaiApiKey}}"
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /project/refactor
-            Method: PUT
-    Metadata: #Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - src/core/adapters/primary/refactor-project/refactor-project-adapter.ts
+      TemplateURL: "./src/auth/auth.yaml"
+
+  ProjectStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "./src/project/project.yaml"
 
 Outputs:
   WebEndpoint:
-    Description: "API Gateway endpoint URL for Prod stage"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Description: "API Gateway endpoint URL for the main API"
+    Value: !GetAtt ProjectStack.Outputs.ApiGatewayUrl
