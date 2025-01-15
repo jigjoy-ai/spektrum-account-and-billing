@@ -19,12 +19,7 @@ Resources:
     Properties:
       TemplateURL: "./src/auth/auth.yaml"
 
-  ProjectStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: "./src/project/project.yaml"
-
 Outputs:
-  WebEndpoint:
-    Description: "API Gateway endpoint URL for the main API"
-    Value: !GetAtt ProjectStack.Outputs.ApiGatewayUrl
+  AuthApiEndpoint:
+    Description: "API Gateway endpoint for user authentication and authorization"
+    Value: !GetAtt AuthStack.Outputs.AuthApiGatewayUrl

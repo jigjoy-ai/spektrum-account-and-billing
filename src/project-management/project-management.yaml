@@ -36,8 +36,8 @@ Resources:
 
 
 Outputs:
-  ApiGatewayUrl:
+  ProjectManagementApiGatewayUrl:
     Description: "API Gateway URL"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
     Export:
-      Name: ApiGatewayUrl  # Logical name for the API Gateway URL
+      Name: ProjectManagementApiGatewayUrl  # Logical name for the API Gateway URL
