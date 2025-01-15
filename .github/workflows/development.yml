@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./packages/cms/backend
+        working-directory: ./
     environment: development
 
     steps:
@@ -33,4 +33,4 @@ jobs:
         run: sam build --profile Development --use-container
 
       - name: Deploy backend to environment
-        run: sam deploy --profile Development --no-confirm-changeset --no-fail-on-empty-changeset
+        run: sam deploy --profile Development --no-confirm-changeset --no-fail-on-empty-changeset --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
