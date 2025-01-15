@@ -26,10 +26,6 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile Development
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile Development
 
-      - name: Install dependencies for auth and project-management
-        run: npm install
-        working-directory: ./  # Root directory with package.json
-
       - name: Build
         run: sam build --profile Development --use-container
 

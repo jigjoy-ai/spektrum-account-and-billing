@@ -17,12 +17,12 @@ Resources:
   AuthStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "./src/auth/auth.yaml"
+      TemplateURL: "./auth.yaml"
 
   ProjectManagementStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "./src/project-management/project-management.yaml"
+      TemplateURL: "./project-management.yaml"
 
 Outputs:
   AuthApiEndpoint:

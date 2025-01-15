@@ -9,7 +9,7 @@ Resources:
   refactoreProjectFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: adapters/primary/refactor-project/refactor-project-adapter.refactorProjectHandler
+      Handler: src/project-management/adapters/primary/refactor-project/refactor-project-adapter.refactorProjectHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -32,12 +32,12 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - adapters/primary/refactor-project/refactor-project-adapter.ts
+          - src/project-management/adapters/primary/refactor-project/refactor-project-adapter.ts
 
 
 Outputs:
   ProjectManagementApiGatewayUrl:
     Description: "API Gateway URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/project/"
     Export:
       Name: ProjectManagementApiGatewayUrl  # Logical name for the API Gateway URL
