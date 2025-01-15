@@ -38,6 +38,6 @@ Resources:
 Outputs:
   ApiGatewayUrl:
     Description: "API Gateway URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
     Export:
       Name: ApiGatewayUrl  # Logical name for the API Gateway URL
