@@ -3,6 +3,7 @@
     "description": "Serverless API for creating web applications from textual prompts",
     "version": "0.0.1",
     "private": true,
+    "workspaces": ["src/auth", "src/project-management"],
     "dependencies": {
 		"@aws-sdk/client-cognito-identity-provider": "^3.635.0",
         "@aws-sdk/client-dynamodb": "^3.398.0",
