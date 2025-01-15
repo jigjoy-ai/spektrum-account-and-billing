@@ -26,6 +26,13 @@ jobs:
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile Development
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile Development
 
+      
+      - name: Link Node Modules to domains
+        run: |
+          for dir in src/auth src/project-management; do
+            ln -s $(pwd)/node_modules $dir/node_modules || true
+          done
+
       - name: Build
         run: sam build --profile Development --use-container
 
