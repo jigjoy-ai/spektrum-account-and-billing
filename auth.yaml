@@ -11,7 +11,7 @@ Globals:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
       AllowHeaders: "'content-type'"
       AllowOrigin: "'*'"
-      
+
 Resources:
   # User Pool
   JigJoyUserPool:
@@ -277,6 +277,6 @@ Outputs:
 
   AuthApiGatewayUrl:
     Description: "API Gateway URL for authentication and authorization"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/auth/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
     Export:
       Name: AuthApiGatewayUrl  # Logical name for the API Gateway URL
