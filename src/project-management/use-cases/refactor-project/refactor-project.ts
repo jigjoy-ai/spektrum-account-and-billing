@@ -36,6 +36,7 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 		Important: 
 		1) You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
 		2) You need to return working version of React project. Do not delete files which are used in the project!
+		3) Do not change project id, only generate new if the passed value is null or undefined!
 		  .\n{format_instructions}\n{message}`),
 			new ChatOpenAI({
 				modelName: "gpt-4o",
