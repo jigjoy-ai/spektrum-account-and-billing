@@ -33,11 +33,12 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 		User Message: 
 		Build the React project based on the user's request. Return the ProjectDto in JSON format.
 		
-		Important: 
-		1) You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
-		2) You need to return working version of React project. Do not delete files which are used in the project! 
-		3) Don't wrap json output with backticks and ensure the content is properly formatted as valid JSON ready for parsing.
-		  .\n{format_instructions}\n{message}`),
+		Important: Output the result as plain JSON, without wrapping it in triple backticks or a code block!
+		Important: You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
+		Important: You need to return working version of React project. Do not delete files which are used in the project except user requests.
+
+		{format_instructions}
+		{message}`),
 			new ChatOpenAI({
 				modelName: "gpt-4o",
 				openAIApiKey: process.env.OPENAI_API_KEY,
