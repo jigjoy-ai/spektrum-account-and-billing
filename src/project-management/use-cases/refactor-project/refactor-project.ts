@@ -20,7 +20,6 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 			
 				Current Project Source Code: {project_info}
 			
-			
 				Important: Respond only in valid JSON. The JSON object you return should match the following schema:
 
 				{{
@@ -31,10 +30,12 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 		  			}}
 				}}
 
-				Format Instructions: {format_instructions}
+				Format Instructions: {output_schema}
 
+				Important: Output must also contain the files that you didn't edit along with the files you have edited and created. 
+				Important: You need to return working files of the React project.
 				Important: You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
-				Important: You need to return working version of React project. Do not delete files which are used in the project! Only when user explicitly request to delete or remove specific file do it.
+				
 				`),
 			new ChatOpenAI({
 				modelName: "gpt-4o",
@@ -44,13 +45,17 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 			parser,
 		])
 
-		const response = await chain.invoke({
+		const changes = await chain.invoke({
 			message: changeRequest.message,
-			format_instructions: parser.getFormatInstructions(),
+			output_schema: parser.getFormatInstructions(),
 			project_info: project_info,
 		})
 
-		return response
+		const refactoredProject = {
+			...changeRequest.project,
+			...changes
+		}
+		return refactoredProject
 	} catch (error) {
 		console.error("Error:", error)
 	}
