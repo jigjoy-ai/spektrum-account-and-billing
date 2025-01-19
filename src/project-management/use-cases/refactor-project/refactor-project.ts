@@ -9,36 +9,33 @@ const parser = StructuredOutputParser.fromZodSchema(ProjectDtoSchema)
 
 export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): Promise<any> {
 	try {
-
 		const project_info = JSON.stringify(changeRequest.project)
 
 		const chain = RunnableSequence.from([
-			PromptTemplate.fromTemplate(`You are an expert React developer specializing in TanStack, Tailwind CSS, and Framer Motion. Your job is to build and modify files for a React project. 
-		Each file should return a component that meets the user's description.
-		
-		The current project files:{project_info}
+			PromptTemplate.fromTemplate(`You are an expert React developer specializing in TanStack, Tailwind CSS, and Framer Motion. 
 
-		You MUST return a JSON object matching the following Zod schema:
-		
-		Example response:
-		{{
-		  "id": "some-project-id",
-		  "files": {{
-			"/App.tsx": {{
-			  "code": "export default function App() {{ return <div>Hello World</div>; }}"
-			}}
-		  }}
-		}}
-		
-		User Message: 
-		Build the React project based on the user's request. Return the ProjectDto in JSON format.
-		
-		Important: Output the result as plain JSON, without wrapping it in triple backticks or a code block!
-		Important: You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
-		Important: You need to return working version of React project. Do not delete files which are used in the project except user requests.
+				Your job is to modify project source code based on the user request. 
+			
+				User Request: {message} 
+			
+				Current Project Source Code: {project_info}
+			
+			
+				Important: Respond only in valid JSON. The JSON object you return should match the following schema:
 
-		{format_instructions}
-		{message}`),
+				{{
+		  			"files": {{
+						"/App.tsx": {{
+			  				"code": "export default function App() {{ return <div>Hello World</div>; }}"
+						}}
+		  			}}
+				}}
+
+				Format Instructions: {format_instructions}
+
+				Important: You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
+				Important: You need to return working version of React project. Do not delete files which are used in the project! Only when user explicitly request to delete or remove specific file do it.
+				`),
 			new ChatOpenAI({
 				modelName: "gpt-4o",
 				openAIApiKey: process.env.OPENAI_API_KEY,
@@ -50,7 +47,7 @@ export async function refactorProjectUseCase(changeRequest: ChangeRequestDto): P
 		const response = await chain.invoke({
 			message: changeRequest.message,
 			format_instructions: parser.getFormatInstructions(),
-			project_info: project_info
+			project_info: project_info,
 		})
 
 		return response

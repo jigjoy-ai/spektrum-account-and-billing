@@ -13,7 +13,6 @@ const FileDtoSchema = z.record(
 
 // ProjectDto Schema
 const ProjectDtoSchema = z.object({
-	id: z.string().uuid().optional().describe("The unique identifier for the project (UUID format)"),
 	files: FileDtoSchema.describe("A map of file paths to their file content"),
 })
 
