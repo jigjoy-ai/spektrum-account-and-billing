@@ -5,9 +5,9 @@ import { schema } from "@schemas/refactor-project.schema"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
 import { ChangeRequestDto, SourceCode } from "@dto/project"
-import { refactorProjectUseCase } from "@use-cases/refactor-project/refactor-project"
+import { refactorProjectUseCase } from "@use-cases/implement-request/implement-request"
 
-export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export async function implementRequestHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	try {
 		if (!body) throw new ValidationError("No request body")
 
