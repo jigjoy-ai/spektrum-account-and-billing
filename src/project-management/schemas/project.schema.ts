@@ -13,7 +13,7 @@ const FileDtoSchema = z.record(
 
 // ProjectDto Schema
 const ProjectDtoSchema = z.object({
-	files: FileDtoSchema.describe("A map of file paths to their file content"),
+	sourceCode: FileDtoSchema.describe("A map of file paths to their file content"),
 })
 
 export default ProjectDtoSchema

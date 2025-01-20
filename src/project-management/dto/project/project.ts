@@ -6,10 +6,10 @@ export type ChangeRequestDto = {
 
 export type ProjectDto = {
     id?: string,
-	files: FileDto
+	sourceCode: SourceCode
 }
 
-export interface FileDto {
+export interface SourceCode {
 	[filePath: string]: FileContentDto
 }
 

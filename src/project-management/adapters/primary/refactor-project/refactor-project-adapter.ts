@@ -4,7 +4,7 @@ import { errorHandler } from "@packages/apigw-error-handler"
 import { schema } from "@schemas/refactor-project.schema"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
-import { ChangeRequestDto, ProjectDto } from "@dto/project"
+import { ChangeRequestDto, SourceCode } from "@dto/project"
 import { refactorProjectUseCase } from "@use-cases/refactor-project/refactor-project"
 
 export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -17,7 +17,7 @@ export async function refactorProjectHandler({ body }: APIGatewayProxyEvent): Pr
 
 		console.log(`Change request: ${JSON.stringify(changeRequest)}`)
 
-		const refactoredProject: ProjectDto = await refactorProjectUseCase(changeRequest)
+		const refactoredProject: SourceCode = await refactorProjectUseCase(changeRequest)
 
 		console.log(`Refactored project: ${JSON.stringify(refactoredProject)}`)
 
