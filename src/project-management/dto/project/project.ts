@@ -10,7 +10,7 @@ export type ProjectDto = {
 }
 
 export interface SourceCode {
-	[filePath: string]: FileContentDto
+	[filePath: string]: string
 }
 
 export interface FileContentDto {

@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { ValidationError } from "@errors/validation-error"
 import { errorHandler } from "@packages/apigw-error-handler"
-import { schema } from "@schemas/refactor-project.schema"
+import { schema } from "@schemas/implement-request.schema"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
 import { ChangeRequestDto, SourceCode } from "@dto/project"
-import { refactorProjectUseCase } from "@use-cases/implement-request/implement-request"
+import { implementRequesttUseCase } from "@use-cases/implement-request/implement-request"
 
 export async function implementRequestHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	try {
@@ -17,7 +17,7 @@ export async function implementRequestHandler({ body }: APIGatewayProxyEvent): P
 
 		console.log(`Change request: ${JSON.stringify(changeRequest)}`)
 
-		const refactoredProject: SourceCode = await refactorProjectUseCase(changeRequest)
+		const refactoredProject: SourceCode = await implementRequesttUseCase(changeRequest)
 
 		console.log(`Refactored project: ${JSON.stringify(refactoredProject)}`)
 

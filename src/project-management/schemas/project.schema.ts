@@ -8,7 +8,7 @@ const FileContentDtoSchema = z.object({
 // FileDto Schema (map of file paths to FileContentDto)
 const FileDtoSchema = z.record(
 	z.string().describe("The file path as a string"),
-	FileContentDtoSchema.describe("The content of the file as an object with code")
+	z.string().describe("The source code inside a file")
 )
 
 // ProjectDto Schema
