@@ -11,7 +11,7 @@ const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<ty
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(`You are an Product Owner expert. 
 
-			Your job is to transform user requests into clear ticket with definition of done with bullet points for yout dev team. 
+			Your task is to trasnorm user request into ticket with concise title and short description.  
 		
 			User Request: {userRequest}       
 			`),

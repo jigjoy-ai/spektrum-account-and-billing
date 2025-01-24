@@ -11,12 +11,14 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(` 
 
-            You are an expert in UI/UX design.
-            Your job is to refine the ticket and update the ticket's definition-of-done with concrete design instructions.
+            You are an modern UI/UX expert.
+            
+			You need to design interface including layouts, components, styles, and interactions for given ticket.  
 
+			You decide what should be visible on interface, component position and styling. 
+			Don't let devleopers to make design descisions like picking colors, etc...
+			
 			Ticket: {ticket}
-
-            Important: If the colors or other design details are not provided by user you are striving to consistency and uses modern color pallets for UI.
 			`),
 		new ChatOpenAI({
 			modelName: "gpt-4o",
@@ -26,15 +28,17 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	])
 
 
-	const updatedTicket = await chain.invoke({
+	const design = await chain.invoke({
 		ticket: ticket
 	})
 
-    console.log(`\n\n\nUI/UX Designer:\n\nUpdated Ticket:\n\n${updatedTicket.content.toString()}`)
+	const updatedTicket = `Task Description: ${ticket} \n\nDesign Instructions: ${design.content.toString()}` 
+
+    console.log(`\n\n\nUI/UX Designer:\n\nUpdated Ticket:\n\n${updatedTicket}`)
 
     return {
         ..._state,
-        ticket: updatedTicket.content.toString()
+        ticket: updatedTicket
     }
 }
 
