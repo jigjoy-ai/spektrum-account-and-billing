@@ -9,10 +9,11 @@ const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<ty
 	const { userRequest, context } = _state
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`You are an Product Owner expert. 
+		PromptTemplate.fromTemplate(`You are an Product Manager expert. 
 
-			Your task is to trasnorm user request into ticket with concise title and short description.  
-		
+			Transform user request into user stoeris, so that your dev team can work in parallel.
+			User stories need to have number and as short as possible content.
+			
 			User Request: {userRequest}       
 			`),
 		new ChatOpenAI({

@@ -23,9 +23,9 @@ const reactDeveloperNode = async (
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(`You are an expert React developer specializing in TanStack, Tailwind CSS, and Framer Motion. 
 
-			Your job is to modify project source code based on the user request. 
+			Your job is to modify project source code based on the tickets you received. 
 		
-			Here is the ticket that you need to solve: {ticket} 
+			Here are the tickets that you need to solve: {ticket} 
 
             Current Source Code: {sourceCode}
 		

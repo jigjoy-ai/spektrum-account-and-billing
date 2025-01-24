@@ -6,19 +6,24 @@ import { RootAnnotation } from "./team"
 
 // UI/UX Designer Node
 const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof RootAnnotation.State> => {
-	const { ticket } = _state
+	const { ticket, userRequest } = _state
 
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(` 
 
             You are an modern UI/UX expert.
             
-			You need to design interface including layouts, components, styles, and interactions for given ticket.  
-
-			You decide what should be visible on interface, component position and styling. 
-			Don't let devleopers to make design descisions like picking colors, etc...
+			Your job is to:
+			1 - Transform user request into user stories
+			2 - Design interface for each user story.
 			
-			Ticket: {ticket}
+			Each user story should have extensive details for implementing feature including:
+			 layouts, components, styling, and interaction flow.
+
+			Create a minimal number of user stories.
+
+			User Request: {userRequest}
+
 			`),
 		new ChatOpenAI({
 			modelName: "gpt-4o",
@@ -29,7 +34,7 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 
 
 	const design = await chain.invoke({
-		ticket: ticket
+		userRequest
 	})
 
 	const updatedTicket = `Task Description: ${ticket} \n\nDesign Instructions: ${design.content.toString()}` 

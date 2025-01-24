@@ -24,11 +24,11 @@ class Team {
 			input: RootAnnotation,
 			output: RootAnnotation,
 		})
-			.addNode("ProductOwner", productOwnerNode)
+			//.addNode("ProductOwner", productOwnerNode)
 			.addNode("ReactDeveloper", reactDeveloperNode)
 			.addNode("UiUxDesigner", uiUxDesigner)
-			.addEdge(START, "ProductOwner")
-			.addEdge("ProductOwner", "UiUxDesigner")
+			.addEdge(START, "UiUxDesigner")
+			//.addEdge("ProductOwner", "UiUxDesigner")
 			.addEdge("UiUxDesigner", "ReactDeveloper")
 			.addEdge("ReactDeveloper", END)
 			.compile()
