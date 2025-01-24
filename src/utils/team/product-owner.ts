@@ -6,15 +6,18 @@ import { RootAnnotation } from "./team"
 
 // Product Owner Node
 const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<typeof RootAnnotation.State> => {
-	const { userRequest, context } = _state
+	const { userRequest } = _state
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`You are an Product Manager expert. 
+		PromptTemplate.fromTemplate(`You are an Product Manager. 
 
-			Transform user request into user stoeris, so that your dev team can work in parallel.
-			User stories need to have number and as short as possible content.
-			
-			User Request: {userRequest}       
+			Your job is to transform user request into user stories.
+
+			Create a minimal number of user stories with short desription.
+
+			Pick most important user story and pass to the team. Other user stories put in the backlog and say to everyone to do not work on user stories in the backlog.
+
+			User Request: {userRequest}
 			`),
 		new ChatOpenAI({
 			modelName: "gpt-4o",
@@ -24,7 +27,7 @@ const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<ty
 	])
 
 	const ticket = await chain.invoke({
-		userRequest: userRequest
+		userRequest
 	})
 
     console.log(`\n\n\nProduct Owner:\n\nTicket:\n\n${ticket.content.toString()}`)

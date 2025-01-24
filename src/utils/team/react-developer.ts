@@ -26,8 +26,8 @@ const reactDeveloperNode = async (
 			Your job is to modify project source code based on the tickets you received. 
 		
 			Here are the tickets that you need to solve: {ticket} 
-
-            Current Source Code: {sourceCode}
+            
+			Current Source Code: {sourceCode}
 		
 			Important: Respond only in valid JSON. The JSON object you return should match the following schema:
 
@@ -49,7 +49,7 @@ const reactDeveloperNode = async (
 		new ChatOpenAI({
 			modelName: "gpt-4o",
 			openAIApiKey: process.env.OPENAI_API_KEY,
-			temperature: 0.4, // Deterministic output to avoid random responses
+			temperature: 0, // Deterministic output to avoid random responses
 		}),
 		parser,
 	])
