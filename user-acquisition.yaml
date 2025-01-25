@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+ puzzle-box-serverless - project domain
+
+Transform:
+ - AWS::Serverless-2016-10-31
+
+Globals:
+ Api:
+  Cors:
+   AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+   AllowHeaders: "'content-type'"
+   AllowOrigin: "'*'"
+
+Resources:
+ requestAccessFunction:
+  Type: AWS::Serverless::Function
+  Properties:
+   Handler: src/user-acquisition/adapters/primary/request-access/request-access-adapter.requestAccessHandler
+   Runtime: nodejs20.x
+   Architectures:
+    - x86_64
+   MemorySize: 128
+   Timeout: 100
+   Description: Request Access on jigjoy.io website
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AccessRequestTable
+      Environment:
+        Variables:
+          ACCESS_REQUEST_TABLE: !Ref AccessRequestTable
+   Events:
+    Api:
+     Type: Api
+     Properties:
+      Path: /project/implement
+      Method: PUT
+  Metadata: #Manage esbuild properties
+   BuildMethod: esbuild
+   BuildProperties:
+    Minify: true
+    Target: "es2020"
+    Sourcemap: true
+    EntryPoints:
+     - src/user-acquisition/adapters/primary/request-access/request-access-adapter.ts
+
+ AccessRequestTable:
+  Type: AWS::DynamoDB::Table
+  Properties:
+   BillingMode: PAY_PER_REQUEST
+   TableName: AccessRequest
+   AttributeDefinitions:
+    - AttributeName: email
+      AttributeType: S
+   KeySchema:
+    - AttributeName: email
+      KeyType: HASH
+
+Outputs:
+ UserAcquisitionApiGatewayUrl:
+  Description: "API Gateway URL"
+  Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  Export:
+   Name: UserAcquisitionApiGatewayUrl
