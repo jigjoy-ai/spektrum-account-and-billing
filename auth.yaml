@@ -17,7 +17,7 @@ Resources:
   JigJoyUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: userPool
+      UserPoolName: jigJoyUserPool
       Policies:
         PasswordPolicy:
           MinimumLength: 8

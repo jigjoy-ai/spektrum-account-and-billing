@@ -33,8 +33,8 @@ Resources:
     Api:
      Type: Api
      Properties:
-      Path: /project/implement
-      Method: PUT
+      Path: /user-acquisition/request-access
+      Method: POST
   Metadata: #Manage esbuild properties
    BuildMethod: esbuild
    BuildProperties:
@@ -50,11 +50,20 @@ Resources:
    BillingMode: PAY_PER_REQUEST
    TableName: AccessRequest
    AttributeDefinitions:
+    - AttributeName: id
+      AttributeType: S
     - AttributeName: email
       AttributeType: S
    KeySchema:
-    - AttributeName: email
+    - AttributeName: id
       KeyType: HASH
+   GlobalSecondaryIndexes:
+    - IndexName: userGSI
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      Projection:
+        ProjectionType: ALL
 
 Outputs:
  UserAcquisitionApiGatewayUrl:
