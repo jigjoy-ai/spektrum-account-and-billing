@@ -14,6 +14,11 @@ Globals:
       
 Resources:
 
+  UserAcquisitionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "./user-acquisition.yaml"
+
   AuthStack:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -25,6 +30,9 @@ Resources:
       TemplateURL: "./project-management.yaml"
 
 Outputs:
+  UserAcquisitionApiEndpoint:
+    Description: "API Gateway endpoint for user acquisition"
+    Value: !GetAtt UserAcquisitionStack.Outputs.UserAcquisitionApiGatewayUrl
   AuthApiEndpoint:
     Description: "API Gateway endpoint for user authentication and authorization"
     Value: !GetAtt AuthStack.Outputs.AuthApiGatewayUrl

@@ -23,12 +23,12 @@ Resources:
    MemorySize: 128
    Timeout: 100
    Description: Request Access on jigjoy.io website
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AccessRequestTable
-      Environment:
-        Variables:
-          ACCESS_REQUEST_TABLE: !Ref AccessRequestTable
+   Policies:
+    - DynamoDBCrudPolicy:
+        TableName: !Ref AccessRequestTable
+   Environment:
+    Variables:
+      ACCESS_REQUEST_TABLE: !Ref AccessRequestTable
    Events:
     Api:
      Type: Api
