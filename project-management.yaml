@@ -32,6 +32,8 @@ Resources:
           Properties:
             Path: /project/implement
             Method: PUT
+      Layers: 
+        - !Ref ExternalDependenciesLayer
     Metadata: #Manage esbuild properties
       BuildMethod: esbuild
       BuildProperties:
@@ -40,8 +42,17 @@ Resources:
         Sourcemap: true
         EntryPoints:
           - src/project-management/adapters/primary/implement-request/implement-request-adapter.ts
+        External:
+          - 'webpack'
 
-
+  ExternalDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: Layer for external dependencies
+      ContentUri: ./external-dependencies
+      CompatibleRuntimes:
+        - nodejs20.x
+      LicenseInfo: MIT
 Outputs:
   ProjectManagementApiGatewayUrl:
     Description: "API Gateway URL"

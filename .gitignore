@@ -4,3 +4,6 @@ node_modules
 .npmrc
 
 env.json
+
+external-dependencies/nodejs/node_modules
+external-dependencies/external-dependencies.zip
