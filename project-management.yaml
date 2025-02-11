@@ -43,7 +43,7 @@ Resources:
         EntryPoints:
           - src/project-management/adapters/primary/implement-request/implement-request-adapter.ts
         External:
-          - 'webpack'
+          - "webpack"
 
   ExternalDependenciesLayer:
     Type: AWS::Serverless::LayerVersion
