@@ -5,9 +5,9 @@ import { buildSourceCode } from "./webpack-compiler"
 export async function implementRequesttUseCase(changeRequest: ChangeRequestDto): Promise<any> {
 	try {
 		
-		return await buildSourceCode(changeRequest.project.sourceCode)
-		// const newSourceCode = await Team.implement(changeRequest)
-		// return newSourceCode
+		const newSourceCode = await Team.implement(changeRequest)
+		await buildSourceCode(newSourceCode)
+		return newSourceCode
 	} catch (error) {
 		console.error("Error:", error)
 	}
