@@ -5,9 +5,12 @@ import { ufs } from "unionfs"
 
 const path = require("path")
 
-export const buildSourceCode = async (files: any) => {
+export const buildSourceCode = async (sourceCode: any) => {
+	const prefix = "../../opt/nodejs/"
 
-	const memoryVolume = Volume.fromJSON(files)
+	sourceCode = Object.fromEntries(Object.entries(sourceCode).map(([key, value]) => [prefix + key, value]))
+
+	const memoryVolume = Volume.fromJSON(sourceCode)
 
 	const memfs = createFsFromVolume(memoryVolume)
 
@@ -20,7 +23,7 @@ export const buildSourceCode = async (files: any) => {
 	const compiler = webpack(config)
 
 	compiler.inputFileSystem = ufs as any
-	compiler.outputFileSystem = ufs as any;
+	compiler.outputFileSystem = ufs as any
 
 	await compiler.run((err, stats) => {
 		if (err) {
@@ -28,8 +31,7 @@ export const buildSourceCode = async (files: any) => {
 			return
 		}
 		console.log(stats?.toString({ colors: true }))
-		console.log("Output:", ufs.readdirSync("../../opt/nodejs/dist"))
-		
+		console.log("Output:", ufs.readdirSync(prefix+"dist"))
 	})
 
 	// Close the compiler after the process

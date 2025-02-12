@@ -1,8 +1,8 @@
 export const code = {
-  "../../opt/nodejs/src/index.css": `
+  "src/index.css": `
 @import "tailwindcss";
     `,
-  "../../opt/nodejs/src/index.tsx": `
+  "src/index.tsx": `
 	import React, { StrictMode } from "react";
   	import { createRoot } from "react-dom/client";
   	import App from "./App";
@@ -15,7 +15,7 @@ export const code = {
             </StrictMode>
     );`,
 
-  "../../opt/nodejs/src/App.tsx": `
+  "src/App.tsx": `
     export default function App() {
 	    return (
 	        <div className="text-pink-500 font-bold">Hello world</div>
