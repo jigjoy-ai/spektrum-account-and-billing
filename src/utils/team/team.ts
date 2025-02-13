@@ -3,7 +3,6 @@ import productOwnerNode from "./product-owner"
 import { reactDeveloperNode } from "./react-developer"
 import { ChangeRequestDto, SourceCode } from "@dto/project"
 import uiUxDesigner from "./ui-ux-designer"
-import { Document } from "@langchain/core/documents"
 
 // Define Root Annotation with Reducer
 export const RootAnnotation = Annotation.Root({
@@ -14,7 +13,7 @@ export const RootAnnotation = Annotation.Root({
 	sourceCode: Annotation<SourceCode>({
 		reducer: (a, b) => b,
 	}),
-	context: Annotation<Document[]>,
+	projectId: Annotation<string>,
 })
 
 class Team {
@@ -37,6 +36,7 @@ class Team {
 			userRequest: changeRequest.message,
 			ticket: undefined,
 			sourceCode: changeRequest.project.sourceCode,
+			projectId: changeRequest.project.id
 		})
 
 		const newSourceCode: SourceCode = {

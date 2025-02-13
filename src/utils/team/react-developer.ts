@@ -6,6 +6,7 @@ import { SourceCode } from "@dto/project"
 import { StructuredOutputParser } from "@langchain/core/output_parsers"
 import ProjectDtoSchema from "@schemas/project.schema"
 import { RootAnnotation } from "./team"
+import { buildSourceCode } from "@use-cases/implement-request/webpack-compiler"
 
 const DeveloperOutputAnnotation = Annotation.Root({
 	sourceCode: Annotation<SourceCode>(),
@@ -14,17 +15,18 @@ const DeveloperOutputAnnotation = Annotation.Root({
 const reactDeveloperNode = async (
 	_state: typeof RootAnnotation.State
 ): Promise<typeof DeveloperOutputAnnotation.State> => {
-	const { sourceCode, ticket } = _state
+	const { sourceCode, ticket, projectId } = _state
 
 	const parser = StructuredOutputParser.fromZodSchema(ProjectDtoSchema)
 
     console.log(`\n\n\nDeveloper:\n\nRecieved Ticket:\n\n${ticket}`)
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`You are an expert React developer specializing in TanStack, Tailwind CSS, and Framer Motion. 
+		PromptTemplate.fromTemplate(`You are an expert React developer specializing in Tailwind CSS, and Framer Motion. 
 
-			Your job is to modify project source code based on the tickets you received. 
+			Your job is to modify project source code based on the ticket you received. 
 		
+			Project id: {projectId}
 			Here are the tickets that you need to solve: {ticket} 
             
 			Current Source Code: {sourceCode}
@@ -33,9 +35,7 @@ const reactDeveloperNode = async (
 
             Example of valid response:
 			{{
-				  "sourceCode": {{
-					"/App.tsx": "export default function App() {{ return <div>Hello World</div>; }}"
-				  }}
+				"src/App.tsx": 'export default function App() {{ return <div>Hello World</div>; }}'
 			}}
 
 			Format Instructions: {outputSchema}
@@ -43,8 +43,6 @@ const reactDeveloperNode = async (
 			Important: Output must also contain the files that you didn't edit along with the files you have edited and created. 
 			Important: You need to return working files of the React project.
             Important: You are not allowed to use external dependencies! For example if the user requested drag-and-drop, do not import any external dependency, but implement requested functionality from scratch.
-			Important: Do not generate, nor use tailwind.config.js, because it's not supported by the environment. Instead, directly type values to the tailwind commands (e.g text-[#ff5733]).
-            Important: You don't need to import tailwindcss because it's already imported. Also refine /App.tsx with example of using newly created component.
 			`),
 		new ChatOpenAI({
 			modelName: "gpt-4o",
@@ -56,6 +54,7 @@ const reactDeveloperNode = async (
 
 	const changes = await chain.invoke({
 		ticket: ticket,
+		projectId: projectId,
 		outputSchema: parser.getFormatInstructions(),
 		sourceCode: sourceCode,
 	})

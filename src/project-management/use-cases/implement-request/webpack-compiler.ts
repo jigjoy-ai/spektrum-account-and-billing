@@ -31,7 +31,7 @@ export const buildSourceCode = async (sourceCode: any) => {
 			return
 		}
 		console.log(stats?.toString({ colors: true }))
-		console.log("Output:", ufs.readdirSync(prefix+"dist"))
+		console.log("Output:", ufs.readdirSync(prefix + "dist"))
 	})
 
 	// Close the compiler after the process

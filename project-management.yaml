@@ -20,7 +20,7 @@ Resources:
       Runtime: nodejs20.x
       Architectures:
         - x86_64
-      MemorySize: 128
+      MemorySize: 1024
       Timeout: 100
       Description: Implement functionality with AI
       Environment:
