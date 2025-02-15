@@ -25,10 +25,10 @@ class Team {
 		})
 			.addNode("ProductOwner", productOwnerNode)
 			.addNode("ReactDeveloper", reactDeveloperNode)
-			.addNode("UiUxDesigner", uiUxDesigner)
+			//.addNode("UiUxDesigner", uiUxDesigner)
 			.addEdge(START, "ProductOwner")
-			.addEdge("ProductOwner", "UiUxDesigner")
-			.addEdge("UiUxDesigner", "ReactDeveloper")
+			//.addEdge("ProductOwner", "UiUxDesigner")
+			.addEdge("ProductOwner", "ReactDeveloper")
 			.addEdge("ReactDeveloper", END)
 			.compile()
 

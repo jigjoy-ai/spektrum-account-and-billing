@@ -1,14 +1,15 @@
 const path = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const TerserPlugin = require("terser-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
 	context: path.resolve("../../opt/nodejs"),
 	entry: {
-		index: "./src/index.tsx", // Ensure this is correct based on your new folder structure
+		index: path.resolve(__dirname, "src/index.tsx"),
 	},
 	mode: "production",
-	target: "web",
 	module: {
 		rules: [
 			{
@@ -20,11 +21,11 @@ module.exports = {
 					},
 				},
 				exclude: /node_modules/,
-			},
+			},        
 			{
 				test: /\.css$/,
 				use: ["style-loader", "css-loader", "postcss-loader"],
-			},
+			  },
 		],
 	},
 	plugins: [
@@ -42,8 +43,20 @@ module.exports = {
 		}),
 	],
 	resolve: {
-		extensions: [".tsx", ".ts", ".js"],
-		modules: [path.resolve("../../opt/nodejs/node_modules"), "node_modules"],
+		extensions: [".js", ".jsx", ".ts", ".tsx", ".css"],
+	},
+	optimization: {
+		minimize: true,
+		minimizer: [
+			new TerserPlugin({
+				extractComments: false,
+				terserOptions: {
+					format: {
+						comments: false,
+					},
+				},
+			}),
+		],
 	},
 	output: {
 		path: path.join(__dirname, "dist"),

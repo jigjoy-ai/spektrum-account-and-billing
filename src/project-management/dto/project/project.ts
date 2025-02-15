@@ -5,7 +5,7 @@ export type ChangeRequestDto = {
 }
 
 export type ProjectDto = {
-    id?: string,
+    id: string,
 	sourceCode: SourceCode
 }
 

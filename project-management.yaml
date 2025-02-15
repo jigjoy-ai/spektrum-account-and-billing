@@ -26,6 +26,7 @@ Resources:
       Environment:
         Variables:
           OPENAI_API_KEY: "{{resolve:secretsmanager:vars:SecretString:OpenaiApiKey}}"
+          DEPLOY_BUCKET: "{{resolve:secretsmanager:vars:SecretString:DeployBucket}}"
       Events:
         Api:
           Type: Api

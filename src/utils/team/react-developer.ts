@@ -43,6 +43,7 @@ const reactDeveloperNode = async (
 			Important: Output must also contain the files that you didn't edit along with the files you have edited and created. 
 			Important: You need to return working files of the React project.
             Important: You are not allowed to use external dependencies! For example if the user requested drag-and-drop, do not import any external dependency, but implement requested functionality from scratch.
+			Important: tailwind v4, which we are using, needs to contain @import "tailwindcss"; on the begining of the src/index.css - don't modify or remove this line!
 			`),
 		new ChatOpenAI({
 			modelName: "gpt-4o",
