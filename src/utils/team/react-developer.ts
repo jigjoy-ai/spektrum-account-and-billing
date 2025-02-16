@@ -6,7 +6,6 @@ import { SourceCode } from "@dto/project"
 import { StructuredOutputParser } from "@langchain/core/output_parsers"
 import ProjectDtoSchema from "@schemas/project.schema"
 import { RootAnnotation } from "./team"
-import { buildSourceCode } from "@use-cases/implement-request/webpack-compiler"
 
 const DeveloperOutputAnnotation = Annotation.Root({
 	sourceCode: Annotation<SourceCode>(),
