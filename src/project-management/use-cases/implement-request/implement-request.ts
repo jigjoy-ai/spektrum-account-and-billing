@@ -1,9 +1,17 @@
 import { ChangeRequestDto } from "@dto/project"
+import { buildProject } from "@utils/build"
 import Team from "@utils/team/team"
 
 export async function implementRequesttUseCase(changeRequest: ChangeRequestDto): Promise<any> {
 	try {
-		return await Team.implement(changeRequest)
+		const newSourceCode = await Team.implement(changeRequest)
+
+		console.log(`source code: ${newSourceCode}`)
+		buildProject({
+			id: changeRequest.project.id,
+			sourceCode: newSourceCode,
+		})
+		return newSourceCode
 	} catch (error) {
 		console.error("Error:", error)
 	}

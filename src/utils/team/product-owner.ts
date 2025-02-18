@@ -1,7 +1,6 @@
 import { ChatOpenAI } from "@langchain/openai"
-import { ChatPromptTemplate, PromptTemplate } from "@langchain/core/prompts"
+import { PromptTemplate } from "@langchain/core/prompts"
 import { RunnableSequence } from "@langchain/core/runnables"
-import { pull } from "langchain/hub"
 import { RootAnnotation } from "./team"
 
 // Product Owner Node

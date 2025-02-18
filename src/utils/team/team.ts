@@ -1,7 +1,7 @@
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph"
 import productOwnerNode from "./product-owner"
 import { reactDeveloperNode } from "./react-developer"
-import { ChangeRequestDto, SourceCode } from "@dto/project"
+import { ChangeRequestDto, ProjectDto, SourceCode } from "@dto/project"
 import uiUxDesigner from "./ui-ux-designer"
 
 // Define Root Annotation with Reducer
@@ -17,6 +17,7 @@ export const RootAnnotation = Annotation.Root({
 })
 
 class Team {
+
 	static async implement(changeRequest: ChangeRequestDto) {
 
 		const graph = new StateGraph({
@@ -25,10 +26,10 @@ class Team {
 		})
 			.addNode("ProductOwner", productOwnerNode)
 			.addNode("ReactDeveloper", reactDeveloperNode)
-			//.addNode("UiUxDesigner", uiUxDesigner)
+			.addNode("UiUxDesigner", uiUxDesigner)
 			.addEdge(START, "ProductOwner")
-			//.addEdge("ProductOwner", "UiUxDesigner")
-			.addEdge("ProductOwner", "ReactDeveloper")
+			.addEdge("ProductOwner", "UiUxDesigner")
+			.addEdge("UiUxDesigner", "ReactDeveloper")
 			.addEdge("ReactDeveloper", END)
 			.compile()
 

@@ -4,7 +4,7 @@ import { errorHandler } from "@packages/apigw-error-handler"
 import { schema } from "@schemas/implement-request.schema"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
-import { ChangeRequestDto, SourceCode } from "@dto/project"
+import { ChangeRequestDto, ProjectDto, SourceCode } from "@dto/project"
 import { implementRequesttUseCase } from "@use-cases/implement-request/implement-request"
 
 export async function implementRequestHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
