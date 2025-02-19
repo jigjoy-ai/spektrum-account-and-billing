@@ -7,7 +7,7 @@ export async function implementRequesttUseCase(changeRequest: ChangeRequestDto):
 		const newSourceCode = await Team.implement(changeRequest)
 
 		console.log(`source code: ${newSourceCode}`)
-		buildProject({
+		await buildProject({
 			id: changeRequest.project.id,
 			sourceCode: newSourceCode,
 		})

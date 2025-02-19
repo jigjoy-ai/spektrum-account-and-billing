@@ -4,24 +4,19 @@ import { RunnableSequence } from "@langchain/core/runnables"
 import { RootAnnotation } from "./team"
 
 // Product Owner Node
-const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<typeof RootAnnotation.State> => {
+const productOwner = async (_state: typeof RootAnnotation.State): Promise<typeof RootAnnotation.State> => {
 	const { userRequest } = _state
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`You are an Product Manager. 
+		PromptTemplate.fromTemplate(`Transform user request into ticket for developers.
 
-			Your job is to transform user request into user stories.
-
-			Create a minimal number of user stories with short desription.
-
-			Pick most important user story and pass to the team. Other user stories put in the backlog and say to everyone to do not work on user stories in the backlog.
+			Create a concise and minimal description.
 
 			User Request: {userRequest}
 			`),
 		new ChatOpenAI({
-			modelName: "gpt-4o",
+			modelName: "o1-mini",
 			openAIApiKey: process.env.OPENAI_API_KEY,
-			temperature: 0, // Deterministic output to avoid random responses
 		}),
 	])
 
@@ -37,4 +32,4 @@ const productOwnerNode = async (_state: typeof RootAnnotation.State): Promise<ty
 	}
 }
 
-export default productOwnerNode
+export { productOwner } 

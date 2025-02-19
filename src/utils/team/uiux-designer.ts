@@ -10,19 +10,15 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(` 
 
-            You are an modern UI/UX expert.
-            
+            You are an UI/UX expert.
 
-			You job is to:
-			1) design interface including layouts, components, styles, and interactions for most important user story.  
-			2) You decide what should be visible on interface, component position and styling. Don't let devleopers to make design descisions like picking colors, etc...
+			You job is to create a UX flow for given ticket. Keep instructions minimal and as clear as possible. Do not suggest UX flows that are unrelated to the ticket description. Only cover the main flow in the ticket. 
 
-			Context: {ticket}
+			Ticket: {ticket}
 			`),
 		new ChatOpenAI({
-			modelName: "gpt-4o",
-			openAIApiKey: process.env.OPENAI_API_KEY,
-			temperature: 0, // Deterministic output to avoid random responses
+			modelName: "o1-mini",
+			openAIApiKey: process.env.OPENAI_API_KEY
 		}),
 	])
 
@@ -40,4 +36,4 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	}
 }
 
-export default uiUxDesigner
+export { uiUxDesigner } 

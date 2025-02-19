@@ -11,7 +11,7 @@ const DeveloperOutputAnnotation = Annotation.Root({
 	sourceCode: Annotation<SourceCode>(),
 })
 
-const reactDeveloperNode = async (
+const reactDeveloper = async (
 	_state: typeof RootAnnotation.State
 ): Promise<typeof DeveloperOutputAnnotation.State> => {
 	const { sourceCode, ticket, projectId } = _state
@@ -21,10 +21,11 @@ const reactDeveloperNode = async (
     console.log(`\n\n\nDeveloper:\n\nRecieved Ticket:\n\n${ticket}`)
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`You are an expert React developer specializing in Tailwind CSS, and Framer Motion. 
+		PromptTemplate.fromTemplate(`You are an expert React Developer.
 
 			Your job is to modify project source code based on the ticket you received. 
-		
+			Use Tailwindcss to style UI elements and Framer motion to create a animation rich interactions.
+
 			Project id: {projectId}
 			Here are the tickets that you need to solve: {ticket} 
             
@@ -41,13 +42,12 @@ const reactDeveloperNode = async (
 
 			Important: Output must also contain the files that you didn't edit along with the files you have edited and created. 
 			Important: You need to return working files of the React project.
-            Important: You are not allowed to use external dependencies! For example if the user requested drag-and-drop, do not import any external dependency, but implement requested functionality from scratch.
-			Important: tailwind v4, which we are using, needs to contain @import "tailwindcss"; on the begining of the src/index.css - don't modify or remove this line!
+            Important: You are not allowed to use external dependencies! You are not allowed to generate package.json nor to use external libraries. For example if the user requested drag-and-drop, do not import any external dependency, but implement requested functionality from scratch.
+
 			`),
 		new ChatOpenAI({
-			modelName: "gpt-4o",
-			openAIApiKey: process.env.OPENAI_API_KEY,
-			temperature: 0, // Deterministic output to avoid random responses
+			modelName: "o1-mini",
+			openAIApiKey: process.env.OPENAI_API_KEY
 		}),
 		parser,
 	])
@@ -64,4 +64,4 @@ const reactDeveloperNode = async (
 	return changes
 }
 
-export { reactDeveloperNode, DeveloperOutputAnnotation }
+export { reactDeveloper, DeveloperOutputAnnotation }
