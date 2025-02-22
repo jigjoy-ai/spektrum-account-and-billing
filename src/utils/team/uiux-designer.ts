@@ -12,17 +12,25 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 
 			You are an expert UI/UX designer specializing in human-computer interaction, following Shneiderman’s Eight Golden Rules. 
 
-			Your task is to provide **precise, step-by-step guidelines** for implementing a **single feature** in a digital product. 
+			Your task is to provide **precise, step-by-step guidelines** for implementing a specific feature in a digital product using principles inspired by **Shneiderman’s Eight Golden Rules**, but **without explicitly mentioning them**. 
 
 			### **Rules for Your Response:**  
 			1. **Do not go beyond the requested feature.** Stay hyper-focused.  
-			2. **Use Shneiderman’s Eight Golden Rules** to structure your response.  
-			3. **Each rule should be applied only if relevant** to the specific feature.  
-			4. **Give clear, actionable implementation steps.** Avoid general theory.  
-			5. **Use technical language when needed** but keep the response practical.  
+			2. **Extract only the most relevant UX rules** for the feature—avoid unnecessary ones.  
+			3. **Provide a step-by-step implementation guide** that directly translates into UI/UX design decisions.  
+			4. **Do not mention Shneiderman’s rules explicitly.**  
+			5. **Ensure your steps are minimal yet comprehensive for practical execution.**  
 
 			### **Feature Request:**  
 			{ticket}
+
+			### **Expected Output Format:**  
+			- **Concrete Steps to Implement "{{feature_name}}"**  
+			- Step-by-step guidelines that focus only on what is necessary for the feature.  
+			- Avoid general UX theory—keep it practical and actionable.  
+
+			### **Example Input:**  
+			Feature Request: Implement an "Edit Note" feature in a note-taking app.
 
 			### **Output Format:**  
 			- **1. Strive for Consistency** → [Guidelines specific to the feature]  
@@ -38,37 +46,26 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 			Feature Request: Implement an "Edit Note" feature in a note-taking app. 
 
 			Expected Output:
-			### **1. Strive for Consistency**  
-			- Use the same UI structure as the "Add Note" feature.  
-			- Keep the "Edit" button in a **predictable location** (e.g., next to each note).  
+			### **Concrete Steps to Implement "Edit Note"**  
 
-			### **2. Enable Frequent Users to Use Shortcuts**  
-			- Allow users to open the editor with **double-click** or \`Ctrl + E\`.  
+			1) **Provide a Clearly Visible Edit Button**  
+			- Place the "Edit" button next to each note.  
+			- Ensure it's large enough to tap on mobile.  
 
-			### **3. Offer Informative Feedback**  
-			- Show an **autosave indicator** (e.g., “Saving…” → “Saved ✅”).  
-			- Highlight unsaved changes with a **visual cue (e.g., yellow border)**.  
+			2) **Open a Full-Screen Editor with Immediate Focus**  
+			- When clicking "Edit," transition to a **full-screen** editor.  
+			- Autofocus on the text area so users can start typing immediately.  
 
-			### **4. Design Dialogs to Yield Closure**  
-			- When exiting with unsaved changes, **prompt the user**:  
-			_“You have unsaved changes. Do you want to save before closing?”_  
+			3) **Ensure Smooth Saving & Feedback**  
+			- Autosave changes every few seconds.  
+			- Show a small **"Saved ✅"** indicator after each save.  
 
-			### **5. Prevent Errors**  
-			- Disable the **"Save"** button if no changes are made.  
-			- Provide **undo functionality** for text modifications.  
+			4) **Warn Before Exiting with Unsaved Changes**  
+			- If the user tries to close without saving, show a **confirmation popup**:  
+			_“You have unsaved changes. Save before exiting?”_  
 
-			### **6. Permit Easy Reversal of Actions**  
-			- Include a **"Revert to last saved version"** option.  
-
-			### **7. Support Internal Locus of Control**  
-			- Let users customize font size, colors, and formatting options.  
-
-			### **8. Reduce Short-Term Memory Load**  
-			- Show a **"Last edited on [timestamp]"** label.  
-			- Maintain **cursor position** after reopening an edited note.  
-
-
-			Ensure your response is **concise, structured, and directly actionable** without unrelated details.  
+			5) **Allow Undo for Recent Edits**  
+			- Provide an **"Undo Changes"** button that reverts to the last saved version.
 
 			`),
 		new ChatOpenAI({
