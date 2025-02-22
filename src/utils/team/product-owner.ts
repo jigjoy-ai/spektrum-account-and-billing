@@ -8,10 +8,10 @@ const productOwner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	const { userRequest } = _state
 
 	const chain = RunnableSequence.from([
-		PromptTemplate.fromTemplate(`Transform user request into ticket for developers.
+		PromptTemplate.fromTemplate(`You are an product owner exper. Your task is to transform user request into ticket for developers.
 
 			Create a concise and minimal description. If the request is too broad try to minimize the request.
-			For example if the user demand note taking app, try to figure what is the essence for this request.
+			For example if the user demand note taking app, try to figure out what is the essence for this request.
 
 			Good output in this case would be:
 			Implement features: 
