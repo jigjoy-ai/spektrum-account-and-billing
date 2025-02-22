@@ -26,10 +26,8 @@ class Team {
 		})
 			.addNode("ProductOwner", productOwner)
 			.addNode("ReactDeveloper", reactDeveloper)
-			.addNode("UiUxDesigner", uiUxDesigner)
 			.addEdge(START, "ProductOwner")
-			.addEdge("ProductOwner", "UiUxDesigner")
-			.addEdge("UiUxDesigner", "ReactDeveloper")
+			.addEdge("ProductOwner", "ReactDeveloper")
 			.addEdge("ReactDeveloper", END)
 			.compile()
 
@@ -41,7 +39,6 @@ class Team {
 		})
 
 		const newSourceCode: SourceCode = {
-			...changeRequest.project.sourceCode,
 			...changes.sourceCode,
 		}
 

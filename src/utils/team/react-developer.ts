@@ -11,14 +11,12 @@ const DeveloperOutputAnnotation = Annotation.Root({
 	sourceCode: Annotation<SourceCode>(),
 })
 
-const reactDeveloper = async (
-	_state: typeof RootAnnotation.State
-): Promise<typeof DeveloperOutputAnnotation.State> => {
+const reactDeveloper = async (_state: typeof RootAnnotation.State): Promise<typeof DeveloperOutputAnnotation.State> => {
 	const { sourceCode, ticket, projectId } = _state
 
 	const parser = StructuredOutputParser.fromZodSchema(ProjectDtoSchema)
 
-    console.log(`\n\n\nDeveloper:\n\nRecieved Ticket:\n\n${ticket}`)
+	console.log(`\n\n\nDeveloper:\n\nRecieved Ticket:\n\n${ticket}`)
 
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(`You are an expert React Developer.
@@ -40,14 +38,25 @@ const reactDeveloper = async (
 
 			Format Instructions: {outputSchema}
 
-			Important: Output must also contain the files that you didn't edit along with the files you have edited and created. 
-			Important: You need to return working files of the React project.
-            Important: You are not allowed to use external dependencies! You are not allowed to generate package.json nor to use external libraries. For example if the user requested drag-and-drop, do not import any external dependency, but implement requested functionality from scratch.
+			Important: You should use tailwind v4. Tailwind v4 doesn't use tailwind.config.js. Tailwind v4 using directives which should be written inside index.css. 
+			To use Tailwind v4 index.css should contain @import "tailwindcss"; on the beginning of the index.css! 
+			Contrary to tailwind v3 that requires
+				@tailwind base;
+				@tailwind components;
+				@tailwind utilities;
+			
+			to be placed in the index.css. We don't need this three line anymore nor  tailwind.config.js. We are using rspack and valid postcss.config.mjs for tailwind v4 is follwing:
+			
+			export default {{
+  				plugins: {{
+    				"@tailwindcss/postcss": {{}},
+				}},
+			}};
 
 			`),
 		new ChatOpenAI({
 			modelName: "o1-mini",
-			openAIApiKey: process.env.OPENAI_API_KEY
+			openAIApiKey: process.env.OPENAI_API_KEY,
 		}),
 		parser,
 	])
@@ -59,7 +68,7 @@ const reactDeveloper = async (
 		sourceCode: sourceCode,
 	})
 
-    console.log(`\n\n\Changes:\n\n${JSON.stringify(changes)}`)
+	console.log(`\n\n\Changes:\n\n${JSON.stringify(changes)}`)
 
 	return changes
 }
