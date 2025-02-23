@@ -10,18 +10,18 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	const chain = RunnableSequence.from([
 		PromptTemplate.fromTemplate(` 
 
-			You are an expert UI/UX designer specializing in human-computer interaction, following Shneiderman’s Eight Golden Rules. 
+			You are an expert UI/UX designer specializing in human-computer interaction, following Shneiderman’s Eight Golden Rules. But actually you should focus on 6 from 8 rules.
 
-			Your task is to provide **precise, step-by-step guidelines** for implementing a specific feature in a digital product using principles inspired by **Shneiderman’s Eight Golden Rules**, but **without explicitly mentioning them**. 
+			Your task is to provide **precise, step-by-step guidelines** for implementing a specific feature in a digital product using principles inspired by **Shneiderman’s Eight Golden Rules**. 
 
 			### **Rules for Your Response:**  
 			1. **Do not go beyond the requested feature.** Stay hyper-focused.  
-			2. **Extract only the most relevant UX rules** for the feature—avoid unnecessary ones.  
-			3. **Provide a step-by-step implementation guide** that directly translates into UI/UX design decisions.  
-			4. **Do not mention Shneiderman’s rules explicitly.**  
-			5. **Ensure your steps are minimal yet comprehensive for practical execution.**  
+			2. **Use Shneiderman’s Eight Golden Rules** to structure your response. But exclude this two rules from response: Support Internal Locus of Control and Enable Frequent Users to Use Shortcuts!
+			3. **Give clear, actionable implementation steps.** Avoid general theory or adding additional features.  
+			4. **Ensure your steps are minimal yet comprehensive for practical execution.**  
+			5. **For each feature you should provide separate rules.**  
 
-			### **Feature Request:**  
+			### **Requested Features:**  
 			{ticket}
 
 			### **Expected Output Format:**  
@@ -33,39 +33,28 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 			Feature Request: Implement an "Edit Note" feature in a note-taking app.
 
 			### **Output Format:**  
-			- **1. Strive for Consistency** → [Guidelines specific to the feature]  
-			- **2. Enable Frequent Users to Use Shortcuts** → [Only if relevant]  
-			- **3. Offer Informative Feedback** → [Step-by-step feedback mechanisms]  
-			- **4. Design Dialogs to Yield Closure** → [How the feature confirms completion]  
-			- **5. Prevent Errors** → [Error prevention mechanisms]  
-			- **6. Permit Easy Reversal of Actions** → [Undo/restore strategies]  
-			- **7. Support Internal Locus of Control** → [Customization options]  
-			- **8. Reduce Short-Term Memory Load** → [Minimize cognitive effort]  
+			### **1. Strive for Consistency**  
+			- Use the same UI structure as the "Add Note" feature.  
+			- Keep the "Edit" button in a **predictable location** (e.g., next to each note).  
 
-			### **Example Response (For "Add Note" Feature):**  
-			Feature Request: Implement an "Edit Note" feature in a note-taking app. 
+			### **2. Offer Informative Feedback**  
+			- Show an **autosave indicator** (e.g., “Saving…” → “Saved ✅”).  
+			- Highlight unsaved changes with a **visual cue (e.g., yellow border)**.  
 
-			Expected Output:
-			### **Concrete Steps to Implement "Edit Note"**  
+			### **3. Design Dialogs to Yield Closure**  
+			- When exiting with unsaved changes, **prompt the user**:  
+			_“You have unsaved changes. Do you want to save before closing?”_  
 
-			1) **Provide a Clearly Visible Edit Button**  
-			- Place the "Edit" button next to each note.  
-			- Ensure it's large enough to tap on mobile.  
+			### **4. Prevent Errors**  
+			- Disable the **"Save"** button if no changes are made.  
+			- Provide **undo functionality** for text modifications.  
 
-			2) **Open a Full-Screen Editor with Immediate Focus**  
-			- When clicking "Edit," transition to a **full-screen** editor.  
-			- Autofocus on the text area so users can start typing immediately.  
+			### **5. Permit Easy Reversal of Actions**  
+			- Include a **"Revert to last saved version"** option.  
 
-			3) **Ensure Smooth Saving & Feedback**  
-			- Autosave changes every few seconds.  
-			- Show a small **"Saved ✅"** indicator after each save.  
-
-			4) **Warn Before Exiting with Unsaved Changes**  
-			- If the user tries to close without saving, show a **confirmation popup**:  
-			_“You have unsaved changes. Save before exiting?”_  
-
-			5) **Allow Undo for Recent Edits**  
-			- Provide an **"Undo Changes"** button that reverts to the last saved version.
+			### **6. Reduce Short-Term Memory Load**  
+			- Show a **"Last edited on [timestamp]"** label.  
+			- Maintain **cursor position** after reopening an edited note.  
 
 			`),
 		new ChatOpenAI({
@@ -75,7 +64,7 @@ const uiUxDesigner = async (_state: typeof RootAnnotation.State): Promise<typeof
 	])
 
 	const design = await chain.invoke({
-		ticket,
+		ticket
 	})
 
 	const updatedTicket = `Task Description: ${ticket} \n\nDesign Instructions: ${design.content.toString()}`

@@ -23,6 +23,9 @@ const reactDeveloper = async (_state: typeof RootAnnotation.State): Promise<type
 
 			Your job is to modify project source code based on the ticket you received. 
 			Use Tailwindcss to style UI elements and Framer motion to create a animation rich interactions.
+			You need to figure out does source code already contain functionality, do you need to change existing functionaliy or you need to create new one.
+			You don't need to implement functionality from scratch if the functionality is already implemented.
+			
 
 			Project id: {projectId}
 			Here are the tickets that you need to solve: {ticket} 
@@ -37,21 +40,6 @@ const reactDeveloper = async (_state: typeof RootAnnotation.State): Promise<type
 			}}
 
 			Format Instructions: {outputSchema}
-
-			Important: You should use tailwind v4. Tailwind v4 doesn't use tailwind.config.js. Tailwind v4 using directives which should be written inside index.css. 
-			To use Tailwind v4 index.css should contain @import "tailwindcss"; on the beginning of the index.css! 
-			Contrary to tailwind v3 that requires
-				@tailwind base;
-				@tailwind components;
-				@tailwind utilities;
-			
-			to be placed in the index.css. We don't need this three line anymore nor  tailwind.config.js. We are using rspack and valid postcss.config.mjs for tailwind v4 is follwing:
-			
-			export default {{
-  				plugins: {{
-    				"@tailwindcss/postcss": {{}},
-				}},
-			}};
 
 			`),
 		new ChatOpenAI({
@@ -68,7 +56,7 @@ const reactDeveloper = async (_state: typeof RootAnnotation.State): Promise<type
 		sourceCode: sourceCode,
 	})
 
-	console.log(`\n\n\Changes:\n\n${JSON.stringify(changes)}`)
+	console.log(`\n\n\Changes:\n\n${changes}`)
 
 	return changes
 }

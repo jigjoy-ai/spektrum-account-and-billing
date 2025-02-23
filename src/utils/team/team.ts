@@ -3,6 +3,7 @@ import { productOwner } from "./product-owner"
 import { reactDeveloper } from "./react-developer"
 import { ChangeRequestDto, SourceCode } from "@dto/project"
 import { uiUxDesigner } from "./uiux-designer"
+import { graphicDesigner } from "./graphic-designer"
 
 // Define Root Annotation with Reducer
 export const RootAnnotation = Annotation.Root({
@@ -27,9 +28,11 @@ class Team {
 			.addNode("ProductOwner", productOwner)
 			.addNode("ReactDeveloper", reactDeveloper)
 			.addNode("UiUxDesigner", uiUxDesigner)
+			.addNode("GraphicDesigner", graphicDesigner)
 			.addEdge(START, "ProductOwner")
 			.addEdge("ProductOwner", "UiUxDesigner")
-			.addEdge("UiUxDesigner", "ReactDeveloper")
+			.addEdge("UiUxDesigner", "GraphicDesigner")
+			.addEdge("GraphicDesigner", "ReactDeveloper")
 			.addEdge("ReactDeveloper", END)
 			.compile()
 

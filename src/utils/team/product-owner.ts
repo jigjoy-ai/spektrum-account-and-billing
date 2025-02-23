@@ -14,9 +14,8 @@ const productOwner = async (_state: typeof RootAnnotation.State): Promise<typeof
 			For example if the user demand note taking app, try to figure out what is the essence for this request.
 
 			Good output in this case would be:
-			Implement features: 
-			 1) Enable user to add notes
-			 2) Implement notes overview
+			Feature 1: Enable user to add notes
+			Feature 2: Implement notes overview
 			 
 			Bad otput:
 			Implement features:
