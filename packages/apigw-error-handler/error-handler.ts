@@ -12,9 +12,6 @@ export function errorHandler(error: Error | unknown) {
 			case "ValidationError":
 				response = Responses._400({ errorMessage: error.message })
 				break
-			case "ProjectNotFoundError":
-				response = Responses._404({ errorMessage: error.message })
-				break
 			default:
 				response = Responses._500({ errorMessage: "Something went wrong" })
 				break

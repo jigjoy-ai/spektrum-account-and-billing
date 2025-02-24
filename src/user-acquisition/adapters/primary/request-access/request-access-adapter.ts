@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { ValidationError } from "@errors/validation-error"
+import { ValidationError } from "@packages/errors/validation-error"
 import { errorHandler } from "@packages/apigw-error-handler"
 import { schemaValidator } from "@packages/schema-validator"
 import Responses from "@utils/api-responses"
