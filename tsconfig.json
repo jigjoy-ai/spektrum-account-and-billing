@@ -21,17 +21,6 @@
       "typeRoots": ["./node_modules/@types"],
       "baseUrl": ".",
       "paths": {
-        "@adapters/*": ["./src/project-management/adapters/*"],
-        "@auth/*": ["./src/project-management/auth/*"],
-        "@domain/*": ["./src/project-management/domain/*"],
-        "@dto/*": ["./src/project-management/dto/*"],
-        "@entity/*": ["./src/project-management/entity/*"],
-        "@errors/*": ["./src/project-management/errors/*"],
-        "@repositories/*": ["./src/project-management/repositories/*"],
-        "@schemas/*": ["./src/project-management/schemas/*"],
-        "@models/*": ["./src/project-management/models/*"],
-        "@use-cases/*": ["./src/project-management/use-cases/*"],
-        "@utils/*": ["./src/utils/*"],
         "@packages/*": ["./packages/*"],
       }
     },

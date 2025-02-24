@@ -24,11 +24,6 @@ Resources:
     Properties:
       TemplateURL: "./auth.yaml"
 
-  ProjectManagementStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: "./project-management.yaml"
-
 Outputs:
   UserAcquisitionApiEndpoint:
     Description: "API Gateway endpoint for user acquisition"
