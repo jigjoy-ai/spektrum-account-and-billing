@@ -63,7 +63,7 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 		const tokenRaw = await encrypt(JSON.stringify(payload))
 		const tokenB64 = Buffer.from(tokenRaw).toString("base64")
 		const token = escape(tokenB64)
-		const magicLink = `${BASE_URL}/interactive-content-designer?email=${email}&token=${token}`
+		const magicLink = `${BASE_URL}/projects?email=${email}&token=${token}`
 
 		const updateAttributesCommand = new AdminUpdateUserAttributesCommand({
 			UserPoolId: USER_POOL_ID as string,
@@ -95,7 +95,7 @@ interface IEmail {
 
 class Email implements IEmail {
 	getSubject(): string {
-		return "JigJoy Login Link"
+		return "Honeycomb Login Link"
 	}
 
 	getBody(magicLink: string, timeoutMins: number): string {
