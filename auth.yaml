@@ -235,7 +235,7 @@ Resources:
           KMS_KEY_ID: !Ref EncryptionKey
           USER_POOL_ID: !Ref JigJoyUserPool
           SES_FROM_ADDRESS: team@jigjoy.io
-          BASE_URL: "{{resolve:secretsmanager:vars:SecretString:FrontendUrl}}"
+          FRONTEND_URL: "{{resolve:secretsmanager:vars:SecretString:FrontendUrl}}"
       Policies:
         - Version: "2012-10-17"
           Statement:
