@@ -30,6 +30,28 @@ aws configure --profile Development
 npm install
 ```
 
+3. Create an `env.json` file in the root directory with the following structure:
+```json
+{
+    "VerifyAuthChallengeResponse": {
+        "KMS_KEY_ID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    },
+    "sendMagicLinkFunction": {
+        "KMS_KEY_ID": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        "USER_POOL_ID": "region_xxxxxxxx",
+        "FRONTEND_URL": "http://localhost:3001"
+    }
+}
+```
+
+Configuration values:
+- `VerifyAuthChallengeResponse.KMS_KEY_ID`: Development KMS key ID for encrypting/decrypting challenge responses
+- `sendMagicLinkFunction.KMS_KEY_ID`: Development KMS key ID for encrypting/decrypting magic link data
+- `sendMagicLinkFunction.USER_POOL_ID`: Development Cognito User Pool ID
+- `sendMagicLinkFunction.FRONTEND_URL`: The URL of your frontend application where users will receive magic links
+
+Note: The KMS key and User Pool are already set up in the Development environment. Make sure you're logged in with your Development AWS profile to access these resources. You can verify your current profile with `aws configure list`.
+
 ## Deployment
 
 To deploy the application to your development environment:
