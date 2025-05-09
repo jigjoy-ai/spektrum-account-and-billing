@@ -1,6 +1,5 @@
 export type AccessRequestDto = {
-	id?: string
 	email: string,
-	name: string,
-	message: string
+	role: string,
+	description: string
 }

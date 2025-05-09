@@ -29,6 +29,9 @@ Resources:
    Environment:
     Variables:
       ACCESS_REQUEST_TABLE: !Ref AccessRequestTable
+      SES_FROM_ADDRESS: team@jigjoy.io
+      ADMIN_EMAIL_1: miodrag.todorovic@jigjoy.io
+      ADMIN_EMAIL_2: miodrag.vilotijevic@jigjoy.io
    Events:
     Api:
      Type: Api

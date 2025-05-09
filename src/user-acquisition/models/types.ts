@@ -1,16 +1,16 @@
 export type AccessRequestProps = {
-	id?: string
-	created?: string
-	name: string
+	id: string
+	created: string
+	role: string
 	email: string
-	message: string
+	description: string
 }
 
 export type UnmarshalledAccessRequest = {
 	id: string
 	created: string
-	name: string
+	role: string
 	email: string
-	message: string
+	description: string
 
 }
