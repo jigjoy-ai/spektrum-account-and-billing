@@ -18,7 +18,7 @@ const ses = new SESClient()
 
 const cognito = new CognitoIdentityProviderClient()
 
-const { SES_FROM_ADDRESS, USER_POOL_ID, FRONTEND_URL } = process.env
+const { FROM_ADDRESS, USER_POOL_ID, FRONTEND_URL } = process.env
 const ONE_MIN = 60 * 1000
 const TIMEOUT_MINS = 5
 
@@ -117,7 +117,7 @@ async function sendEmail(emailAddress: string, magicLink: string) {
 				Html: { Data: email.getBody(magicLink, TIMEOUT_MINS) },
 			},
 		},
-		Source: SES_FROM_ADDRESS,
+		Source: FROM_ADDRESS,
 	})
 
 	try {
