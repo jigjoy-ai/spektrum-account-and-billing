@@ -34,10 +34,13 @@ class AdminEmail implements IEmail {
 
 const ses = new SESClient()
 
-const { SES_FROM_ADDRESS, ADMIN_EMAIL_1, ADMIN_EMAIL_2 } = process.env
+
 
 async function sendEmail(emailAddress: string, content: string) {
+	const { FROM_ADDRESS } = process.env
 	const email: IEmail = new ClientEmail()
+
+	console.log(`Sending email to ${emailAddress} from ${FROM_ADDRESS} with content ${content}`)
 
 	const command = new SendEmailCommand({
 		Destination: {
@@ -49,7 +52,7 @@ async function sendEmail(emailAddress: string, content: string) {
 				Html: { Data: content },
 			},
 		},
-		Source: SES_FROM_ADDRESS,
+		Source: FROM_ADDRESS,
 	})
 
 	try {
@@ -64,6 +67,9 @@ async function sendEmail(emailAddress: string, content: string) {
 }
 
 export async function requestAccessUseCase(request: AccessRequestDto): Promise<any> {
+
+	const { ADMIN_EMAIL_1, ADMIN_EMAIL_2 } = process.env
+
 	const requestEntity = AccessRequest.create(request)
 
 	await requestAccessRepository(requestEntity)
@@ -77,5 +83,5 @@ export async function requestAccessUseCase(request: AccessRequestDto): Promise<a
 	const adminEmailResponse1 = sendEmail(ADMIN_EMAIL_1 as string, adminEmail.getBody(requestEntity))
 	const adminEmailResponse2 = sendEmail(ADMIN_EMAIL_2 as string, adminEmail.getBody(requestEntity))
 
-	Promise.all([clientEmailResponse, adminEmailResponse1, adminEmailResponse2])
+	await Promise.all([clientEmailResponse, adminEmailResponse1, adminEmailResponse2])
 }

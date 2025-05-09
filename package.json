@@ -5,7 +5,7 @@
     "private": true,
     "workspaces": [
         "src/auth",
-        "src/project-management"
+        "src/user-acquisition"
     ],
     "dependencies": {
         "@aws-sdk/client-cognito-identity-provider": "^3.635.0",

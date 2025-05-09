@@ -24,14 +24,19 @@ Resources:
    Timeout: 100
    Description: Request Access on jigjoy.io website
    Policies:
+    - Version: "2012-10-17"
+      Statement:
+        - Effect: Allow
+          Action: ses:SendEmail
+          Resource: "*"
     - DynamoDBCrudPolicy:
         TableName: !Ref AccessRequestTable
    Environment:
     Variables:
       ACCESS_REQUEST_TABLE: !Ref AccessRequestTable
-      SES_FROM_ADDRESS: team@jigjoy.io
-      ADMIN_EMAIL_1: miodrag.todorovic@jigjoy.io
-      ADMIN_EMAIL_2: miodrag.vilotijevic@jigjoy.io
+      FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
+      ADMIN_EMAIL_1: "{{resolve:secretsmanager:vars:SecretString:AdminEmail1}}"
+      ADMIN_EMAIL_2: "{{resolve:secretsmanager:vars:SecretString:AdminEmail2}}"
    Events:
     Api:
      Type: Api

@@ -1,7 +1,5 @@
-import { Entity } from "@utils/entity"
 import { AccessRequestDto } from "../dto/access-request/access-request"
 import { AccessRequestProps, UnmarshalledAccessRequest } from "../models/types"
-import { accessRequestSchema } from "../schemas/access-request.schema"
 import { v4 as uuidv4 } from "uuid"
 import { ValidationError } from "@packages/errors/validation-error"
 
