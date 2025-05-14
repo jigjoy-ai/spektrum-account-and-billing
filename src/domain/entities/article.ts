@@ -59,10 +59,26 @@ export class Article {
         )
     }
 
+    public publish(): void {
+        if (this.status === ArticleStatus.PUBLISHED) {
+            throw new Error("Article is already published")
+        }
+        this.status = ArticleStatus.PUBLISHED
+        this.updatedAt = new Date().toISOString()
+    }
+
+    public archive(): void {
+        if (this.status === ArticleStatus.ARCHIVED) {
+            throw new Error("Article is already archived")
+        }
+        this.status = ArticleStatus.ARCHIVED
+        this.updatedAt = new Date().toISOString()
+    }
+
     /** Restore method to rehydrate a article from persisted data */
-	static rehydrate(data: {
-		id: string
-        title: string 
+    static rehydrate(data: {
+        id: string
+        title: string
         imageUrl: string
         description: string
         workflowId: string
@@ -70,8 +86,17 @@ export class Article {
         status: ArticleStatus
         createdAt: string
         updatedAt: string | null
-	}): Article {
-		return new Article(data.id, data.title, data.imageUrl, data.description, data.workflowId, data.keywords, data.status, data.createdAt, data.updatedAt)
-	}
-    
+    }): Article {
+        return new Article(
+            data.id,
+            data.title,
+            data.imageUrl,
+            data.description,
+            data.workflowId,
+            data.keywords,
+            data.status,
+            data.createdAt,
+            data.updatedAt
+        )
+    }
 }

@@ -1,4 +1,3 @@
-
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 import { ArticleRepository } from "@domain/repositories/article-repository"
@@ -50,8 +49,7 @@ export class DynamoDBArticleRepository implements ArticleRepository {
 	}
 
 	async findAll(): Promise<Article[]> {
-
-		const tableName = process.env.PROJECT_TABLE
+		const tableName = process.env.ARTICLE_TABLE
 
 		const params = {
 			KeyConditionExpression: "status = :status",
@@ -70,5 +68,25 @@ export class DynamoDBArticleRepository implements ArticleRepository {
 	
 		return ArticleMapper.toDomains(items)
 	}
-	  
+
+	async findByDraftStatus(): Promise<Article[]> {
+		const tableName = process.env.ARTICLE_TABLE
+
+		const params = {
+			KeyConditionExpression: "status = :status",
+			IndexName: "statusGSI",
+            ExpressionAttributeNames: {
+                "#status": "status"
+            },
+			ExpressionAttributeValues: {
+				":status": ArticleStatus.DRAFT,
+			},
+			TableName: tableName,
+		}
+	
+		const data = await ddbDocClient.send(new QueryCommand(params))
+		const items = data.Items as []
+	
+		return ArticleMapper.toDomains(items)
+	}
 }
