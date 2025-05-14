@@ -52,7 +52,7 @@ export class DynamoDBArticleRepository implements ArticleRepository {
 		const tableName = process.env.ARTICLE_TABLE
 
 		const params = {
-			KeyConditionExpression: "status = :status",
+			KeyConditionExpression: "#status = :status",
 			IndexName: "statusGSI",
             ExpressionAttributeNames: {
                 "#status": "status"
@@ -73,7 +73,7 @@ export class DynamoDBArticleRepository implements ArticleRepository {
 		const tableName = process.env.ARTICLE_TABLE
 
 		const params = {
-			KeyConditionExpression: "status = :status",
+			KeyConditionExpression: "#status = :status",
 			IndexName: "statusGSI",
             ExpressionAttributeNames: {
                 "#status": "status"
