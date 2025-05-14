@@ -1,6 +1,7 @@
 import { Article } from "../entities/article"
 
 export interface ArticleRepository {
-	createArticle(article: Article): Promise<Article>
-	getArticles(): Promise<Article[]>
+	save(article: Article): Promise<Article>
+	findById(id: string): Promise<Article | null>
+	findAll(): Promise<Article[]>
 }

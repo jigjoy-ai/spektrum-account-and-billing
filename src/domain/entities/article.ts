@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from "uuid"
 
+export enum ArticleStatus {
+    DRAFT = "DRAFT",
+    PUBLISHED = "PUBLISHED",
+    ARCHIVED = "ARCHIVED"
+}
+
 export class Article {
     public readonly id: string;
     public title: string;
@@ -7,7 +13,8 @@ export class Article {
     public description: string;
     public workflowId: string;
     public keywords: string[];
-    public readonly createdAt: string;
+    public status: ArticleStatus;
+    public readonly createdAt: string
     updatedAt: string | null
 
     private constructor(
@@ -17,6 +24,7 @@ export class Article {
         description: string,
         workflowId: string,
         keywords: string[],
+        status: ArticleStatus,
         createdAt: string,
         updatedAt: string | null
     ) {
@@ -26,6 +34,7 @@ export class Article {
         this.description = description;
         this.workflowId = workflowId;
         this.keywords = keywords;
+        this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -44,6 +53,7 @@ export class Article {
             description,
             workflowId,
             keywords,
+            ArticleStatus.DRAFT,
             new Date().toISOString(),
             null
         )
@@ -57,10 +67,11 @@ export class Article {
         description: string
         workflowId: string
         keywords: string[]
+        status: ArticleStatus
         createdAt: string
         updatedAt: string | null
 	}): Article {
-		return new Article(data.id, data.title, data.imageUrl, data.description, data.workflowId, data.keywords, data.createdAt, data.updatedAt)
+		return new Article(data.id, data.title, data.imageUrl, data.description, data.workflowId, data.keywords, data.status, data.createdAt, data.updatedAt)
 	}
     
 }
