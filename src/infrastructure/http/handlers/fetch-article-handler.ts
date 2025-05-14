@@ -9,9 +9,12 @@ export async function fetchArticleHandler(event: APIGatewayProxyEvent): Promise<
         const id = event.pathParameters?.id
         if (!id) throw new ValidationError("Article ID is required")
 
-        const article = await fetchArticleUseCase.execute(id)
-        if (!article) throw new ValidationError("Article not found")
-        return Responses._200(article)
+        try {
+            const article = await fetchArticleUseCase.execute(id)
+            return Responses._200(article)
+        } catch (error) {
+            return Responses._404("Article not found")
+        }
     } catch (error) {
         return errorHandler(error)
     }

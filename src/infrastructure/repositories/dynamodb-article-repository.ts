@@ -41,7 +41,7 @@ export class DynamoDBArticleRepository implements ArticleRepository {
 
 		const { Item: item } = await ddbDocClient.send(new GetCommand(params))
 
-		if (!item) throw new Error(`Project not found!`)
+		if (!item) throw new Error(`Article not found!`)
 
 		const articleRecord: ArticleRecord = item as ArticleRecord
 
