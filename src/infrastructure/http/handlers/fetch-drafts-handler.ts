@@ -7,7 +7,7 @@ export async function fetchDraftsHandler(event: APIGatewayProxyEvent): Promise<A
     try {
         const drafts = await fetchDraftsUseCase.execute()
 
-        return Responses._200({ drafts })
+        return Responses._200(drafts)
     } catch (error) {
         return errorHandler(error)
     }

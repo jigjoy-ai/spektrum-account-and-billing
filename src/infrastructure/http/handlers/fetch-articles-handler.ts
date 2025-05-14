@@ -8,7 +8,7 @@ export async function fetchArticlesHandler(event: APIGatewayProxyEvent): Promise
 
         const articles = await fetchArticlesUseCase.execute()
 
-        return Responses._200({ articles })
+        return Responses._200(articles)
     } catch (error) {
         return errorHandler(error)
     }
