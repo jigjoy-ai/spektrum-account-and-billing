@@ -12,13 +12,9 @@ export class ArticleController {
         try {
             if (!body) throw new ValidationError("No request body")
     
-            const article:ArticleDto = JSON.parse(body)
-    
             //schemaValidator(accessRequestSchema, accessRequest)
     
-            console.log(`Access request: ${JSON.stringify(article)}`)
-    
-            await createArticle(article)
+            await createArticleUseCase(JSON.parse(body))
     
             return Responses._201()
         } catch (error) {
