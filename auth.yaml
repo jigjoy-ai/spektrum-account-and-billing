@@ -277,6 +277,6 @@ Outputs:
 
   AuthApiGatewayUrl:
     Description: "API Gateway URL for authentication and authorization"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
     Export:
       Name: AuthApiGatewayUrl  # Logical name for the API Gateway URL
