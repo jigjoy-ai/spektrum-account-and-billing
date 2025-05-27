@@ -13,13 +13,15 @@ parallel = true
 lint = true
 
 [default.deploy.parameters]
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "puzzle-box-serverless"
+s3_prefix = "account-and-billing"
 region = "eu-west-1"
-profile = "Development"
+profile = "Production"
 image_repositories = []
+stack_name = "account-and-billing"
+disable_rollback = true
 
 [default.package.parameters]
 resolve_s3 = true

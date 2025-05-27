@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-  puzzle-box-serverless - auth domain
+  honeycomb - auth domain
 
 Transform:
 - AWS::Serverless-2016-10-31
@@ -37,13 +37,6 @@ Resources:
         PreSignUp: !GetAtt PreSignUp.Arn
         PostAuthentication: !GetAtt PostAuthentication.Arn
         VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
-
-  # Domain For Sending Confirmation Email
-  UserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties:
-      UserPoolId: !Ref JigJoyUserPool
-      Domain: "{{resolve:secretsmanager:vars:SecretString:UserPoolDomain}}"
 
   # Web Client
   WebClient:
