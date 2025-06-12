@@ -63,7 +63,7 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 		const tokenRaw = await encrypt(JSON.stringify(payload))
 		const tokenB64 = Buffer.from(tokenRaw).toString("base64")
 		const token = escape(tokenB64)
-		const magicLink = `https://${FRONTEND_URL}/workspace?email=${email}&token=${token}`
+		const magicLink = `${FRONTEND_URL}/workspace?email=${email}&token=${token}`
 
 		const updateAttributesCommand = new AdminUpdateUserAttributesCommand({
 			UserPoolId: USER_POOL_ID as string,
