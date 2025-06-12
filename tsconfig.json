@@ -22,10 +22,7 @@
       "baseUrl": ".",
       "paths": {
         "@packages/*": ["./packages/*"],
-        "@utils/*": ["./src/utils/*"],
-        "@application/*": ["./src/application/*"],
-        "@infrastructure/*": ["./src/infrastructure/*"],
-        "@domain/*": ["./src/domain/*"],
+        "@utils/*": ["./src/utils/*"]
       }
     },
     "exclude": ["node_modules", "**/*.test.ts"]

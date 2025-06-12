@@ -4,8 +4,7 @@
     "version": "0.0.1",
     "private": true,
     "workspaces": [
-        "src/auth",
-        "src/user-acquisition"
+        "src/auth"
     ],
     "dependencies": {
         "@aws-sdk/client-cognito-identity-provider": "^3.635.0",
