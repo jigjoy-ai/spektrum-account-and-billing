@@ -13,19 +13,11 @@ export async function verifyAuthChallengeResponseHandler(event: any) {
 	}
 
 	// 2. Decrypt the expected challenge token
-	let payload
-	try {
-		const answerDecoded = decodeURIComponent(answer)
-		const decrypted = await decrypt(Buffer.from(answerDecoded, "base64").toString())
-		payload = JSON.parse(decrypted)
-	} catch (e) {
-		console.error("Decryption failed:", e)
-		event.response.answerCorrect = false
-		return event
-	}
+	const json = await decrypt(answer)
+	const payload = JSON.parse(json)
 
 	// 3. Validate expiration and email
-	const isExpired = new Date() > new Date(payload.expiration)
+	const isExpired = new Date().toJSON() > payload.expiration
 	if (payload.email === email && !isExpired) {
 		event.response.answerCorrect = true
 	} else {

@@ -93,7 +93,7 @@ interface IEmail {
 
 class Email implements IEmail {
 	getSubject(): string {
-		return "Honeycomb Login Link"
+		return "JigJoy Login Link"
 	}
 
 	getBody(magicLink: string, timeoutMins: number): string {
