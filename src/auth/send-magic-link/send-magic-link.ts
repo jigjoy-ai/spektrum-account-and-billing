@@ -9,16 +9,14 @@ import {
 	AdminCreateUserCommand,
 	AdminUpdateUserAttributesCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 import { encrypt } from "@utils/encription"
 import { escape } from "querystring"
 import { schema, SignInDto } from "./sign-in.schema"
-
-const ses = new SESClient()
+import * as sgMail from '@sendgrid/mail'
 
 const cognito = new CognitoIdentityProviderClient()
 
-const { FROM_ADDRESS, USER_POOL_ID, FRONTEND_URL } = process.env
+const { FROM_ADDRESS, USER_POOL_ID, FRONTEND_URL, SENDGRID_API_KEY } = process.env
 const ONE_MIN = 60 * 1000
 const TIMEOUT_MINS = 5
 
@@ -107,21 +105,22 @@ class Email implements IEmail {
 async function sendEmail(emailAddress: string, magicLink: string) {
 	const email: IEmail = new Email()
 
-	const command = new SendEmailCommand({
-		Destination: {
-			ToAddresses: [emailAddress],
-		},
-		Message: {
-			Subject: { Data: email.getSubject() },
-			Body: {
-				Html: { Data: email.getBody(magicLink, TIMEOUT_MINS) },
-			},
-		},
-		Source: FROM_ADDRESS,
-	})
+	sgMail.setApiKey(SENDGRID_API_KEY as string)
+	// sgMail.setDataResidency('eu'); 
+	// uncomment the above line if you are sending mail using a regional EU subuser
+
+	const msg = {
+		to: emailAddress, // Change to your recipient
+		from: FROM_ADDRESS as string, // Change to your verified sender
+		subject: email.getSubject(),
+		text: 'and easy to do anywhere, even with Node.js',
+		html: email.getBody(magicLink, TIMEOUT_MINS),
+	}
+
+	
 
 	try {
-		let response = await ses.send(command)
+		let response = await sgMail.send(msg)
 		// process data.
 		return response
 	} catch (error) {
