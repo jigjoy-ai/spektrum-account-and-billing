@@ -1,7 +1,5 @@
-import { ValidationError } from "@packages/errors/validation-error"
-import { errorHandler } from "@packages/apigw-error-handler"
-import { schemaValidator } from "@packages/schema-validator"
-import Responses from "@utils/api-responses"
+
+import Responses from "src/infrastructure/http/api-responses"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import {
 	CognitoIdentityProviderClient,
@@ -9,10 +7,14 @@ import {
 	AdminCreateUserCommand,
 	AdminUpdateUserAttributesCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
-import { encrypt } from "@utils/encription"
 import { escape } from "querystring"
 import { schema, SignInDto } from "./sign-in.schema"
 import * as sgMail from '@sendgrid/mail'
+import { ValidationError } from "@infrastructure/http/error-handler/errors/validation-error"
+import { schemaValidator } from "@infrastructure/http/schema-validator/schema-validator"
+import { encrypt } from "@infrastructure/encription/encription"
+import { errorHandler } from "@infrastructure/http/error-handler/error-handler"
+import EmailTemplate from "@domain/value-objects/email-template"
 
 const cognito = new CognitoIdentityProviderClient()
 
@@ -86,24 +88,8 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 	}
 }
 
-interface IEmail {
-	getSubject(): string
-	getBody(magicLink: string, timeoutMins: number): string
-}
-
-class Email implements IEmail {
-	getSubject(): string {
-		return "JigJoy Login Link"
-	}
-
-	getBody(magicLink: string, timeoutMins: number): string {
-		return `<html><body><p>This is your one-time sign in link (it will expire in ${timeoutMins} mins):</p>
-				<a href="${magicLink}" target="_blank">link</a></body></html>`
-	}
-}
-
 async function sendEmail(emailAddress: string, magicLink: string) {
-	const email: IEmail = new Email()
+	const emailTemplate = new EmailTemplate()
 
 	sgMail.setApiKey(SENDGRID_API_KEY as string)
 	// sgMail.setDataResidency('eu'); 
@@ -112,9 +98,9 @@ async function sendEmail(emailAddress: string, magicLink: string) {
 	const msg = {
 		to: emailAddress, // Change to your recipient
 		from: FROM_ADDRESS as string, // Change to your verified sender
-		subject: email.getSubject(),
+		subject: emailTemplate.getSubject(),
 		text: 'and easy to do anywhere, even with Node.js',
-		html: email.getBody(magicLink, TIMEOUT_MINS),
+		html: emailTemplate.getBody(magicLink, TIMEOUT_MINS),
 	}
 
 	

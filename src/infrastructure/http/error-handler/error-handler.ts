@@ -1,4 +1,4 @@
-import Responses from "@utils/api-responses"
+import Responses from "src/infrastructure/http/api-responses"
 
 // we would typically use middy - but to keep this simple to read
 // without mutliple additional packages lets build outselves

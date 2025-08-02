@@ -1,4 +1,4 @@
-import { decrypt } from "@utils/encription"
+import { decrypt } from "@infrastructure/encription/encription"
 
 export async function verifyAuthChallengeResponseHandler(event: any) {
 	const email = event.request.userAttributes.email

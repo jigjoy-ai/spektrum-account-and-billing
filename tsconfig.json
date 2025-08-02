@@ -21,8 +21,9 @@
       "typeRoots": ["./node_modules/@types"],
       "baseUrl": ".",
       "paths": {
-        "@packages/*": ["./packages/*"],
-        "@utils/*": ["./src/utils/*"]
+        "@domain/*": ["src/domain/*"],
+        "@infrastructure/*": ["src/infrastructure/*"],
+        "@application/*": ["src/application/*"],
       }
     },
     "exclude": ["node_modules", "**/*.test.ts"]
