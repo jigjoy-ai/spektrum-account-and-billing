@@ -10,7 +10,6 @@
         "@aws-sdk/client-cognito-identity-provider": "^3.635.0",
         "@aws-sdk/client-dynamodb": "^3.398.0",
         "@aws-sdk/client-kms": "^3.632.0",
-        "@aws-sdk/client-s3": "^3.744.0",
         "@aws-sdk/lib-dynamodb": "^3.398.0",
         "@sendgrid/mail": "^8.1.5",
         "ajv": "^8.16.0",
@@ -22,6 +21,7 @@
         "@types/lodash": "^4.17.20",
         "@types/node": "^20.14.9",
         "@types/uuid": "^10.0.0",
+        "esbuild": "^0.25.9",
         "ts-node": "^10.9.2",
         "typescript": "^5.5.2"
     },

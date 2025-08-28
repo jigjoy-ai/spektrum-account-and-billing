@@ -2,7 +2,7 @@ node_modules
 
 .aws-sam
 .npmrc
+.yarn
+.yarnrc.yml
 
 env.json
-
-external-dependencies/nodejs/node_modules
