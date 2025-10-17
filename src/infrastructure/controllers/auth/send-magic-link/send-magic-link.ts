@@ -18,7 +18,7 @@ import EmailTemplate from "@domain/value-objects/email-template"
 
 const cognito = new CognitoIdentityProviderClient()
 
-const { FROM_ADDRESS, USER_POOL_ID, FRONTEND_URL, SENDGRID_API_KEY } = process.env
+const { FROM_ADDRESS, USER_POOL_ID, FRONTEND_APP_URL, SENDGRID_API_KEY } = process.env
 const ONE_MIN = 60 * 1000
 const TIMEOUT_MINS = 5
 
@@ -63,7 +63,7 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 		const tokenRaw = await encrypt(JSON.stringify(payload))
 		const tokenB64 = Buffer.from(tokenRaw).toString("base64")
 		const token = escape(tokenB64)
-		const magicLink = `${FRONTEND_URL}/workspace?email=${email}&token=${token}`
+		const magicLink = `${FRONTEND_APP_URL}/workspace?email=${email}&token=${token}`
 
 		const updateAttributesCommand = new AdminUpdateUserAttributesCommand({
 			UserPoolId: USER_POOL_ID as string,

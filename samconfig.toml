@@ -5,5 +5,6 @@ resolve_s3 = true
 s3_prefix = "account-and-billing"
 region = "eu-west-1"
 profile = "Development"
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
 image_repositories = []
+confirm_changeset = true

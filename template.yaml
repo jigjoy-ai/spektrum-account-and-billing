@@ -227,7 +227,7 @@ Resources:
         Variables:
           KMS_KEY_ID: !Ref EncryptionKey
           USER_POOL_ID: !Ref JigJoyUserPool
-          FRONTEND_URL: "{{resolve:secretsmanager:vars:SecretString:FrontendAppUrl}}"
+          FRONTEND_APP_URL: "{{resolve:secretsmanager:vars:SecretString:FrontendAppUrl}}"
           FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
           SENDGRID_API_KEY: "{{resolve:secretsmanager:vars:SecretString:SendgridApiKey}}"
       Policies:
@@ -273,4 +273,4 @@ Outputs:
     Description: "API Gateway URL for authentication and authorization"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
     Export:
-      Name: AuthApiGatewayUrl 
+      Name: AuthApiGatewayUrl
