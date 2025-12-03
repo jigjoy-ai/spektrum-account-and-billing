@@ -1,0 +1,45 @@
+openapi: 3.0.1
+info:
+  title: Auth & Account API
+  version: "1.0.0"
+  description: >
+    Authentication and account microservice.
+    Public HTTP endpoint for sending magic login links.
+
+servers:
+  - url: http://localhost:8000
+    description: Local SAM API (change port if needed)
+
+paths:
+  /send-magic-link/:
+    post:
+      summary: Send magic login link
+      description: >
+        Sends a magic login link to a user's email address.
+        Behind the scenes uses Cognito, KMS and SendGrid/SES.
+      operationId: sendMagicLink
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email to send the magic link to
+              required:
+                - email
+      responses:
+        '202':
+          description: Magic link accepted for delivery
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid input (e.g. bad email)
+        '500':
+          description: Internal server error
