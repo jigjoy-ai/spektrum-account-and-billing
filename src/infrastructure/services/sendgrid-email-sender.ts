@@ -1,26 +1,23 @@
 import { EmailSenderPort } from "@app/ports/services/email-sender"
 import * as sgMail from '@sendgrid/mail'
-import EmailTemplate from "@domain/value-objects/email-template"
-
-const { FROM_ADDRESS, SENDGRID_API_KEY } = process.env
-const TIMEOUT_MINS = 5
+import { Email } from "@domain/email"
 
 export class SendgridEmailSender implements EmailSenderPort {
 
-    async sendEmail(emailAddress: string, magicLink: string): Promise<void> {
-        
-        const emailTemplate = new EmailTemplate()
-    
+    constructor() {
+        const { SENDGRID_API_KEY } = process.env
         sgMail.setApiKey(SENDGRID_API_KEY as string)
         // sgMail.setDataResidency('eu'); 
         // uncomment the above line if you are sending mail using a regional EU subuser
+    }
+
+    async sendEmail(email: Email): Promise<void> {
     
         const msg = {
-            to: emailAddress, // Change to your recipient
-            from: FROM_ADDRESS as string, // Change to your verified sender
-            subject: emailTemplate.getSubject(),
-            text: 'and easy to do anywhere, even with Node.js',
-            html: emailTemplate.getBody(magicLink, TIMEOUT_MINS),
+            to: email.getRecipient(),
+            from: email.getSender(),
+            subject: email.getSubject(),
+            html: email.getBody(),
         }
         
     

@@ -1,3 +1,5 @@
+import { Email } from "@domain/email"
+
 export interface EmailSenderPort {
-	sendEmail(emailAddress: string, magicLink: string): Promise<void>
+	sendEmail(email: Email): Promise<void>
 }
