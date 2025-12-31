@@ -10,10 +10,10 @@ import {
 import { escape } from "querystring"
 import { schema, SignInDto } from "./sign-in.schema"
 import * as sgMail from '@sendgrid/mail'
-import { ValidationError } from "@infrastructure/http/error-handler/errors/validation-error"
-import { schemaValidator } from "@infrastructure/http/schema-validator/schema-validator"
-import { encrypt } from "@infrastructure/encription/encription"
-import { errorHandler } from "@infrastructure/http/error-handler/error-handler"
+import { ValidationError } from "@infra/http/error-handler/errors/validation-error"
+import { schemaValidator } from "@infra/http/schema-validator/schema-validator"
+import { encrypt } from "@infra/encription/encription"
+import { errorHandler } from "@infra/http/error-handler/error-handler"
 import EmailTemplate from "@domain/value-objects/email-template"
 
 const cognito = new CognitoIdentityProviderClient()

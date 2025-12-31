@@ -1,6 +1,6 @@
 import Ajv from "ajv"
 import addFormats from "ajv-formats"
-import { ValidationError } from "@infrastructure/http/error-handler/errors/validation-error"
+import { ValidationError } from "@infra/http/error-handler/errors/validation-error"
 
 export function schemaValidator(schema: Record<string, any>, body: any) {
 	const ajv = new Ajv({
