@@ -1,4 +1,5 @@
 class EmailTemplate {
+	
 	getSubject(): string {
 		return "JigJoy Login Link"
 	}
