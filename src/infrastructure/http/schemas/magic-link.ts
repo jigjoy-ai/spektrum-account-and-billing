@@ -8,7 +8,3 @@ export const schema = {
 		},
 	},
 }
-
-export type SignInDto = {
-	email: string
-}

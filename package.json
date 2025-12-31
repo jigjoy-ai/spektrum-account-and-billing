@@ -11,9 +11,8 @@
         "@aws-sdk/client-dynamodb": "^3.398.0",
         "@aws-sdk/client-kms": "^3.632.0",
         "@aws-sdk/lib-dynamodb": "^3.398.0",
+        "@jigjoy-io/serverless-core": "^0.0.3",
         "@sendgrid/mail": "^8.1.5",
-        "ajv": "^8.16.0",
-        "ajv-formats": "^3.0.1",
         "lodash": "^4.17.21"
     },
     "devDependencies": {

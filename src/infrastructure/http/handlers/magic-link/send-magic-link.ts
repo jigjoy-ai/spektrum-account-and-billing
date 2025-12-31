@@ -1,5 +1,3 @@
-
-import Responses from "src/infrastructure/http/api-responses"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import {
 	CognitoIdentityProviderClient,
@@ -8,13 +6,12 @@ import {
 	AdminUpdateUserAttributesCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { escape } from "querystring"
-import { schema, SignInDto } from "./sign-in.schema"
+import { schema } from "../../schemas/magic-link"
 import * as sgMail from '@sendgrid/mail'
-import { ValidationError } from "@infra/http/error-handler/errors/validation-error"
-import { schemaValidator } from "@infra/http/schema-validator/schema-validator"
 import { encrypt } from "@infra/encription/encription"
-import { errorHandler } from "@infra/http/error-handler/error-handler"
 import EmailTemplate from "@domain/value-objects/email-template"
+import { MagicLinkDTO } from "@app/dto/magic-link"
+import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
 
 const cognito = new CognitoIdentityProviderClient()
 
@@ -25,9 +22,10 @@ const TIMEOUT_MINS = 5
 
 export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 	try {
-		if (!body) throw new ValidationError("No page body")
+		if (!body) 
+			throw new ValidationError("No page body")
 
-		const user: SignInDto = JSON.parse(body)
+		const user: MagicLinkDTO = JSON.parse(body)
 		const email = user.email
 
 		schemaValidator(schema, user)
