@@ -1,7 +1,7 @@
 import { MagicLink } from "@domain/magic-link"
 import { Email } from "@domain/email"
 
-type CreateMagicLinkEmailParams = {
+export type CreateMagicLinkEmailParams = {
 	recipient: string
 	sender: string
 	magicLink: MagicLink
@@ -10,6 +10,7 @@ type CreateMagicLinkEmailParams = {
 export class MagicLinkEmailFactory {
 
 	static create(params: CreateMagicLinkEmailParams): Email {
+
 		const subject = "JigJoy Login Link"
 
 		const body = `

@@ -3,6 +3,8 @@ import { SendgridEmailSender } from "./services/sendgrid-email-sender"
 import { GetMagicLinkPort } from "@app/ports/use-cases/get-magic-link"
 import { CognitoUserPool } from "./repositories/cognito-user-pool"
 import { AccountStorePort } from "@app/ports/repositories/account-store"
+import { MagicLinkService } from "./services/magic-link-service"
+import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
@@ -11,4 +13,5 @@ if(!USER_POOL_ID) {
     throw new Error("USER_POOL_ID is not set")
 }
 const cognitoUserPool: AccountStorePort = new CognitoUserPool(USER_POOL_ID)
-export const getMagicLinkUseCase: GetMagicLinkPort = new GetMagicLinkUseCase(sendgridEmailSender, cognitoUserPool)
+const magicLinkService: MagicLinkServicePort = new MagicLinkService()
+export const getMagicLinkUseCase: GetMagicLinkPort = new GetMagicLinkUseCase(sendgridEmailSender, cognitoUserPool, magicLinkService)
