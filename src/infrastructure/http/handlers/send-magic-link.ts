@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { schema } from "../../schemas/magic-link"
+import { schema } from "../schemas/magic-link"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
 import { getMagicLinkUseCase } from "@infra/dependencies"
 

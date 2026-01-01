@@ -70,7 +70,7 @@ Resources:
   DefineAuthChallenge:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/define-auth-challenge.defineAuthChallengeHandler
+      Handler: src/infrastructure/http/handlers/auth-challenge/define-auth-challenge.defineAuthChallengeHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -83,12 +83,12 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/define-auth-challenge.ts
+          - src/infrastructure/http/handlers/auth-challenge/define-auth-challenge.ts
 
   CreateAuthChallenge:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/create-auth-challenge.createAuthChallengeHandler
+      Handler: src/infrastructure/http/handlers/auth-challenge/create-auth-challenge.createAuthChallengeHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -101,12 +101,12 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/create-auth-challenge.ts
+          - src/infrastructure/http/handlers/auth-challenge/create-auth-challenge.ts
 
   VerifyAuthChallengeResponse:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
+      Handler: src/infrastructure/http/handlers/auth-challenge/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -128,12 +128,12 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/verify-auth-challenge-response.ts
+          - src/infrastructure/http/handlers/auth-challenge/verify-auth-challenge-response.ts
 
   PreSignUp:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/pre-sign-up.preSignUpHandler
+      Handler: src/infrastructure/http/handlers/auth-challenge/pre-sign-up.preSignUpHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -146,12 +146,12 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/pre-sign-up.ts
+          - src/infrastructure/http/handlers/auth-challenge/pre-sign-up.ts
 
   PostAuthentication:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/post-authentication.postAuthenticationHandler
+      Handler: src/infrastructure/http/handlers/auth-challenge/post-authentication.postAuthenticationHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -171,7 +171,7 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/post-authentication.ts
+          - src/infrastructure/http/handlers/auth-challenge/post-authentication.ts
 
   UserPoolCreateAuthChallengeLambdaPermission:
     Type: AWS::Lambda::Permission
@@ -216,7 +216,7 @@ Resources:
   sendMagicLinkFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/magic-link/send-magic-link.sendMagicLinkHandler
+      Handler: src/infrastructure/http/handlers/send-magic-link.sendMagicLinkHandler
       Runtime: nodejs20.x
       Architectures:
         - x86_64
@@ -256,7 +256,7 @@ Resources:
         Target: "es2020"
         Sourcemap: true
         EntryPoints:
-          - src/infrastructure/http/handlers/magic-link/send-magic-link.ts
+          - src/infrastructure/http/handlers/send-magic-link.ts
 
 Outputs:
   CognitoUserPoolId:
