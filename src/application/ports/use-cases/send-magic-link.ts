@@ -1,3 +1,3 @@
-export interface GetMagicLinkPort {
+export interface SendMagicLinkPort {
 	execute(email: string): Promise<void>
 }

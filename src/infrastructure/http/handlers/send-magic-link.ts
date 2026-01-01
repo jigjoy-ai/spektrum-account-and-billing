@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { schema } from "../schemas/magic-link"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
-import { getMagicLinkUseCase } from "@infra/dependencies"
+import { sendMagicLinkUseCase } from "@infra/dependencies"
 
 
 export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -14,7 +14,7 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 
 		const email = parsedBody.email
 
-		await getMagicLinkUseCase.execute(email)
+		await sendMagicLinkUseCase.execute(email)
 		return Responses._202()
 	} catch (error) {
 		return errorHandler(error)

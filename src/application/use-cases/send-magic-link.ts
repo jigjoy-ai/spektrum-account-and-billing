@@ -1,6 +1,6 @@
 import { AccountStorePort } from "@app/ports/repositories/account-store"
 import { EmailSenderPort } from "@app/ports/services/email-sender"
-import { GetMagicLinkPort } from "@app/ports/use-cases/get-magic-link"
+import { SendMagicLinkPort } from "@app/ports/use-cases/send-magic-link"
 import { CreateMagicLinkEmailParams, MagicLinkEmailFactory } from "@domain/magic-link-email-factory"
 import { Account } from "@domain/account"
 import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
@@ -11,7 +11,7 @@ if(!FROM_ADDRESS) {
 	throw new Error("FROM_ADDRESS is not set")
 }
 
-export class GetMagicLinkUseCase implements GetMagicLinkPort {
+export class SendMagicLinkUseCase implements SendMagicLinkPort {
 
 	constructor(private readonly emailSender: EmailSenderPort, 
 		private readonly accountStore: AccountStorePort, 

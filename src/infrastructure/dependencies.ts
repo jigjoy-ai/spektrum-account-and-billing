@@ -1,6 +1,6 @@
-import { GetMagicLinkUseCase } from "@app/use-cases/get-magic-link"
+import { SendMagicLinkUseCase } from "@app/use-cases/send-magic-link"
 import { SendgridEmailSender } from "./services/sendgrid-email-sender"
-import { GetMagicLinkPort } from "@app/ports/use-cases/get-magic-link"
+import { SendMagicLinkPort } from "@app/ports/use-cases/send-magic-link"
 import { CognitoUserPool } from "./repositories/cognito-user-pool"
 import { AccountStorePort } from "@app/ports/repositories/account-store"
 import { MagicLinkService } from "./services/magic-link-service"
@@ -14,4 +14,4 @@ if(!USER_POOL_ID) {
 }
 const cognitoUserPool: AccountStorePort = new CognitoUserPool(USER_POOL_ID)
 const magicLinkService: MagicLinkServicePort = new MagicLinkService()
-export const getMagicLinkUseCase: GetMagicLinkPort = new GetMagicLinkUseCase(sendgridEmailSender, cognitoUserPool, magicLinkService)
+export const sendMagicLinkUseCase: SendMagicLinkPort = new SendMagicLinkUseCase(sendgridEmailSender, cognitoUserPool, magicLinkService)
