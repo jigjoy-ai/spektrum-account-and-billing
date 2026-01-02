@@ -214,7 +214,7 @@ Resources:
   sendMagicLinkFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/infrastructure/http/handlers/send-magic-link.sendMagicLinkHandler
+      Handler: src/infrastructure/http/handlers/send-magic-link.handler
       Runtime: nodejs22.x
       Architectures:
         - x86_64
