@@ -13,7 +13,6 @@ Globals:
       AllowOrigin: "'*'"
 
 Resources:
-  # User Pool
   JigJoyUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -38,7 +37,6 @@ Resources:
         PostAuthentication: !GetAtt PostAuthentication.Arn
         VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
 
-  # Web Client
   WebClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
@@ -76,7 +74,7 @@ Resources:
         - x86_64
       MemorySize: 128
       Timeout: 100
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
@@ -94,7 +92,7 @@ Resources:
         - x86_64
       MemorySize: 128
       Timeout: 100
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
@@ -121,7 +119,7 @@ Resources:
             - Effect: Allow
               Action: kms:Decrypt
               Resource: !GetAtt EncryptionKey.Arn
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
@@ -139,7 +137,7 @@ Resources:
         - x86_64
       MemorySize: 128
       Timeout: 100
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
@@ -164,7 +162,7 @@ Resources:
               Action:
                 - cognito-idp:AdminUpdateUserAttributes
               Resource: "*"
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
@@ -249,7 +247,7 @@ Resources:
           Properties:
             Path: /send-magic-link
             Method: POST
-    Metadata: #Manage esbuild properties
+    Metadata:
       BuildMethod: esbuild
       BuildProperties:
         Minify: true
