@@ -71,7 +71,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/auth-challenge/define-auth-challenge.defineAuthChallengeHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -89,7 +89,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/auth-challenge/create-auth-challenge.createAuthChallengeHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -107,7 +107,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/auth-challenge/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -134,7 +134,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/auth-challenge/pre-sign-up.preSignUpHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -152,7 +152,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/auth-challenge/post-authentication.postAuthenticationHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
@@ -217,7 +217,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: src/infrastructure/http/handlers/send-magic-link.sendMagicLinkHandler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       MemorySize: 128
