@@ -15,7 +15,7 @@ export async function sendMagicLinkHandler({ body }: APIGatewayProxyEvent): Prom
 		const email = parsedBody.email
 
 		await sendMagicLinkUseCase.execute(email)
-		return Responses._202()
+		return Responses._202({ message: "Magic link sent successfully" })
 	} catch (error) {
 		return errorHandler(error)
 	}

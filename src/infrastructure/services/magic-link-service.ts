@@ -1,6 +1,7 @@
 import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
 import { MagicLink } from "@domain/magic-link"
 import { encrypt } from "@infra/encription/encription"
+import { escape } from "querystring"
 
 const DESTINATION_URL = process.env.DESTINATION_URL as string
 if(!DESTINATION_URL) {
@@ -20,29 +21,22 @@ export class MagicLinkService implements MagicLinkServicePort {
         const expiresAt = new Date(now.getTime() + EXPIRATION_IN_MS)
     
         const payload = {
-          userEmail,
+          email: userEmail,
           expiration: expiresAt.toJSON(),
         }
     
         const tokenRaw = await encrypt(JSON.stringify(payload))
         const tokenB64 = Buffer.from(tokenRaw).toString("base64")
     
-        const urlSafeToken = this.toUrlSafeBase64(tokenB64)
+        const urlSafeToken = escape(tokenB64)
 
-        const url = new URL(DESTINATION_URL)
-        url.searchParams.set("email", userEmail)
-        url.searchParams.set("token", urlSafeToken)
+        const loginLink = `${DESTINATION_URL}?email=${userEmail}&token=${urlSafeToken}`
         
-        const magicLink = new MagicLink(url.toString(), this.EXPIRATION_MINUTES)
+        const magicLink = new MagicLink(loginLink, this.EXPIRATION_MINUTES)
         return {
             magicLink: magicLink,
             authChallenge: tokenB64
           }
     }
-
-    private toUrlSafeBase64(b64: string): string {
-        return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "")
-    }
-
 
 }

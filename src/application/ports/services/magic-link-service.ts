@@ -6,7 +6,6 @@ export type MagicLinkChallenge = {
 }
 
 export interface MagicLinkServicePort {
-    
     createMagicLinkChallenge(userEmail: string): Promise<MagicLinkChallenge>
 }
   

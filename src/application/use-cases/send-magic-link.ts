@@ -29,6 +29,7 @@ export class SendMagicLinkUseCase implements SendMagicLinkPort {
 
 		// Create a new magic link challenge
 		const { magicLink, authChallenge } = await this.magicLinkService.createMagicLinkChallenge(userEmail)
+
 		await this.accountStore.setAuthChallenge(userEmail, authChallenge)
 
 		// Create the email to send the magic link

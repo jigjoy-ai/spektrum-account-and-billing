@@ -9,7 +9,7 @@ Globals:
   Api:
     Cors:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-      AllowHeaders: "'content-type'"
+      AllowHeaders: "'content-type,authorization'"
       AllowOrigin: "'*'"
 
 Resources:
@@ -227,7 +227,7 @@ Resources:
         Variables:
           KMS_KEY_ID: !Ref EncryptionKey
           USER_POOL_ID: !Ref JigJoyUserPool
-          FRONTEND_APP_URL: "{{resolve:secretsmanager:vars:SecretString:FrontendAppUrl}}"
+          DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
           FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
           SENDGRID_API_KEY: "{{resolve:secretsmanager:vars:SecretString:SendgridApiKey}}"
       Policies:
@@ -247,7 +247,7 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /send-magic-link/
+            Path: /send-magic-link
             Method: POST
     Metadata: #Manage esbuild properties
       BuildMethod: esbuild
