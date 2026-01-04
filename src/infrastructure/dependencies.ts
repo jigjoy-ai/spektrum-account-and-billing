@@ -8,10 +8,14 @@ import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
-const USER_POOL_ID  = process.env.USER_POOL_ID as string
-if(!USER_POOL_ID) {
-    throw new Error("USER_POOL_ID is not set")
+const USER_POOL_ID = process.env.USER_POOL_ID as string
+if (!USER_POOL_ID) {
+	throw new Error("USER_POOL_ID is not set")
 }
 const cognitoUserPool: AccountStorePort = new CognitoUserPool(USER_POOL_ID)
 const magicLinkService: MagicLinkServicePort = new MagicLinkService()
-export const sendMagicLinkUseCase: SendMagicLinkPort = new SendMagicLinkUseCase(sendgridEmailSender, cognitoUserPool, magicLinkService)
+export const sendMagicLinkUseCase: SendMagicLinkPort = new SendMagicLinkUseCase(
+	sendgridEmailSender,
+	cognitoUserPool,
+	magicLinkService,
+)

@@ -1,4 +1,7 @@
-import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider"
+import {
+	CognitoIdentityProviderClient,
+	AdminUpdateUserAttributesCommand,
+} from "@aws-sdk/client-cognito-identity-provider"
 
 const cognito = new CognitoIdentityProviderClient()
 

@@ -5,24 +5,23 @@ import { CreateMagicLinkEmailParams, MagicLinkEmailFactory } from "@domain/magic
 import { Account } from "@domain/account"
 import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
 
-
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string
-if(!FROM_ADDRESS) {
+if (!FROM_ADDRESS) {
 	throw new Error("FROM_ADDRESS is not set")
 }
 
 export class SendMagicLinkUseCase implements SendMagicLinkPort {
-
-	constructor(private readonly emailSender: EmailSenderPort, 
-		private readonly accountStore: AccountStorePort, 
-		private readonly magicLinkService: MagicLinkServicePort) {}
+	constructor(
+		private readonly emailSender: EmailSenderPort,
+		private readonly accountStore: AccountStorePort,
+		private readonly magicLinkService: MagicLinkServicePort,
+	) {}
 
 	async execute(userEmail: string): Promise<void> {
-
 		const account = await this.accountStore.findByEmail(userEmail)
-		
+
 		// If the account does not exist, create it
-		if(!account){
+		if (!account) {
 			const newAccount = Account.create(userEmail)
 			await this.accountStore.create(newAccount)
 		}

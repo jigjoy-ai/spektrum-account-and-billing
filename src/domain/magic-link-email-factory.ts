@@ -8,9 +8,7 @@ export type CreateMagicLinkEmailParams = {
 }
 
 export class MagicLinkEmailFactory {
-
 	static create(params: CreateMagicLinkEmailParams): Email {
-
 		const subject = "JigJoy Login Link"
 
 		const body = `
@@ -22,11 +20,6 @@ export class MagicLinkEmailFactory {
 			</html>
 			`.trim()
 
-		return new Email(
-			params.recipient,
-			params.sender,
-			subject,
-			body,
-		)
+		return new Email(params.recipient, params.sender, subject, body)
 	}
 }

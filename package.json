@@ -1,50 +1,51 @@
 {
-    "name": "account-and-billing",
-    "description": "Serverless API for creating web applications from textual prompts",
-    "version": "0.0.1",
-    "private": true,
-    "workspaces": [
-        "src/auth"
-    ],
-    "dependencies": {
-        "@aws-sdk/client-cognito-identity-provider": "^3.635.0",
-        "@aws-sdk/client-dynamodb": "^3.398.0",
-        "@aws-sdk/client-kms": "^3.632.0",
-        "@aws-sdk/lib-dynamodb": "^3.398.0",
-        "@jigjoy-io/serverless-core": "^0.0.3",
-        "@sendgrid/mail": "^8.1.5",
-        "lodash": "^4.17.21"
-    },
-    "devDependencies": {
-        "@types/aws-lambda": "^8.10.140",
-        "@types/lodash": "^4.17.20",
-        "@types/node": "^20.14.9",
-        "@types/uuid": "^10.0.0",
-        "esbuild": "^0.25.9",
-        "npm-run-all": "^4.1.5",
-        "swagger-ui-watcher": "^2.1.14",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.5.2"
-    },
-    "scripts": {
-        "build": "sam build --profile Development",
-        "deploy": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
-        "serve": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
-        "docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
-        "dev": "npm-run-all --parallel serve docs",
-        "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-        "format": "prettier --write \"{src,packages}/**/*.{ts,tsx}\""
-    },
-    "jest": {
-        "testMatch": [
-            "**/__tests__/**/*.[jt]s?(x)",
-            "**/?(*.)+(spec|test).[jt]s?(x)",
-            "**/__tests__/**/*.mjs?(x)",
-            "**/?(*.)+(spec|test).mjs?(x)"
-        ],
-        "moduleFileExtensions": [
-            "mjs",
-            "js"
-        ]
-    }
+	"name": "account-and-billing",
+	"description": "Serverless API for creating web applications from textual prompts",
+	"version": "0.0.1",
+	"private": true,
+	"workspaces": [
+		"src/auth"
+	],
+	"dependencies": {
+		"@aws-sdk/client-cognito-identity-provider": "^3.635.0",
+		"@aws-sdk/client-dynamodb": "^3.398.0",
+		"@aws-sdk/client-kms": "^3.632.0",
+		"@aws-sdk/lib-dynamodb": "^3.398.0",
+		"@jigjoy-io/serverless-core": "^0.0.3",
+		"@sendgrid/mail": "^8.1.5",
+		"lodash": "^4.17.21"
+	},
+	"devDependencies": {
+		"@types/aws-lambda": "^8.10.140",
+		"@types/lodash": "^4.17.20",
+		"@types/node": "^20.14.9",
+		"@types/uuid": "^10.0.0",
+		"esbuild": "^0.25.9",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.7.4",
+		"swagger-ui-watcher": "^2.1.14",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.5.2"
+	},
+	"scripts": {
+		"build": "sam build --profile Development",
+		"deploy": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
+		"serve": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
+		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
+		"dev": "npm-run-all --parallel serve docs",
+		"test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+		"format": "prettier --write \"src/**/*.{ts,tsx}\""
+	},
+	"jest": {
+		"testMatch": [
+			"**/__tests__/**/*.[jt]s?(x)",
+			"**/?(*.)+(spec|test).[jt]s?(x)",
+			"**/__tests__/**/*.mjs?(x)",
+			"**/?(*.)+(spec|test).mjs?(x)"
+		],
+		"moduleFileExtensions": [
+			"mjs",
+			"js"
+		]
+	}
 }

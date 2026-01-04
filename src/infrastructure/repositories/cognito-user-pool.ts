@@ -1,16 +1,19 @@
 import { AccountStorePort } from "@app/ports/repositories/account-store"
-import { AdminCreateUserCommand, AdminGetUserCommand, AdminUpdateUserAttributesCommand, CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider"
+import {
+	AdminCreateUserCommand,
+	AdminGetUserCommand,
+	AdminUpdateUserAttributesCommand,
+	CognitoIdentityProviderClient,
+} from "@aws-sdk/client-cognito-identity-provider"
 import { Account } from "@domain/account"
 
 export class CognitoUserPool implements AccountStorePort {
+	private readonly cognito = new CognitoIdentityProviderClient()
 
-    private readonly cognito = new CognitoIdentityProviderClient()
+	constructor(private readonly userPoolId: string) {}
 
-    constructor(private readonly userPoolId: string) {}
-
-    async findByEmail(email: string): Promise<Account | null> {
-        
-        try {
+	async findByEmail(email: string): Promise<Account | null> {
+		try {
 			const getUserCommand = new AdminGetUserCommand({
 				Username: email,
 				UserPoolId: this.userPoolId,
@@ -25,23 +28,23 @@ export class CognitoUserPool implements AccountStorePort {
 					throw new Error(`Error getting user from Cognito: ${error}`)
 			}
 		}
-    }
+	}
 	async create(account: Account): Promise<void> {
-        const createUserCommand = new AdminCreateUserCommand({
-            Username: account.getEmail(),
-            UserPoolId: this.userPoolId,
-            MessageAction: "SUPPRESS",
-        })
-        await this.cognito.send(createUserCommand)
+		const createUserCommand = new AdminCreateUserCommand({
+			Username: account.getEmail(),
+			UserPoolId: this.userPoolId,
+			MessageAction: "SUPPRESS",
+		})
+		await this.cognito.send(createUserCommand)
 	}
 
-    async setAuthChallenge(email: string, challenge: string): Promise<void> {
-        await this.cognito.send(new AdminUpdateUserAttributesCommand({
-            UserPoolId: this.userPoolId,
-            Username: email,
-            UserAttributes: [
-                { Name: "custom:authChallenge", Value: challenge },
-            ]
-        }))
-    }
+	async setAuthChallenge(email: string, challenge: string): Promise<void> {
+		await this.cognito.send(
+			new AdminUpdateUserAttributesCommand({
+				UserPoolId: this.userPoolId,
+				Username: email,
+				UserAttributes: [{ Name: "custom:authChallenge", Value: challenge }],
+			}),
+		)
+	}
 }
