@@ -5,6 +5,6 @@ export type MagicLinkChallenge = {
 	authChallenge: string
 }
 
-export interface MagicLinkServicePort {
+export interface MagicLinkService {
 	createMagicLinkChallenge(userEmail: string): Promise<MagicLinkChallenge>
 }

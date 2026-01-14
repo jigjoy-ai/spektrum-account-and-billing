@@ -1,4 +1,4 @@
-import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
+import { MagicLinkService } from "@app/ports/services/magic-link-service"
 import { MagicLink } from "@domain/magic-link"
 import { encrypt } from "@infra/encription/encription"
 import { escape } from "querystring"
@@ -8,7 +8,7 @@ if (!DESTINATION_URL) {
 	throw new Error("DESTINATION_URL is not set")
 }
 
-export class MagicLinkService implements MagicLinkServicePort {
+export class DefaultMagicLinkService implements MagicLinkService {
 	private readonly EXPIRATION_MINUTES: number = 5
 	private readonly ONE_MINUTE_IN_MS: number = 60 * 1000
 

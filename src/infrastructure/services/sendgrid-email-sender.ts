@@ -1,8 +1,8 @@
-import { EmailSenderPort } from "@app/ports/services/email-sender"
+import { EmailSender } from "@app/ports/services/email-sender"
 import * as sgMail from "@sendgrid/mail"
 import { Email } from "@domain/email"
 
-export class SendgridEmailSender implements EmailSenderPort {
+export class SendgridEmailSender implements EmailSender {
 	constructor() {
 		const { SENDGRID_API_KEY } = process.env
 		sgMail.setApiKey(SENDGRID_API_KEY as string)

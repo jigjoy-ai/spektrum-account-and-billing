@@ -1,16 +1,16 @@
-import { AccountStorePort } from "@app/ports/repositories/account-store"
-import { EmailSenderPort } from "@app/ports/services/email-sender"
+import { AccountStore } from "@app/ports/repositories/account-store"
+import { EmailSender } from "@app/ports/services/email-sender"
 import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
 import { CreateMagicLinkEmailParams, MagicLinkEmailFactory } from "@domain/magic-link-email-factory"
 import { Account } from "@domain/account"
-import { MagicLinkServicePort } from "@app/ports/services/magic-link-service"
+import { MagicLinkService } from "@app/ports/services/magic-link-service"
 
 export class SendMagicLink implements SendMagicLinkUseCase {
 	fromAddress: string
 	constructor(
-		private readonly emailSender: EmailSenderPort,
-		private readonly accountStore: AccountStorePort,
-		private readonly magicLinkService: MagicLinkServicePort,
+		private readonly emailSender: EmailSender,
+		private readonly accountStore: AccountStore,
+		private readonly magicLinkService: MagicLinkService,
 	) {
 		const FROM_ADDRESS = process.env.FROM_ADDRESS as string
 		if (!FROM_ADDRESS) {
