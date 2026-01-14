@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { schema } from "../schemas/magic-link"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
-import { SendMagicLinkPort } from "@app/ports/use-cases/send-magic-link"
+import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
 
-export function createSendMagicLinkHandler(sendMagicLinkUseCase: SendMagicLinkPort) {
+export function createSendMagicLinkHandler(sendMagicLinkUseCase: SendMagicLinkUseCase) {
 	return async function createSendMagicLinkHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			if (!body) throw new ValidationError("No page body")
