@@ -1,4 +1,5 @@
 node_modules
+coverage
 
 .aws-sam
 .npmrc
@@ -6,3 +7,4 @@ node_modules
 .yarnrc.yml
 
 env.json
+.env.test
