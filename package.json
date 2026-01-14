@@ -1,11 +1,8 @@
 {
 	"name": "account-and-billing",
-	"description": "Serverless API for creating web applications from textual prompts",
+	"description": "Serverless API for account and billing",
 	"version": "0.0.1",
 	"private": true,
-	"workspaces": [
-		"src/auth"
-	],
 	"dependencies": {
 		"@aws-sdk/client-cognito-identity-provider": "^3.635.0",
 		"@aws-sdk/client-dynamodb": "^3.398.0",
@@ -16,10 +13,13 @@
 		"lodash": "^4.17.21"
 	},
 	"devDependencies": {
+		"@rstest/core": "^0.7.9",
+		"@rstest/coverage-istanbul": "^0.1.6",
 		"@types/aws-lambda": "^8.10.140",
 		"@types/lodash": "^4.17.20",
 		"@types/node": "^20.14.9",
 		"@types/uuid": "^10.0.0",
+		"dotenv": "^17.2.3",
 		"esbuild": "^0.25.9",
 		"npm-run-all": "^4.1.5",
 		"prettier": "^3.7.4",
@@ -33,19 +33,8 @@
 		"serve": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
 		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
 		"dev": "npm-run-all --parallel serve docs",
-		"test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+		"test": "rstest -c rstest.config.ts",
+		"coverage": "rstest --coverage",
 		"format": "prettier --write \"src/**/*.{ts,tsx}\""
-	},
-	"jest": {
-		"testMatch": [
-			"**/__tests__/**/*.[jt]s?(x)",
-			"**/?(*.)+(spec|test).[jt]s?(x)",
-			"**/__tests__/**/*.mjs?(x)",
-			"**/?(*.)+(spec|test).mjs?(x)"
-		],
-		"moduleFileExtensions": [
-			"mjs",
-			"js"
-		]
 	}
 }
