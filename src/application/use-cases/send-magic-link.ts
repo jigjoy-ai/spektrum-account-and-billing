@@ -2,22 +2,18 @@ import { AccountStore } from "@app/ports/repositories/account-store"
 import { EmailSender } from "@app/ports/services/email-sender"
 import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
 import { CreateMagicLinkEmailParams, MagicLinkEmailFactory } from "@domain/magic-link-email-factory"
+import { MagicLinkService } from "@app/services/magic-link-service"
 import { Account } from "@domain/account"
-import { MagicLinkService } from "@app/ports/services/magic-link-service"
 
 export class SendMagicLink implements SendMagicLinkUseCase {
-	fromAddress: string
+	
 	constructor(
 		private readonly emailSender: EmailSender,
 		private readonly accountStore: AccountStore,
 		private readonly magicLinkService: MagicLinkService,
-	) {
-		const FROM_ADDRESS = process.env.FROM_ADDRESS as string
-		if (!FROM_ADDRESS) {
-			throw new Error("FROM_ADDRESS is not set")
-		}
-		this.fromAddress = FROM_ADDRESS
-	}
+		private readonly fromAddress: string,
+	) {}
+	
 
 	async execute(userEmail: string): Promise<void> {
 		const account = await this.accountStore.findByEmail(userEmail)

@@ -1,4 +1,4 @@
-import { decrypt } from "@infra/encription/encription"
+import { KMSTokenService } from "@infra/services/token-service"
 
 export async function verifyAuthChallengeResponseHandler(event: any) {
 	const email = event.request.userAttributes.email
@@ -12,6 +12,8 @@ export async function verifyAuthChallengeResponseHandler(event: any) {
 		return event
 	}
 
+	const KMS_KEY_ID = process.env.KMS_KEY_ID as string
+	const tokenService = new KMSTokenService(KMS_KEY_ID)
 	// 2. Decrypt the expected challenge token
 	const json = await decrypt(answer)
 	const payload = JSON.parse(json)
