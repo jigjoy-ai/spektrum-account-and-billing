@@ -1,4 +1,4 @@
-import { AccountStorePort } from "@app/ports/repositories/account-store"
+import { AccountStore } from "@app/ports/repositories/account-store"
 import {
 	AdminCreateUserCommand,
 	AdminGetUserCommand,
@@ -7,7 +7,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider"
 import { Account } from "@domain/account"
 
-export class CognitoUserPool implements AccountStorePort {
+export class CognitoUserPool implements AccountStore {
 	private readonly cognito = new CognitoIdentityProviderClient()
 
 	constructor(private readonly userPoolId: string) {}
