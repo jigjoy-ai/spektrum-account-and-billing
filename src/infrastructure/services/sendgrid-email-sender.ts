@@ -1,11 +1,11 @@
 import { EmailSender } from "@app/ports/services/email-sender"
-import * as sgMail from "@sendgrid/mail"
+import sgMail from '@sendgrid/mail'
 import { Email } from "@domain/email"
 
 export class SendgridEmailSender implements EmailSender {
 	constructor() {
-		const { SENDGRID_API_KEY } = process.env
-		sgMail.setApiKey(SENDGRID_API_KEY as string)
+		const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY as string
+		sgMail.setApiKey(SENDGRID_API_KEY)
 		// sgMail.setDataResidency('eu');
 		// uncomment the above line if you are sending mail using a regional EU subuser
 	}
@@ -17,11 +17,7 @@ export class SendgridEmailSender implements EmailSender {
 			subject: email.getSubject(),
 			html: email.getBody(),
 		}
-
-		try {
-			await sgMail.send(msg)
-		} catch (error) {
-			console.log(error)
-		}
+		
+		await sgMail.send(msg)
 	}
 }

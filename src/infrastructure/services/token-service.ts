@@ -35,13 +35,18 @@ export class KMSTokenService implements TokenService {
     }
 
 	async verifyToken(email: string, token: string): Promise<boolean> {
-		// 2. Decrypt the expected challenge token
-        const json = await this.decrypt(token)
-        const payload = JSON.parse(json)
+		try {
+			// 2. Decrypt the expected challenge token
+			const json = await this.decrypt(token)
+			const payload = JSON.parse(json)
 
-        // 3. Validate expiration and email
-        const isExpired = new Date().toJSON() > payload.expiration
-        return payload.email === email && !isExpired
+			// 3. Validate expiration and email
+			const isExpired = new Date().toJSON() > payload.expiration
+			return payload.email === email && !isExpired
+		} catch (error) {
+			// If decryption fails (invalid token, wrong key, etc.), return false
+			return false
+		}
 	}
 
     private async encrypt(inpt: any): Promise<any> {
