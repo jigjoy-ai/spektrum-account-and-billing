@@ -8,7 +8,13 @@ export function createSendMagicLinkHandler(sendMagicLinkUseCase: SendMagicLinkUs
 		try {
 			if (!body) throw new ValidationError("No page body")
 
-			const parsedBody = JSON.parse(body)
+			let parsedBody
+			try {
+				parsedBody = JSON.parse(body)
+			} catch (parseError) {
+				throw new ValidationError("Invalid JSON in request body")
+			}
+
 			schemaValidator(schema, parsedBody)
 
 			const email = parsedBody.email
