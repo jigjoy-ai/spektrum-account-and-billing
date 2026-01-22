@@ -5,7 +5,7 @@ export async function createAuthChallengeHandler(event: any) {
 
 	// the verify step would decrypt this and check the user's answer
 	event.response.privateChallengeParameters = {
-		challenge: event.request.userAttributes["custom:authChallenge"],
+		challenge: event.request.userAttributes["custom:authToken"],
 	}
 
 	return event

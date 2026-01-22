@@ -1,4 +1,4 @@
-import { AccountStore } from "@app/ports/repositories/account-store"
+import { AccountStore } from "@app/ports/services/identity-management-service"
 import { Account } from "@domain/account"
 
 export class InMemoryAccountStore implements AccountStore {

@@ -19,7 +19,7 @@ export async function verifyAuthChallengeResponseHandler(event: any) {
 	if (isValid) {
 		event.response.answerCorrect = true
 	} else {
-		console.log("Token expired or email mismatch")
+		console.log("Invalid token")
 		event.response.answerCorrect = false
 	}
 

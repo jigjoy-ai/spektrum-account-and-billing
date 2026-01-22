@@ -11,6 +11,8 @@ export async function defineAuthChallengeHandler(event: any) {
 		// Issue new challenge
 		event.response.issueTokens = false
 		event.response.failAuthentication = false
+
+		// This will trigger createAuthChallengeHandler
 		event.response.challengeName = "CUSTOM_CHALLENGE"
 	} else {
 		const lastAttempt: any = last(event.request.session)
