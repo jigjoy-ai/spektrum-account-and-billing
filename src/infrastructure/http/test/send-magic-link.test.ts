@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent } from "aws-lambda"
 import { describe, it, expect, beforeEach } from "@rstest/core"
 import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
 import { createSendMagicLinkHandler } from "@infra/http/factories/send-magic-link"
-import { ValidationError } from "@jigjoy-io/serverless-core"
 
 describe("Send Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
