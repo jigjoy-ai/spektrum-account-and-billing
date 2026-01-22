@@ -20,7 +20,7 @@ export function createSendMagicLinkHandler(sendMagicLinkUseCase: SendMagicLinkUs
 			const email = parsedBody.email
 
 			await sendMagicLinkUseCase.execute(email)
-			return Responses._202({ message: "Magic link sent successfully" })
+			return Responses._301({ message: "Magic link sent successfully" })
 		} catch (error) {
 			return errorHandler(error)
 		}
