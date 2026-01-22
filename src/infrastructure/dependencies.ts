@@ -1,7 +1,7 @@
 import { SendMagicLink } from "@app/use-cases/send-magic-link"
 import { SendgridEmailSender } from "./services/sendgrid-email-sender"
 import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
-import { CognitoIdentityManagementService } from "./services/cognito-identity-management"
+import { CognitoIdentityManagementService } from "./services/cognito-identity-management/cognito-identity-management"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { MagicLinkService } from "@app/services/magic-link-service"
 import { KMSTokenService } from "./services/token-service"

@@ -4,7 +4,7 @@ import {
 	AdminDeleteUserCommand,
 	AdminGetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
-import { CognitoIdentityManagementService } from "@infra/services/cognito-identity-management"
+import { CognitoIdentityManagementService } from "@infra/services/cognito-identity-management/cognito-identity-management"
 
 describe("Cognito User Pool Repository", () => {
 	let identityManagementService: CognitoIdentityManagementService

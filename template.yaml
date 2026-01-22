@@ -68,7 +68,7 @@ Resources:
     DefineAuthChallenge:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/auth-challenge/define-auth-challenge.defineAuthChallengeHandler
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.defineAuthChallengeHandler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
@@ -81,12 +81,12 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/auth-challenge/define-auth-challenge.ts
+                    - src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.ts
 
     CreateAuthChallenge:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/auth-challenge/create-auth-challenge.createAuthChallengeHandler
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.createAuthChallengeHandler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
@@ -99,12 +99,12 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/auth-challenge/create-auth-challenge.ts
+                    - src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.ts
 
     VerifyAuthChallengeResponse:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/auth-challenge/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
@@ -126,12 +126,12 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/auth-challenge/verify-auth-challenge-response.ts
+                    - src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.ts
 
     PreSignUp:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/auth-challenge/pre-sign-up.preSignUpHandler
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.preSignUpHandler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
@@ -144,12 +144,12 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/auth-challenge/pre-sign-up.ts
+                    - src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.ts
 
     PostAuthentication:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/auth-challenge/post-authentication.postAuthenticationHandler
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/post-authentication.postAuthenticationHandler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
@@ -169,7 +169,7 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/auth-challenge/post-authentication.ts
+                    - src/infrastructure/services/cognito-identity-management/triggers/post-authentication.ts
 
     UserPoolCreateAuthChallengeLambdaPermission:
         Type: AWS::Lambda::Permission
