@@ -67,7 +67,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 
 		if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
 			// Keep it generic
-			throw new Error("Invalid token")
+			throw new Error("Challenge not found")
 		}
 
 		// This will trigger verifyAuthChallengeResponseHandler
