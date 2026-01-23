@@ -1,5 +1,3 @@
-import { isEmpty, last } from "lodash"
-
 export async function defineAuthChallengeHandler(event: any) {
 	if (event.request.userNotFound) {
 		event.response.issueTokens = false
@@ -7,7 +5,9 @@ export async function defineAuthChallengeHandler(event: any) {
 		return event
 	}
 
-	if (isEmpty(event.request.session)) {
+	const session = event.request.session
+
+	if (!session || session.length === 0) {
 		// Issue new challenge
 		event.response.issueTokens = false
 		event.response.failAuthentication = false
@@ -15,7 +15,8 @@ export async function defineAuthChallengeHandler(event: any) {
 		// This will trigger createAuthChallengeHandler
 		event.response.challengeName = "CUSTOM_CHALLENGE"
 	} else {
-		const lastAttempt: any = last(event.request.session)
+		const lastAttempt = session[session.length - 1]
+
 		if (lastAttempt.challengeResult === true) {
 			// User gave right answer
 			event.response.issueTokens = true

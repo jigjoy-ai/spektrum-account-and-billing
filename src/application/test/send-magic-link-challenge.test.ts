@@ -2,31 +2,24 @@ import { describe, it, expect, beforeEach } from "@rstest/core"
 import { SendMagicLinkChallenge } from "@app/use-cases/send-magic-link-challenge"
 import { InMemoryIdentityManagementService } from "@app/test/mocks/in-memory-identity-management-service"
 import { InMemoryEmailSender } from "@app/test/mocks/in-memory-email-sender"
-import { InMemoryTokenService } from "@app/test/mocks/in-memory-token-service"
-import { MagicLinkService } from "@app/services/magic-link-service"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { EmailSender } from "@app/ports/services/email-sender"
-import { TokenService } from "@app/ports/services/token-service"
 
 describe("Send Magic Link", () => {
 	let sendMagicLinkChallengeUseCase: SendMagicLinkChallenge
 	let identityManagementService: IdentityManagementService
 	let emailSender: EmailSender
-	let tokenService: TokenService
-	let magicLinkService: MagicLinkService
 	const destinationUrl = "https://example.com/login"
 	const fromAddress = "noreply@example.com"
 
 	beforeEach(() => {
 		identityManagementService = new InMemoryIdentityManagementService()
 		emailSender = new InMemoryEmailSender()
-		tokenService = new InMemoryTokenService()
-		magicLinkService = new MagicLinkService(tokenService, destinationUrl)
 		sendMagicLinkChallengeUseCase = new SendMagicLinkChallenge(
 			emailSender,
 			identityManagementService,
-			magicLinkService,
 			fromAddress,
+			destinationUrl
 		)
 	})
 
@@ -48,11 +41,10 @@ describe("Send Magic Link", () => {
 		expect(sentEmail.getSender()).toBe(fromAddress)
 		expect(sentEmail.getSubject()).toBe("JigJoy Login Link")
 		expect(sentEmail.getBody()).toContain(destinationUrl)
-		expect(sentEmail.getBody()).toContain(userEmail)
 
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		const authToken = inMemoryIdentityService.getAuthToken(userEmail)
-		expect(authToken).toBeDefined()
+		const challengeToken = inMemoryIdentityService.getChallengeToken(userEmail)
+		expect(challengeToken).toBeDefined()
 	})
 
 	it("should create user and send magic link for new user", async () => {
@@ -79,7 +71,7 @@ describe("Send Magic Link", () => {
 		expect(sentEmail.getRecipient()).toBe(userEmail)
 	})
 
-	it("should set auth challenge when sending magic link", async () => {
+	it("should issue auth challenge when sending magic link", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 
@@ -88,18 +80,18 @@ describe("Send Magic Link", () => {
 
 		// Assert
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		const authToken = inMemoryIdentityService.getAuthToken(userEmail)
-		expect(authToken).toBeDefined()
-		expect(typeof authToken).toBe("string")
-		expect(authToken!.length).toBeGreaterThan(0)
+		const challengeToken = inMemoryIdentityService.getChallengeToken(userEmail)
+		expect(challengeToken).toBeDefined()
+		expect(typeof challengeToken).toBe("string")
+		expect(challengeToken!.length).toBeGreaterThan(0)
 	})
 
-	it("should throw an error when identityManagementService.isUserExists fails", async () => {
+	it("should throw an error when identityManagementService.hasUser fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		const errorMessage = "Database connection failed"
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		inMemoryIdentityService.setShouldFailOnIsUserExists(true, new Error(errorMessage))
+		inMemoryIdentityService.setShouldFailOnHasUser(true, new Error(errorMessage))
 
 		// Act & Assert
 		await expect(sendMagicLinkChallengeUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
@@ -116,40 +108,19 @@ describe("Send Magic Link", () => {
 		await expect(sendMagicLinkChallengeUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
 	})
 
-	it("should throw an error when identityManagementService.setAuthChallenge fails", async () => {
+	it("should throw an error when identityManagementService.issueAuthChallenge fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		await identityManagementService.createUser(userEmail)
 
-		const errorMessage = "Failed to set auth challenge"
+		const errorMessage = "Failed to issue auth challenge"
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		inMemoryIdentityService.setShouldFailOnSetAuthToken(true, new Error(errorMessage))
+		inMemoryIdentityService.setShouldFailOnIssueAuthChallenge(true, new Error(errorMessage))
 
 		// Act & Assert
 		await expect(sendMagicLinkChallengeUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
 	})
 
-	it("should throw an error when tokenService.generateToken fails", async () => {
-		// Arrange
-		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
-
-		const errorMessage = "Token generation failed"
-		const inMemoryTokenService = tokenService as InMemoryTokenService
-		inMemoryTokenService.setShouldFailOnGenerateToken(true, new Error(errorMessage))
-
-		// Recreate use case with failing token service
-		const failingMagicLinkService = new MagicLinkService(inMemoryTokenService, destinationUrl)
-		const failingUseCase = new SendMagicLinkChallenge(
-			emailSender,
-			identityManagementService,
-			failingMagicLinkService,
-			fromAddress,
-		)
-
-		// Act & Assert
-		await expect(failingUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
-	})
 
 	it("should throw an error when emailSender.sendEmail fails", async () => {
 		// Arrange
@@ -179,14 +150,14 @@ describe("Send Magic Link", () => {
 		expect(sentEmails).toHaveLength(0)
 	})
 
-	it("should not send email if auth challenge setting fails", async () => {
+	it("should not send email if auth challenge issuance fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		await identityManagementService.createUser(userEmail)
 
-		const errorMessage = "Failed to set auth challenge"
+		const errorMessage = "Failed to issue auth challenge"
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		inMemoryIdentityService.setShouldFailOnSetAuthToken(true, new Error(errorMessage))
+		inMemoryIdentityService.setShouldFailOnIssueAuthChallenge(true, new Error(errorMessage))
 
 		// Act & Assert
 		await expect(sendMagicLinkChallengeUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
@@ -196,7 +167,7 @@ describe("Send Magic Link", () => {
 		expect(sentEmails).toHaveLength(0)
 	})
 
-	it("should generate unique tokens for different users", async () => {
+	it("should generate unique challenge tokens for different users", async () => {
 		// Arrange
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
@@ -207,30 +178,33 @@ describe("Send Magic Link", () => {
 
 		// Assert
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		const authToken1 = inMemoryIdentityService.getAuthToken(userEmail1)
-		const authToken2 = inMemoryIdentityService.getAuthToken(userEmail2)
+		const challengeToken1 = inMemoryIdentityService.getChallengeToken(userEmail1)
+		const challengeToken2 = inMemoryIdentityService.getChallengeToken(userEmail2)
 
-		expect(authToken1).toBeDefined()
-		expect(authToken2).toBeDefined()
-		expect(authToken1).not.toBe(authToken2)
+		expect(challengeToken1).toBeDefined()
+		expect(challengeToken2).toBeDefined()
+		expect(challengeToken1).not.toBe(challengeToken2)
 	})
 
-	it("should generate new token when sending magic link multiple times for same user", async () => {
+	it("should generate new challenge token when sending magic link multiple times for same user", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		await identityManagementService.createUser(userEmail)
 
 		// Act
 		await sendMagicLinkChallengeUseCase.execute(userEmail)
-		const firstAuthToken = (identityManagementService as InMemoryIdentityManagementService).getAuthToken(userEmail)
+		const firstChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(userEmail)
+
+		// Add a small delay to ensure different timestamps
+		await new Promise((resolve) => setTimeout(resolve, 10))
 
 		await sendMagicLinkChallengeUseCase.execute(userEmail)
-		const secondAuthToken = (identityManagementService as InMemoryIdentityManagementService).getAuthToken(userEmail)
+		const secondChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(userEmail)
 
 		// Assert
-		expect(firstAuthToken).toBeDefined()
-		expect(secondAuthToken).toBeDefined()
-		expect(firstAuthToken).not.toBe(secondAuthToken)
+		expect(firstChallengeToken).toBeDefined()
+		expect(secondChallengeToken).toBeDefined()
+		expect(firstChallengeToken).not.toBe(secondChallengeToken)
 
 		const inMemoryEmailSender = emailSender as InMemoryEmailSender
 		const sentEmails = inMemoryEmailSender.getSentEmails()

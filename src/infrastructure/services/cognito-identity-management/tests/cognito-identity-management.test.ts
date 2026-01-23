@@ -6,7 +6,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider"
 import { CognitoIdentityManagementService } from "@infra/services/cognito-identity-management/cognito-identity-management"
 
-describe("Cognito User Pool Repository", () => {
+describe("Cognito Identity Management Service", () => {
 	let identityManagementService: CognitoIdentityManagementService
 	let cognitoClient: CognitoIdentityProviderClient
 	const testEmails: string[] = []
@@ -76,13 +76,13 @@ describe("Cognito User Pool Repository", () => {
 		expect(found).toBe(true)
 	})
 
-	it("should set auth challenge for a user", async () => {
+	it("should issue auth challenge for a user", async () => {
 		const email = `test-challenge-${Date.now()}@example.com`
-		const challenge = "test-auth-challenge-123"
+		const expirationInMinutes = 15
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		await identityManagementService.setAuthChallenge(email, challenge)
+		const challengeToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify challenge was set by fetching user attributes
 		const getUserCommand = new AdminGetUserCommand({
@@ -96,17 +96,17 @@ describe("Cognito User Pool Repository", () => {
 			(attr) => attr.Name === "custom:authChallenge",
 		)
 		expect(authChallengeAttribute).toBeDefined()
-		expect(authChallengeAttribute?.Value).toBe(challenge)
+		expect(authChallengeAttribute?.Value).toBe(challengeToken)
+		expect(challengeToken).toBeTruthy()
 	})
 
-	it("should update auth token when setting it multiple times", async () => {
+	it("should update auth challenge when issuing it multiple times", async () => {
 		const email = `test-update-token-${Date.now()}@example.com`
-		const firstToken = "first-token-123"
-		const secondToken = "second-token-456"
+		const expirationInMinutes = 15
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		await identityManagementService.setAuthChallenge(email, firstToken)
+		const firstToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify first challenge
 		let getUserCommand = new AdminGetUserCommand({
@@ -120,7 +120,7 @@ describe("Cognito User Pool Repository", () => {
 		expect(authChallengeAttribute?.Value).toBe(firstToken)
 
 		// Update challenge
-		await identityManagementService.setAuthChallenge(email, secondToken)
+		const secondToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify second challenge
 		getUserCommand = new AdminGetUserCommand({
@@ -132,6 +132,7 @@ describe("Cognito User Pool Repository", () => {
 			(attr) => attr.Name === "custom:authChallenge",
 		)
 		expect(authChallengeAttribute?.Value).toBe(secondToken)
+		expect(secondToken).not.toBe(firstToken)
 	})
 
 	it("should handle multiple users correctly", async () => {
@@ -159,11 +160,11 @@ describe("Cognito User Pool Repository", () => {
 		await expect(identityManagementService.createUser(email)).rejects.toThrow()
 	})
 
-	it("should throw an error when setting auth challenge for non-existent user", async () => {
+	it("should throw an error when issuing auth challenge for non-existent user", async () => {
 		const nonExistentEmail = `test-nonexistent-challenge-${Date.now()}@example.com`
-		const challenge = "test-challenge"
+		const expirationInMinutes = 15
 
-		await expect(identityManagementService.setAuthChallenge(nonExistentEmail, challenge)).rejects.toThrow()
+		await expect(identityManagementService.issueAuthChallenge(nonExistentEmail, expirationInMinutes)).rejects.toThrow()
 	})
 
 	it("should throw an error when user pool ID is invalid", async () => {
@@ -213,5 +214,239 @@ describe("Cognito User Pool Repository", () => {
 		expect(emailAttribute?.Value).toBe(email)
 		// User should be in FORCE_CHANGE_PASSWORD status when created with SUPPRESS
 		expect(user.UserStatus).toBe("FORCE_CHANGE_PASSWORD")
+	})
+
+	it("should verify auth challenge and return access token", async () => {
+		const email = `test-verify-challenge-${Date.now()}@example.com`
+		const expirationInMinutes = 15
+		testEmails.push(email)
+
+		await identityManagementService.createUser(email)
+		const challengeToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
+
+		// Verify the challenge - this requires Cognito triggers to be configured
+		const accessToken = await identityManagementService.verifyAuthChallenge(email, challengeToken)
+
+		expect(accessToken).toBeDefined()
+		expect(typeof accessToken).toBe("string")
+		expect(accessToken.length).toBeGreaterThan(0)
+	})
+
+	it("should throw an error when verifying auth challenge for non-existent user", async () => {
+		const nonExistentEmail = `test-nonexistent-verify-${Date.now()}@example.com`
+		const challenge = "test-challenge-token"
+
+		await expect(identityManagementService.verifyAuthChallenge(nonExistentEmail, challenge)).rejects.toThrow()
+	})
+
+	it("should throw an error when verifying with invalid challenge token", async () => {
+		const email = `test-invalid-challenge-${Date.now()}@example.com`
+		const invalidChallenge = "invalid-challenge-token"
+		testEmails.push(email)
+
+		await identityManagementService.createUser(email)
+		await identityManagementService.issueAuthChallenge(email, 15)
+
+		// Attempt to verify with wrong challenge token
+		await expect(identityManagementService.verifyAuthChallenge(email, invalidChallenge)).rejects.toThrow()
+	})
+
+	it("should throw an error when KMS_KEY_ID is missing", () => {
+		// Save the original value
+		const originalKmsKeyId = process.env.KMS_KEY_ID
+
+		// Temporarily unset KMS_KEY_ID
+		delete process.env.KMS_KEY_ID
+
+		// Attempt to create service without KMS_KEY_ID
+		expect(() => {
+			new CognitoIdentityManagementService(userPoolId, userPoolClientId)
+		}).toThrow("KMS_KEY_ID environment variable is required")
+
+		// Restore the original value
+		if (originalKmsKeyId) {
+			process.env.KMS_KEY_ID = originalKmsKeyId
+		}
+	})
+
+	it("should throw 'Challenge not found' when Cognito InitiateAuth returns unexpected challenge name", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "NEW_PASSWORD_REQUIRED",
+				Session: "some-session",
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Challenge not found",
+		)
+	})
+
+	it("should throw 'Challenge not found' when Cognito InitiateAuth returns CUSTOM_CHALLENGE without Session", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: undefined,
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Challenge not found",
+		)
+	})
+
+	it("should throw 'Challenge not found' when Cognito InitiateAuth returns null Session", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: null,
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Challenge not found",
+		)
+	})
+
+	it("should throw 'Failed to verify challenge' when Cognito RespondToAuthChallenge returns no AccessToken", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: "valid-session",
+			},
+			{
+				AuthenticationResult: undefined,
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Failed to verify challenge",
+		)
+	})
+
+	it("should throw 'Failed to verify challenge' when Cognito RespondToAuthChallenge returns null AccessToken", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: "valid-session",
+			},
+			{
+				AuthenticationResult: {
+					AccessToken: null,
+				},
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Failed to verify challenge",
+		)
+	})
+
+	it("should throw 'Failed to verify challenge' when Cognito RespondToAuthChallenge returns undefined AccessToken", async () => {
+		// Setup mock Cognito client
+		let callCount = 0
+		const responses: any[] = [
+			{
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: "valid-session",
+			},
+			{
+				AuthenticationResult: {
+					AccessToken: undefined,
+				},
+			},
+		]
+		const mockCognitoClient = {
+			send: ((command: any) => {
+				const response = responses[callCount]
+				callCount++
+				return Promise.resolve(response)
+			}) as any,
+		}
+
+		const service = new CognitoIdentityManagementService(
+			userPoolId,
+			userPoolClientId,
+			mockCognitoClient as CognitoIdentityProviderClient,
+		)
+
+		await expect(service.verifyAuthChallenge("test@example.com", "challenge-token")).rejects.toThrow(
+			"Failed to verify challenge",
+		)
 	})
 })

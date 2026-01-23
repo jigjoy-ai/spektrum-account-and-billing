@@ -1,4 +1,4 @@
-import { KMSTokenService } from "@infra/services/kms-token-service/kms-token-service"
+import { AWSKeyManagementService } from "@infra/services/cognito-identity-management/util/aws-key-management-service"
 
 export async function verifyAuthChallengeResponseHandler(event: any) {
 	const email = event.request.userAttributes.email
@@ -13,9 +13,23 @@ export async function verifyAuthChallengeResponseHandler(event: any) {
 	}
 
 	const KMS_KEY_ID = process.env.KMS_KEY_ID as string
-	const tokenService = new KMSTokenService(KMS_KEY_ID)
+	const awsKeyManagementService = new AWSKeyManagementService(KMS_KEY_ID)
 
-	const isValid = await tokenService.verifyToken(email, answer)
+	let isValid = false
+	try {
+		// 2. Decrypt the expected challenge token
+		const json = await awsKeyManagementService.decrypt(answer)
+		const payload = JSON.parse(json)
+
+		// 3. Validate expiration and email
+		const isExpired = new Date().toJSON() > payload.expiration
+		isValid = payload.email === email && !isExpired
+	} catch (error) {
+		console.error("Error decrypting challenge token", error)
+		// If decryption fails (invalid token, wrong key, etc.), return false
+		isValid = false
+	}
+
 	if (isValid) {
 		event.response.answerCorrect = true
 	} else {
