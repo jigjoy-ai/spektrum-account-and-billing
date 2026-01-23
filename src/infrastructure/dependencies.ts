@@ -1,10 +1,10 @@
 import { SendMagicLink } from "@app/use-cases/send-magic-link"
-import { SendgridEmailSender } from "./services/sendgrid-email-sender"
+import { SendgridEmailSender } from "./services/sendgrid-email-sender/sendgrid-email-sender"
 import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
 import { CognitoIdentityManagementService } from "./services/cognito-identity-management/cognito-identity-management"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { MagicLinkService } from "@app/services/magic-link-service"
-import { KMSTokenService } from "./services/token-service"
+import { KMSTokenService } from "./services/kms-token-service/kms-token-service"
 import { TokenService } from "@app/ports/services/token-service"
 
 const sendgridEmailSender = new SendgridEmailSender()

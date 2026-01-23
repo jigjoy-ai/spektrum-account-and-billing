@@ -38,12 +38,12 @@ describe("Cognito User Pool Repository", () => {
 		testEmails.length = 0
 	})
 
-	it("should return null when finding a non-existent user", async () => {
+	it("should return false when finding a non-existent user", async () => {
 		const nonExistentEmail = `test-nonexistent-${Date.now()}@example.com`
 
 		const result = await identityManagementService.isUserExists(nonExistentEmail)
 
-		expect(result).toBeNull()
+		expect(result).toBe(false)
 	})
 
 	it("should create a user in Cognito", async () => {
@@ -82,7 +82,7 @@ describe("Cognito User Pool Repository", () => {
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		await identityManagementService.setAuthToken(email, challenge)
+		await identityManagementService.setAuthChallenge(email, challenge)
 
 		// Verify challenge was set by fetching user attributes
 		const getUserCommand = new AdminGetUserCommand({
@@ -99,14 +99,14 @@ describe("Cognito User Pool Repository", () => {
 		expect(authChallengeAttribute?.Value).toBe(challenge)
 	})
 
-	it("should update auth challenge when setting it multiple times", async () => {
-		const email = `test-update-challenge-${Date.now()}@example.com`
-		const firstChallenge = "first-challenge-123"
-		const secondChallenge = "second-challenge-456"
+	it("should update auth token when setting it multiple times", async () => {
+		const email = `test-update-token-${Date.now()}@example.com`
+		const firstToken = "first-token-123"
+		const secondToken = "second-token-456"
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		await identityManagementService.setAuthToken(email, firstChallenge)
+		await identityManagementService.setAuthChallenge(email, firstToken)
 
 		// Verify first challenge
 		let getUserCommand = new AdminGetUserCommand({
@@ -117,10 +117,10 @@ describe("Cognito User Pool Repository", () => {
 		let authChallengeAttribute = user.UserAttributes?.find(
 			(attr) => attr.Name === "custom:authChallenge",
 		)
-		expect(authChallengeAttribute?.Value).toBe(firstChallenge)
+		expect(authChallengeAttribute?.Value).toBe(firstToken)
 
 		// Update challenge
-		await identityManagementService.setAuthToken(email, secondChallenge)
+		await identityManagementService.setAuthChallenge(email, secondToken)
 
 		// Verify second challenge
 		getUserCommand = new AdminGetUserCommand({
@@ -131,7 +131,7 @@ describe("Cognito User Pool Repository", () => {
 		authChallengeAttribute = user.UserAttributes?.find(
 			(attr) => attr.Name === "custom:authChallenge",
 		)
-		expect(authChallengeAttribute?.Value).toBe(secondChallenge)
+		expect(authChallengeAttribute?.Value).toBe(secondToken)
 	})
 
 	it("should handle multiple users correctly", async () => {
@@ -163,7 +163,7 @@ describe("Cognito User Pool Repository", () => {
 		const nonExistentEmail = `test-nonexistent-challenge-${Date.now()}@example.com`
 		const challenge = "test-challenge"
 
-		await expect(identityManagementService.setAuthToken(nonExistentEmail, challenge)).rejects.toThrow()
+		await expect(identityManagementService.setAuthChallenge(nonExistentEmail, challenge)).rejects.toThrow()
 	})
 
 	it("should throw an error when user pool ID is invalid", async () => {

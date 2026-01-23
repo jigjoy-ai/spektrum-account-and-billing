@@ -40,20 +40,20 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		await this.cognito.send(createUserCommand)
 	}
 
-	async setAuthToken(email: string, token: string): Promise<void> {
+	async setAuthChallenge(email: string, challenge: string): Promise<void> {
 
 		await this.cognito.send(
 			new AdminUpdateUserAttributesCommand({
 				UserPoolId: this.userPoolId,
 				Username: email,
-				UserAttributes: [{ Name: "custom:authToken", Value: token }],
+				UserAttributes: [{ Name: "custom:authChallenge", Value: challenge }],
 			}),
 		)
 		  
 
 	}
 
-	async verifyAuthToken(email: string, token: string): Promise<void> {
+	async verifyAuthChallenge(email: string, challenge: string): Promise<void> {
 
 		// This will trigger DefineAuthChallenge 
 		// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
@@ -78,7 +78,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 				Session: authResponse.Session,
 				ChallengeResponses: {
 					USERNAME: email,
-					ANSWER: token,
+					ANSWER: challenge,
 				},
 			})
 		)

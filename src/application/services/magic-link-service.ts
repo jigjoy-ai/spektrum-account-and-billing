@@ -8,7 +8,7 @@ export class MagicLinkService {
 		private readonly tokenService: TokenService,
 		private readonly destinationUrl: string) {}
 
-	async createMagicLinkChallenge(userEmail: string): Promise<{ magicLink: MagicLink; token: string }> {
+	async createMagicLinkChallenge(userEmail: string): Promise<{ magicLink: MagicLink; authChallenge: string }> {
 
 		const token = await this.tokenService.generateToken(userEmail, this.EXPIRATION_MINUTES)
 		const urlSafeToken = this.tokenService.toUrlSafeToken(token)
@@ -18,7 +18,7 @@ export class MagicLinkService {
 		const magicLink = new MagicLink(loginLink, this.EXPIRATION_MINUTES)
 		return {
 			magicLink: magicLink,
-			token: token,
+			authChallenge: token,
 		}
 	}
 }

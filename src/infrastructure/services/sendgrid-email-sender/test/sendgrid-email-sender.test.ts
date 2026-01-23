@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "@rstest/core"
-import { SendgridEmailSender } from "@infra/services/sendgrid-email-sender"
+import { SendgridEmailSender } from "@infra/services/sendgrid-email-sender/sendgrid-email-sender"
 import { Email } from "@domain/email"
 
 describe("SendGrid Email Sender", () => {

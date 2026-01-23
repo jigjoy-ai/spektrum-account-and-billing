@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "@rstest/core"
-import { KMSTokenService } from "@infra/services/token-service"
+import { KMSTokenService } from "@infra/services/kms-token-service/kms-token-service"
 
 describe("KMS Token Service", () => {
 	let tokenService: KMSTokenService

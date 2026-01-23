@@ -1,4 +1,4 @@
-import { KMSTokenService } from "@infra/services/token-service"
+import { KMSTokenService } from "@infra/services/kms-token-service/kms-token-service"
 
 export async function verifyAuthChallengeResponseHandler(event: any) {
 	const email = event.request.userAttributes.email

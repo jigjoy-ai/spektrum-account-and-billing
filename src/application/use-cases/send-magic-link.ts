@@ -23,9 +23,10 @@ export class SendMagicLink implements SendMagicLinkUseCase {
 		}
 
 		// Create a new magic link challenge
-		const { magicLink, token } = await this.magicLinkService.createMagicLinkChallenge(userEmail)
+		const { magicLink, authChallenge } = await this.magicLinkService.createMagicLinkChallenge(userEmail)
 
-		await this.identityManagementService.setAuthToken(userEmail, token)
+		// Token will be used to verify magic link
+		await this.identityManagementService.setAuthChallenge(userEmail, authChallenge)
 
 		// Create the email to send the magic link
 		const magicLinkEmailParams: CreateMagicLinkEmailParams = {
