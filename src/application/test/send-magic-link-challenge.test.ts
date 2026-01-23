@@ -5,7 +5,7 @@ import { InMemoryEmailSender } from "@app/test/mocks/in-memory-email-sender"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { EmailSender } from "@app/ports/services/email-sender"
 
-describe("Send Magic Link", () => {
+describe("Send Magic Link Challenge UseCase", () => {
 	let sendMagicLinkChallengeUseCase: SendMagicLinkChallenge
 	let identityManagementService: IdentityManagementService
 	let emailSender: EmailSender
