@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda"
 import { describe, it, expect, beforeEach } from "@rstest/core"
-import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
-import { createSendMagicLinkHandler } from "@infra/http/factories/send-magic-link"
+import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
+import { createSendMagicLinkChallengeHandler } from "@infra/http/factories/send-magic-link-challenge"
 
 describe("Send Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
@@ -12,13 +12,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 202 and success message when magic link is sent successfully", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				// Success - no error thrown
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: JSON.stringify({
@@ -32,17 +32,17 @@ describe("Send Magic Link Handler", () => {
 
 		const body = JSON.parse(result.body)
 
-		expect(body.message).toBe("Magic link sent successfully")
+		expect(body.message).toBe("Magic link challenge sent successfully")
 	})
 
 	it("returns 400 when body is missing", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {} as unknown as APIGatewayProxyEvent
 
@@ -56,13 +56,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when body is null", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: null,
@@ -78,13 +78,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when body is empty string", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: "",
@@ -100,13 +100,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when email is missing from body", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: JSON.stringify({}),
@@ -122,13 +122,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when email is not a valid email format", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: JSON.stringify({
@@ -146,13 +146,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when email is not a string", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: JSON.stringify({
@@ -170,13 +170,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 400 when body is invalid JSON", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Should not be called")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: "invalid json{",
@@ -192,13 +192,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 500 when use case throws an unexpected error", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				throw new Error("Unexpected error")
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const event = {
 			body: JSON.stringify({
@@ -218,13 +218,13 @@ describe("Send Magic Link Handler", () => {
 	it("calls use case with correct email from request body", async () => {
 		let capturedEmail: string | undefined
 
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async (email: string) => {
 				capturedEmail = email
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const testEmail = "test@example.com"
 		const event = {
@@ -239,13 +239,13 @@ describe("Send Magic Link Handler", () => {
 	})
 
 	it("returns 202 for valid email addresses with different formats", async () => {
-		const mockUseCase: SendMagicLinkUseCase = {
+		const mockUseCase: SendMagicLinkChallengeUseCase = {
 			execute: async () => {
 				// Success
 			},
 		}
 
-		handler = createSendMagicLinkHandler(mockUseCase)
+		handler = createSendMagicLinkChallengeHandler(mockUseCase)
 
 		const validEmails = [
 			"user@example.com",
@@ -266,7 +266,7 @@ describe("Send Magic Link Handler", () => {
 			expect(result.statusCode).toBe(202)
 
 			const body = JSON.parse(result.body)
-			expect(body.message).toBe("Magic link sent successfully")
+			expect(body.message).toBe("Magic link challenge sent successfully")
 		}
 	})
 })

@@ -1,4 +1,4 @@
-export const schema = {
+export const sendMagicLinkChallengeSchema = {
 	type: "object",
 	required: ["email"],
 	properties: {

@@ -41,7 +41,7 @@ describe("Cognito User Pool Repository", () => {
 	it("should return false when finding a non-existent user", async () => {
 		const nonExistentEmail = `test-nonexistent-${Date.now()}@example.com`
 
-		const result = await identityManagementService.isUserExists(nonExistentEmail)
+		const result = await identityManagementService.hasUser(nonExistentEmail)
 
 		expect(result).toBe(false)
 	})
@@ -70,7 +70,7 @@ describe("Cognito User Pool Repository", () => {
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		const found = await identityManagementService.isUserExists(email)
+		const found = await identityManagementService.hasUser(email)
 
 		expect(found).not.toBeNull()
 		expect(found).toBe(true)
@@ -142,8 +142,8 @@ describe("Cognito User Pool Repository", () => {
 		await identityManagementService.createUser(email1)
 		await identityManagementService.createUser(email2)
 
-		const found1 = await identityManagementService.isUserExists(email1)
-		const found2 = await identityManagementService.isUserExists(email2)
+		const found1 = await identityManagementService.hasUser(email1)
+		const found2 = await identityManagementService.hasUser(email2)
 
 		expect(found1).toBe(true)
 		expect(found2).toBe(true)
@@ -178,7 +178,7 @@ describe("Cognito User Pool Repository", () => {
 		testEmails.push(email)
 
 		await identityManagementService.createUser(email)
-		const found = await identityManagementService.isUserExists(email)
+		const found = await identityManagementService.hasUser(email)
 
 		expect(found).not.toBeNull()
 		expect(found).toBe(true)
@@ -189,7 +189,7 @@ describe("Cognito User Pool Repository", () => {
 		const invalidIdentityManagementService = new CognitoIdentityManagementService("invalid-pool-id", userPoolClientId)
 		const email = `test-error-${Date.now()}@example.com`
 
-		await expect(invalidIdentityManagementService.isUserExists(email)).rejects.toThrow(
+		await expect(invalidIdentityManagementService.hasUser(email)).rejects.toThrow(
 			"Error getting user from Cognito",
 		)
 	})

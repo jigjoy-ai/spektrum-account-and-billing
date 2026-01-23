@@ -13,7 +13,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 
 	constructor(private readonly userPoolId: string, private readonly userPoolClientId: string) {}
 
-	async isUserExists(email: string): Promise<boolean> {
+	async hasUser(email: string): Promise<boolean> {
 		try {
 			const getUserCommand = new AdminGetUserCommand({
 				Username: email,

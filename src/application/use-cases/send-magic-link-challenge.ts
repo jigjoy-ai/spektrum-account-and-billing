@@ -1,10 +1,10 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { EmailSender } from "@app/ports/services/email-sender"
-import { SendMagicLinkUseCase } from "@app/ports/use-cases/send-magic-link"
+import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 import { CreateMagicLinkEmailParams, MagicLinkEmailFactory } from "@domain/magic-link-email-factory"
 import { MagicLinkService } from "@app/services/magic-link-service"
 
-export class SendMagicLink implements SendMagicLinkUseCase {
+export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	
 	constructor(
 		private readonly emailSender: EmailSender,
@@ -15,7 +15,7 @@ export class SendMagicLink implements SendMagicLinkUseCase {
 	
 
 	async execute(userEmail: string): Promise<void> {
-		const userExists = await this.identityManagementService.isUserExists(userEmail)
+		const userExists = await this.identityManagementService.hasUser(userEmail)
 
 		// If the account does not exist, create it
 		if (!userExists) {

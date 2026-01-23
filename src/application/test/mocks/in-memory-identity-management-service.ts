@@ -16,7 +16,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		this.users.add(email)
 	}
 
-	async isUserExists(email: string): Promise<boolean> {
+	async hasUser(email: string): Promise<boolean> {
 		if (this.shouldFailOnIsUserExists) {
 			throw this.failureError
 		}
@@ -38,11 +38,6 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		if (!storedToken || storedToken !== challenge) {
 			throw new Error("Invalid auth challenge")
 		}
-	}
-
-	// Helper methods for testing
-	hasUser(email: string): boolean {
-		return this.users.has(email)
 	}
 
 	getAuthToken(email: string): string | undefined {

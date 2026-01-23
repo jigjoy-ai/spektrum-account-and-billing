@@ -211,16 +211,16 @@ Resources:
             FunctionName: !GetAtt PostAuthentication.Arn
             SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    sendMagicLinkFunction:
+    sendMagicLinkChallengeFunction:
         Type: AWS::Serverless::Function
         Properties:
-            Handler: src/infrastructure/http/handlers/send-magic-link.handler
+            Handler: src/infrastructure/http/handlers/send-magic-link-challenge.handler
             Runtime: nodejs22.x
             Architectures:
                 - x86_64
             MemorySize: 128
             Timeout: 100
-            Description: Send magic link to user email
+            Description: Send magic link challenge to user email
             Environment:
                 Variables:
                     KMS_KEY_ID: !Ref EncryptionKey
@@ -249,7 +249,7 @@ Resources:
                 Api:
                     Type: Api
                     Properties:
-                        Path: /send-magic-link
+                        Path: /send-magic-link-challenge
                         Method: POST
         Metadata:
             BuildMethod: esbuild
@@ -258,7 +258,49 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
                 EntryPoints:
-                    - src/infrastructure/http/handlers/send-magic-link.ts
+                    - src/infrastructure/http/handlers/send-magic-link-challenge.ts
+
+    verifyMagicLinkChallengeFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/verify-magic-link-challenge.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Verify magic link challenge
+            Environment:
+                Variables:
+                    USER_POOL_ID: !Ref JigJoyUserPool
+                    USER_POOL_CLIENT_ID: !Ref WebClient
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action: kms:Decrypt
+                        Resource: !GetAtt EncryptionKey.Arn
+                      - Effect: Allow
+                        Action:
+                            [
+                                "cognito-idp:AdminGetUser",
+                                "cognito-idp:AdminUpdateUserAttributes",
+                            ]
+                        Resource: !GetAtt JigJoyUserPool.Arn
+        Events:
+            Api:
+                Type: Api
+                Properties:
+                    Path: /verify-magic-link-challenge
+                    Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
 
 Outputs:
     CognitoUserPoolId:
