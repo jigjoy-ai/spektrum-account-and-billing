@@ -11,10 +11,11 @@ describe("Verify Magic Link Handler", () => {
 		handler = undefined as any
 	})
 
-	it("returns 200 and success message when magic link is verified successfully", async () => {
+	it("returns 200 and access token when magic link is verified successfully", async () => {
+		const mockAccessToken = "mock-access-token-12345"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
-				// Success - no error thrown
+				return mockAccessToken
 			},
 		}
 
@@ -33,7 +34,7 @@ describe("Verify Magic Link Handler", () => {
 
 		const body = JSON.parse(result.body)
 
-		expect(body.message).toBe("Magic link challenge verified successfully")
+		expect(body.accessToken).toBe(mockAccessToken)
 	})
 
 	it("returns 400 when body is missing", async () => {
@@ -278,6 +279,7 @@ describe("Verify Magic Link Handler", () => {
 			execute: async (email: string, challenge: string) => {
 				capturedEmail = email
 				capturedChallenge = challenge
+				return "mock-access-token"
 			},
 		}
 
@@ -299,9 +301,10 @@ describe("Verify Magic Link Handler", () => {
 	})
 
 	it("returns 200 for valid email addresses with different formats", async () => {
+		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
-				// Success
+				return mockAccessToken
 			},
 		}
 
@@ -327,7 +330,7 @@ describe("Verify Magic Link Handler", () => {
 			expect(result.statusCode).toBe(200)
 
 			const body = JSON.parse(result.body)
-			expect(body.message).toBe("Magic link challenge verified successfully")
+			expect(body.accessToken).toBe(mockAccessToken)
 		}
 	})
 })

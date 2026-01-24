@@ -4,7 +4,7 @@ import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-mag
 export class VerifyMagicLinkChallenge implements VerifyMagicLinkChallengeUseCase {
 	constructor(private readonly identityManagementService: IdentityManagementService) {}
 
-	async execute(email: string, challenge: string): Promise<void> {
+	async execute(email: string, challenge: string): Promise<string> {
 
 		const userExists = await this.identityManagementService.hasUser(email)
 
@@ -13,6 +13,8 @@ export class VerifyMagicLinkChallenge implements VerifyMagicLinkChallengeUseCase
 			throw new Error("User does not exist. Please request a new magic link.")
 		}
 
-        await this.identityManagementService.verifyAuthChallenge(email, challenge)
+        const accessToken = await this.identityManagementService.verifyAuthChallenge(email, challenge)
+
+        return accessToken
 	}
 }

@@ -20,8 +20,8 @@ export function createVerifyMagicLinkChallengeHandler(verifyMagicLinkChallengeUs
 			const email = parsedBody.email
 			const challenge = parsedBody.challenge
 
-			await verifyMagicLinkChallengeUseCase.execute(email, challenge)
-			return Responses._200({ message: "Magic link challenge verified successfully" })
+			const accessToken = await verifyMagicLinkChallengeUseCase.execute(email, challenge)
+			return Responses._200({ accessToken: accessToken })
 		} catch (error) {
 			return errorHandler(error)
 		}

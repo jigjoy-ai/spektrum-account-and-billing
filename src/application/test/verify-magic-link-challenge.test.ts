@@ -21,10 +21,12 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		// Act
-		await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
+		const accessToken = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
 
-		// Assert - No error should be thrown
-		expect(true).toBe(true)
+		// Assert - Should return an access token
+		expect(accessToken).toBeDefined()
+		expect(typeof accessToken).toBe("string")
+		expect(accessToken).toContain("session-")
 	})
 
 	it("should throw an error when user does not exist", async () => {
@@ -113,11 +115,14 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken2 = await identityManagementService.issueAuthChallenge(userEmail2, 5)
 
 		// Act
-		await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
-		await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
+		const accessToken1 = await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
+		const accessToken2 = await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
 
-		// Assert - No error should be thrown
-		expect(true).toBe(true)
+		// Assert - Both should return access tokens
+		expect(accessToken1).toBeDefined()
+		expect(accessToken2).toBeDefined()
+		expect(typeof accessToken1).toBe("string")
+		expect(typeof accessToken2).toBe("string")
 	})
 
 	it("should not verify challenge with wrong user email", async () => {

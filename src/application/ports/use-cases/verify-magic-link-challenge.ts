@@ -1,4 +1,4 @@
 // This use case will be called automatically by the client to verify the magic link
 export interface VerifyMagicLinkChallengeUseCase {
-	execute(email: string, challenge: string): Promise<void>
+	execute(email: string, challenge: string): Promise<string>
 }
