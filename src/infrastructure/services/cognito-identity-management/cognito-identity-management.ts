@@ -8,11 +8,20 @@ import {
 	RespondToAuthChallengeCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
+import { CurrentUser } from "@domain/current-user"
+import { CognitoJwtVerifier } from "aws-jwt-verify"
+
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
 	private readonly cognito: CognitoIdentityProviderClient
 	private readonly ONE_MINUTE_IN_MS: number = 60 * 1000
 	private readonly awsKeyManagementService: AWSKeyManagementService
+	private readonly verifier = CognitoJwtVerifier.create({
+		userPoolId: this.userPoolId,
+		tokenUse: "access",
+		clientId: this.userPoolClientId,
+	  })
+
 	constructor(
 		private readonly userPoolId: string,
 		private readonly userPoolClientId: string,
@@ -23,6 +32,11 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 		this.awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
 		this.cognito = cognitoClient || new CognitoIdentityProviderClient()
+	}
+
+	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
+		const payload = await this.verifier.verify(accessToken)
+		return CurrentUser.rehydrate(payload.sub, payload.email as string)
 	}
 
 	async hasUser(email: string): Promise<boolean> {

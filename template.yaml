@@ -250,7 +250,7 @@ Resources:
                 Api:
                     Type: Api
                     Properties:
-                        Path: /send-magic-link-challenge
+                        Path: /auth/challenge/magic-link
                         Method: POST
         Metadata:
             BuildMethod: esbuild
@@ -288,12 +288,12 @@ Resources:
                                 "cognito-idp:AdminUpdateUserAttributes",
                             ]
                         Resource: !GetAtt JigJoyUserPool.Arn
-        Events:
-            Api:
-                Type: Api
-                Properties:
-                    Path: /verify-magic-link-challenge
-                    Method: POST
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        Path: /auth/challenge/magic-link/verify
+                        Method: POST
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -302,6 +302,34 @@ Resources:
                 Sourcemap: true
                 EntryPoints:
                     - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
+
+    getCurrentUserFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/get-current-user.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Environment:
+                Variables:
+                    USER_POOL_ID: !Ref JigJoyUserPool
+                    USER_POOL_CLIENT_ID: !Ref WebClient
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        Path: /auth/current-user
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/get-current-user.ts
 
 Outputs:
     CognitoUserPoolId:

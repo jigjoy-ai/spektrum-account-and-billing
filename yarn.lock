@@ -1330,6 +1330,11 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
+aws-jwt-verify@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/aws-jwt-verify/-/aws-jwt-verify-5.1.1.tgz"
+  integrity sha512-j6whGdGJmQ27agk4ijY8RPv6itb8JLb7SCJ86fEnneTcSBrpxuwL8kLq6y5WVH95aIknyAloEqAsaOLS1J8ITQ==
+
 axios@^1.8.2:
   version "1.11.0"
   resolved "https://registry.npmjs.org/axios/-/axios-1.11.0.tgz"

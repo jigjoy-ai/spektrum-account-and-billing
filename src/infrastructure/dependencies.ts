@@ -5,6 +5,8 @@ import { CognitoIdentityManagementService } from "./services/cognito-identity-ma
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
+import { GetCurrentUserUseCase } from "@app/ports/use-cases/get-current-user"
+import { GetCurrentUser } from "@app/use-cases/get-current-user"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
@@ -24,5 +26,9 @@ export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new 
 )
 
 export const verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(
+	identityManagementService,
+)
+
+export const getCurrentUserUseCase: GetCurrentUserUseCase = new GetCurrentUser(
 	identityManagementService,
 )
