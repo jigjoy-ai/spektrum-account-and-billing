@@ -4,13 +4,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
 
 export function createVerifyMagicLinkChallengeHandler(verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase) {
-	return async function createVerifyMagicLinkChallengeHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	return async function createVerifyMagicLinkChallengeHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
-			if (!body) throw new ValidationError("No page body")
+			if (!event.body) throw new ValidationError("No page body")
 
 			let parsedBody
 			try {
-				parsedBody = JSON.parse(body)
+				parsedBody = JSON.parse(event.body)
 			} catch (parseError) {
 				throw new ValidationError("Invalid JSON in request body")
 			}

@@ -16,11 +16,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	private readonly cognito: CognitoIdentityProviderClient
 	private readonly ONE_MINUTE_IN_MS: number = 60 * 1000
 	private readonly awsKeyManagementService: AWSKeyManagementService
-	private readonly verifier = CognitoJwtVerifier.create({
-		userPoolId: this.userPoolId,
-		tokenUse: "access",
-		clientId: this.userPoolClientId,
-	  })
 
 	constructor(
 		private readonly userPoolId: string,
@@ -30,12 +25,22 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		if (!process.env.KMS_KEY_ID) {
 			throw new Error("KMS_KEY_ID environment variable is required")
 		}
+
 		this.awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
 		this.cognito = cognitoClient || new CognitoIdentityProviderClient()
 	}
 
 	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
-		const payload = await this.verifier.verify(accessToken)
+
+		console.log("userPoolId", this.userPoolId)
+		console.log("userPoolClientId", this.userPoolClientId)
+		const verifier = await CognitoJwtVerifier.create({
+			userPoolId: this.userPoolId,
+			tokenUse: "access",
+			clientId: this.userPoolClientId,
+		})
+
+		const payload = await verifier.verify(accessToken)
 		return CurrentUser.rehydrate(payload.sub, payload.email as string)
 	}
 

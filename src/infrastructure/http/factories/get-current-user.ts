@@ -10,9 +10,9 @@ function getCookie(headers: Record<string, string | undefined>, name: string) {
 }
 
 export function createGetCurrentUserHandler(getCurrentUserUseCase: GetCurrentUserUseCase) {
-	return async function createGetCurrentUserHandler({ headers }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	return async function createGetCurrentUserHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
-			const accessToken = getCookie(headers, "accessToken")
+			const accessToken = getCookie(event.headers, "accessToken")
 			if (!accessToken) 
                 throw new ValidationError("No access token")
 

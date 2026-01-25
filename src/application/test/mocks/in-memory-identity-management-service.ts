@@ -1,4 +1,6 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
+import { CurrentUser } from "@domain/current-user"
+import { randomUUID } from "crypto"
 
 interface ChallengeData {
 	email: string
@@ -6,9 +8,16 @@ interface ChallengeData {
 	expiresAt: Date
 }
 
+interface UserData {
+	email: string
+	userId: string
+}
+
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-	private users: Set<string> = new Set()
+
+	private users: Map<string, UserData> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
+	private accessTokens: Map<string, string> = new Map() // accessToken -> email
 	private challengeCounter: number = 0
 
 	// Failure injection flags
@@ -22,7 +31,11 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		if (this.shouldFailOnCreateUser) {
 			throw this.failureError
 		}
-		this.users.add(email)
+		// Only create user if it doesn't exist
+		if (!this.users.has(email)) {
+			const userId = randomUUID()
+			this.users.set(email, { email, userId })
+		}
 	}
 
 	async hasUser(email: string): Promise<boolean> {
@@ -69,7 +82,10 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		}
 
 		// Return a session token or user identifier
-		return `session-${email}-${Date.now()}`
+		const accessToken = `session-${email}-${Date.now()}`
+		// Store the mapping of access token to email
+		this.accessTokens.set(accessToken, email)
+		return accessToken
 	}
 
 	// Helper methods for testing
@@ -84,6 +100,23 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 			}
 		}
 		return latestChallenge?.challenge
+	}
+
+	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
+		// Look up the email from the stored access token mapping
+		const email = this.accessTokens.get(accessToken)
+		if (!email) {
+			throw new Error("Invalid access token")
+		}
+
+		// Get user data to retrieve the UUID
+		const userData = this.users.get(email)
+		if (!userData) {
+			throw new Error("User not found")
+		}
+
+		// Return CurrentUser with UUID as userId
+		return CurrentUser.rehydrate(userData.userId, userData.email)
 	}
 
 	setShouldFailOnHasUser(shouldFail: boolean, error?: Error): void {
@@ -117,6 +150,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 	clear(): void {
 		this.users.clear()
 		this.challenges.clear()
+		this.accessTokens.clear()
 		this.challengeCounter = 0
 		this.shouldFailOnHasUser = false
 		this.shouldFailOnCreateUser = false
