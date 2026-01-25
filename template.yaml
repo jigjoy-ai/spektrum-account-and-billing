@@ -275,6 +275,7 @@ Resources:
                 Variables:
                     USER_POOL_ID: !Ref JigJoyUserPool
                     USER_POOL_CLIENT_ID: !Ref WebClient
+                    KMS_KEY_ID: !Ref EncryptionKey
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -316,6 +317,7 @@ Resources:
                 Variables:
                     USER_POOL_ID: !Ref JigJoyUserPool
                     USER_POOL_CLIENT_ID: !Ref WebClient
+                    KMS_KEY_ID: !Ref EncryptionKey
             Events:
                 Api:
                     Type: Api
