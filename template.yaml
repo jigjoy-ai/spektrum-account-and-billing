@@ -36,6 +36,7 @@ Resources:
                 PreSignUp: !GetAtt PreSignUp.Arn
                 PostAuthentication: !GetAtt PostAuthentication.Arn
                 VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
+                PreTokenGeneration: !GetAtt PreTokenGeneration.Arn
 
     WebClient:
         Type: AWS::Cognito::UserPoolClient
@@ -113,8 +114,6 @@ Resources:
             Environment:
                 Variables:
                     KMS_KEY_ID: !Ref EncryptionKey
-                    USER_POOL_ID: !Ref JigJoyUserPool
-                    USER_POOL_CLIENT_ID: !Ref WebClient
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -173,6 +172,24 @@ Resources:
                 EntryPoints:
                     - src/infrastructure/services/cognito-identity-management/triggers/post-authentication.ts
 
+    PreTokenGeneration:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.preTokenGenerationHandler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.ts
+
     UserPoolCreateAuthChallengeLambdaPermission:
         Type: AWS::Lambda::Permission
         Properties:
@@ -211,6 +228,14 @@ Resources:
             Action: lambda:invokeFunction
             Principal: cognito-idp.amazonaws.com
             FunctionName: !GetAtt PostAuthentication.Arn
+            SourceArn: !GetAtt JigJoyUserPool.Arn
+
+    UserPoolPreTokenGenerationLambdaPermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:invokeFunction
+            Principal: cognito-idp.amazonaws.com
+            FunctionName: !GetAtt PreTokenGeneration.Arn
             SourceArn: !GetAtt JigJoyUserPool.Arn
 
     sendMagicLinkChallengeFunction:
@@ -305,35 +330,6 @@ Resources:
                 Sourcemap: true
                 EntryPoints:
                     - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
-
-    getCurrentUserFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/http/handlers/get-current-user.handler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-            Environment:
-                Variables:
-                    USER_POOL_ID: !Ref JigJoyUserPool
-                    USER_POOL_CLIENT_ID: !Ref WebClient
-                    KMS_KEY_ID: !Ref EncryptionKey
-            Events:
-                Api:
-                    Type: Api
-                    Properties:
-                        Path: /auth/current-user
-                        Method: GET
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/http/handlers/get-current-user.ts
 
 Outputs:
     CognitoUserPoolId:

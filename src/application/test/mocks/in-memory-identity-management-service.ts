@@ -1,16 +1,12 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
-import { CurrentUser } from "@domain/current-user"
+import { AuthSession } from "@domain/auth-session"
+import { UserData } from "@domain/user-data"
 import { randomUUID } from "crypto"
 
 interface ChallengeData {
 	email: string
 	challenge: string
 	expiresAt: Date
-}
-
-interface UserData {
-	email: string
-	userId: string
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
@@ -34,7 +30,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		// Only create user if it doesn't exist
 		if (!this.users.has(email)) {
 			const userId = randomUUID()
-			this.users.set(email, { email, userId })
+			this.users.set(email, UserData.rehydrate(userId, email))
 		}
 	}
 
@@ -66,7 +62,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		return challengeB64
 	}
 
-	async verifyAuthChallenge(email: string, challenge: string): Promise<string> {
+	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
 		if (this.shouldFailOnVerifyAuthChallenge) {
 			throw this.failureError
 		}
@@ -85,7 +81,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		const accessToken = `session-${email}-${Date.now()}`
 		// Store the mapping of access token to email
 		this.accessTokens.set(accessToken, email)
-		return accessToken
+		return AuthSession.create(accessToken, UserData.rehydrate(email, email))
 	}
 
 	// Helper methods for testing
@@ -102,7 +98,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		return latestChallenge?.challenge
 	}
 
-	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
+	async getCurrentUserFromAccessToken(accessToken: string): Promise<AuthSession> {
 		// Look up the email from the stored access token mapping
 		const email = this.accessTokens.get(accessToken)
 		if (!email) {
@@ -116,7 +112,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		}
 
 		// Return CurrentUser with UUID as userId
-		return CurrentUser.rehydrate(userData.userId, userData.email)
+		return AuthSession.create(accessToken, userData)
 	}
 
 	setShouldFailOnHasUser(shouldFail: boolean, error?: Error): void {

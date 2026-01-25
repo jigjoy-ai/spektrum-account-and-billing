@@ -5,11 +5,13 @@ import {
 	AdminUpdateUserAttributesCommand,
 	CognitoIdentityProviderClient,
 	InitiateAuthCommand,
+	InitiateAuthCommandOutput,
 	RespondToAuthChallengeCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
-import { CurrentUser } from "@domain/current-user"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
+import { AuthSession } from "@domain/auth-session"
+import { UserData } from "@domain/user-data"
 
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
@@ -27,20 +29,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 
 		this.awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
-		this.cognito = cognitoClient || new CognitoIdentityProviderClient()
-	}
-
-	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
-		const verifier = await CognitoJwtVerifier.create({
-			userPoolId: this.userPoolId,
-			tokenUse: "access",
-			clientId: this.userPoolClientId,
-		})
-
-		const payload = await verifier.verify(accessToken)
-
-		console.log("getCurrentUserFromAccessToken - Payload:", JSON.stringify(payload))
-		return CurrentUser.rehydrate(payload.sub, payload.email as string)
+		this.cognito = cognitoClient || new CognitoIdentityProviderClient({ region: process.env.AWS_REGION, profile: process.env.AWS_PROFILE })
 	}
 
 	async hasUser(email: string): Promise<boolean> {
@@ -97,68 +86,80 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 
 	}
 
-	async verifyAuthChallenge(email: string, challenge: string): Promise<string> {
-		console.log("verifyAuthChallenge - Starting verification for email:", email)
-		console.log("verifyAuthChallenge - Challenge length:", challenge?.length)
+	async isAuthorized(authToken: string): Promise<boolean> {
+		const verifier = await CognitoJwtVerifier.create({
+			userPoolId: this.userPoolId,
+			tokenUse: "access",
+			clientId: this.userPoolClientId,
+		})
 
-		// This will trigger DefineAuthChallenge 
-		// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
-		let authResponse
 		try {
-			authResponse = await this.cognito.send(
-				new InitiateAuthCommand({
-					AuthFlow: "CUSTOM_AUTH",
-					ClientId: this.userPoolClientId,
-					AuthParameters: { USERNAME: email },
-				})
-			)
-			console.log("verifyAuthChallenge - InitiateAuth successful, ChallengeName:", authResponse.ChallengeName)
+			await verifier.verify(authToken)
+			return true
 		} catch (error: any) {
-			console.error("verifyAuthChallenge - InitiateAuth failed:", error)
-			if (error.name === "UserNotFoundException") {
-				throw new Error("User does not exist. Please request a new magic link.")
-			}
-			throw error
+			console.error("isAuthorized - Error verifying token:", error)
+			return false
 		}
+	}
 
-		if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
-			console.error("verifyAuthChallenge - Invalid challenge response:", {
-				ChallengeName: authResponse.ChallengeName,
-				HasSession: !!authResponse.Session,
-			})
-			// Keep it generic
-			throw new Error("Challenge not found")
+	async extractUserData(challengeResponse: InitiateAuthCommandOutput): Promise<UserData> {
+		if (!challengeResponse.AuthenticationResult?.IdToken) {
+			console.error("verifyAuthChallenge - No id token in response")
+			throw new Error("Failed to verify challenge")
 		}
+		const verifier = await CognitoJwtVerifier.create({
+			userPoolId: this.userPoolId,
+			tokenUse: "id",
+			clientId: this.userPoolClientId,
+		})
 
-		// This will trigger verifyAuthChallengeResponseHandler
-		let challengeResponse
-		try {
-			challengeResponse = await this.cognito.send(
-				new RespondToAuthChallengeCommand({
-					ClientId: this.userPoolClientId,
-					ChallengeName: "CUSTOM_CHALLENGE",
-					Session: authResponse.Session,
-					ChallengeResponses: {
-						USERNAME: email,
-						ANSWER: challenge,
-					},
-				})
-			)
-			console.log("verifyAuthChallenge - RespondToAuthChallenge successful")
-		} catch (error: any) {
-			console.error("verifyAuthChallenge - RespondToAuthChallenge failed:", error)
-			if (error.name === "NotAuthorizedException") {
-				throw new Error("Invalid or expired challenge token. Please request a new magic link.")
-			}
-			throw error
-		}
+		const payload = await verifier.verify(challengeResponse.AuthenticationResult.IdToken as string)
+		return UserData.rehydrate(payload.sub, payload.email as string)
+	}
 
+	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
 		if (!challengeResponse.AuthenticationResult?.AccessToken) {
 			console.error("verifyAuthChallenge - No access token in response")
 			throw new Error("Failed to verify challenge")
 		}
+		return challengeResponse.AuthenticationResult.AccessToken as string
+	}
+
+	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
+
+		// This will trigger DefineAuthChallenge 
+		// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
+		const authResponse = await this.cognito.send(
+			new InitiateAuthCommand({
+				AuthFlow: "CUSTOM_AUTH",
+				ClientId: this.userPoolClientId,
+				AuthParameters: { USERNAME: email },
+			})
+		)
+
+		if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
+			throw new Error("Challenge not found")
+		}
+
+		// This will trigger verifyAuthChallengeResponseHandler
+		const challengeResponse = await this.cognito.send(
+			new RespondToAuthChallengeCommand({
+				ClientId: this.userPoolClientId,
+				ChallengeName: "CUSTOM_CHALLENGE",
+				Session: authResponse.Session,
+				ChallengeResponses: {
+					USERNAME: email,
+					ANSWER: challenge,
+				},
+			})
+		)
+
+		const userData = await this.extractUserData(challengeResponse)
+		const accessToken = this.extractAccessToken(challengeResponse)
 
 		console.log("verifyAuthChallenge - Verification successful")
-		return challengeResponse.AuthenticationResult.AccessToken
+
+		const authSession = AuthSession.create(accessToken, userData)
+		return authSession
 	}
 }

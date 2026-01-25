@@ -1,4 +1,6 @@
-export async function defineAuthChallengeHandler(event: any) {
+import { DefineAuthChallengeTriggerEvent } from "aws-lambda"
+
+export async function defineAuthChallengeHandler(event: DefineAuthChallengeTriggerEvent): Promise<DefineAuthChallengeTriggerEvent> {
 	if (event.request.userNotFound) {
 		event.response.issueTokens = false
 		event.response.failAuthentication = true

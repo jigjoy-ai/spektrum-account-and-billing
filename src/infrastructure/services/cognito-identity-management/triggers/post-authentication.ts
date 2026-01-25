@@ -2,10 +2,11 @@ import {
 	CognitoIdentityProviderClient,
 	AdminUpdateUserAttributesCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
+import { PostAuthenticationTriggerEvent } from "aws-lambda"
 
 const cognito = new CognitoIdentityProviderClient()
 
-export async function postAuthenticationHandler(event: any) {
+export async function postAuthenticationHandler(event: PostAuthenticationTriggerEvent): Promise<PostAuthenticationTriggerEvent> {
 	if (event.request.userAttributes.email_verified !== "true") {
 		const updateAttributesCommand = new AdminUpdateUserAttributesCommand({
 			UserPoolId: event.userPoolId,

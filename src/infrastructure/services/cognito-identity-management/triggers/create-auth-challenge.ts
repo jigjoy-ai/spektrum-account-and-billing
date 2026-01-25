@@ -3,9 +3,6 @@ export async function createAuthChallengeHandler(event: any) {
 	const authChallenge = event.request.userAttributes["custom:authChallenge"]
 
 	console.log("CreateAuthChallenge - Email:", email)
-	console.log("CreateAuthChallenge - custom:authChallenge present:", !!authChallenge)
-	console.log("CreateAuthChallenge - custom:authChallenge length:", authChallenge?.length)
-	console.log("CreateAuthChallenge - All user attributes:", Object.keys(event.request.userAttributes))
 
 	if (!authChallenge || authChallenge === "") {
 		console.error("CreateAuthChallenge - ERROR: custom:authChallenge attribute is missing or empty!")

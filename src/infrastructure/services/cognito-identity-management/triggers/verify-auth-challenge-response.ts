@@ -1,22 +1,17 @@
 import { AWSKeyManagementService } from "@infra/services/cognito-identity-management/util/aws-key-management-service"
+import { VerifyAuthChallengeResponseTriggerEvent } from "aws-lambda"
 
-export async function verifyAuthChallengeResponseHandler(event: any) {
+export async function verifyAuthChallengeResponseHandler(event: VerifyAuthChallengeResponseTriggerEvent): Promise<VerifyAuthChallengeResponseTriggerEvent> {
 	const email = event.request.userAttributes.email
 	const privateChallengeParams = event.request.privateChallengeParameters || {}
 	const expected = privateChallengeParams.challenge
 	const answer = event.request.challengeAnswer
 
 	console.log("VerifyAuthChallengeResponse - Email:", email)
-	console.log("VerifyAuthChallengeResponse - privateChallengeParameters present:", !!event.request.privateChallengeParameters)
-	console.log("VerifyAuthChallengeResponse - Expected challenge present:", !!expected)
-	console.log("VerifyAuthChallengeResponse - Expected challenge length:", expected?.length)
-	console.log("VerifyAuthChallengeResponse - Answer present:", !!answer)
-	console.log("VerifyAuthChallengeResponse - Answer length:", answer?.length)
 
 	// Check if challenge is missing
 	if (!expected || expected === "") {
-		console.error("VerifyAuthChallengeResponse - ERROR: Expected challenge is missing or empty!")
-		console.error("VerifyAuthChallengeResponse - This means custom:authChallenge attribute was not set or CreateAuthChallenge did not run properly")
+		console.error("VerifyAuthChallengeResponse - custom:authChallenge attribute was not set or CreateAuthChallenge did not run properly")
 		event.response.answerCorrect = false
 		return event
 	}
@@ -24,11 +19,6 @@ export async function verifyAuthChallengeResponseHandler(event: any) {
 	// 1. Validate challenge token matches what was sent
 	if (answer !== expected) {
 		console.log("Token mismatch - Answer does not match expected challenge")
-		console.log("Expected length:", expected?.length, "Answer length:", answer?.length)
-		console.log("Expected first 20 chars:", expected?.substring(0, 20))
-		console.log("Answer first 20 chars:", answer?.substring(0, 20))
-		console.log("Expected last 20 chars:", expected?.substring(Math.max(0, expected.length - 20)))
-		console.log("Answer last 20 chars:", answer?.substring(Math.max(0, answer.length - 20)))
 		event.response.answerCorrect = false
 		return event
 	}
