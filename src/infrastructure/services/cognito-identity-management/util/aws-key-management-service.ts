@@ -22,6 +22,7 @@ export class AWSKeyManagementService {
 
     async decrypt(ciphertext: any): Promise<any> {
         const input = {
+            KeyId: this.kmsKeyId,
             CiphertextBlob: Buffer.from(ciphertext, "base64"),
         }
 

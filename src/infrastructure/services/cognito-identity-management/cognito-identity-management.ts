@@ -31,9 +31,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async getCurrentUserFromAccessToken(accessToken: string): Promise<CurrentUser> {
-
-		console.log("userPoolId", this.userPoolId)
-		console.log("userPoolClientId", this.userPoolClientId)
 		const verifier = await CognitoJwtVerifier.create({
 			userPoolId: this.userPoolId,
 			tokenUse: "access",
@@ -41,6 +38,8 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		})
 
 		const payload = await verifier.verify(accessToken)
+
+		console.log("getCurrentUserFromAccessToken - Payload:", JSON.stringify(payload))
 		return CurrentUser.rehydrate(payload.sub, payload.email as string)
 	}
 
@@ -99,39 +98,67 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async verifyAuthChallenge(email: string, challenge: string): Promise<string> {
+		console.log("verifyAuthChallenge - Starting verification for email:", email)
+		console.log("verifyAuthChallenge - Challenge length:", challenge?.length)
 
 		// This will trigger DefineAuthChallenge 
 		// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
-		const authResponse = await this.cognito.send(
-			new InitiateAuthCommand({
-				AuthFlow: "CUSTOM_AUTH",
-				ClientId: this.userPoolClientId,
-				AuthParameters: { USERNAME: email },
-			})
-		)
+		let authResponse
+		try {
+			authResponse = await this.cognito.send(
+				new InitiateAuthCommand({
+					AuthFlow: "CUSTOM_AUTH",
+					ClientId: this.userPoolClientId,
+					AuthParameters: { USERNAME: email },
+				})
+			)
+			console.log("verifyAuthChallenge - InitiateAuth successful, ChallengeName:", authResponse.ChallengeName)
+		} catch (error: any) {
+			console.error("verifyAuthChallenge - InitiateAuth failed:", error)
+			if (error.name === "UserNotFoundException") {
+				throw new Error("User does not exist. Please request a new magic link.")
+			}
+			throw error
+		}
 
 		if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
+			console.error("verifyAuthChallenge - Invalid challenge response:", {
+				ChallengeName: authResponse.ChallengeName,
+				HasSession: !!authResponse.Session,
+			})
 			// Keep it generic
 			throw new Error("Challenge not found")
 		}
 
 		// This will trigger verifyAuthChallengeResponseHandler
-		const challengeResponse = await this.cognito.send(
-			new RespondToAuthChallengeCommand({
-				ClientId: this.userPoolClientId,
-				ChallengeName: "CUSTOM_CHALLENGE",
-				Session: authResponse.Session,
-				ChallengeResponses: {
-					USERNAME: email,
-					ANSWER: challenge,
-				},
-			})
-		)
+		let challengeResponse
+		try {
+			challengeResponse = await this.cognito.send(
+				new RespondToAuthChallengeCommand({
+					ClientId: this.userPoolClientId,
+					ChallengeName: "CUSTOM_CHALLENGE",
+					Session: authResponse.Session,
+					ChallengeResponses: {
+						USERNAME: email,
+						ANSWER: challenge,
+					},
+				})
+			)
+			console.log("verifyAuthChallenge - RespondToAuthChallenge successful")
+		} catch (error: any) {
+			console.error("verifyAuthChallenge - RespondToAuthChallenge failed:", error)
+			if (error.name === "NotAuthorizedException") {
+				throw new Error("Invalid or expired challenge token. Please request a new magic link.")
+			}
+			throw error
+		}
 
 		if (!challengeResponse.AuthenticationResult?.AccessToken) {
+			console.error("verifyAuthChallenge - No access token in response")
 			throw new Error("Failed to verify challenge")
 		}
 
+		console.log("verifyAuthChallenge - Verification successful")
 		return challengeResponse.AuthenticationResult.AccessToken
 	}
 }

@@ -113,6 +113,8 @@ Resources:
             Environment:
                 Variables:
                     KMS_KEY_ID: !Ref EncryptionKey
+                    USER_POOL_ID: !Ref JigJoyUserPool
+                    USER_POOL_CLIENT_ID: !Ref WebClient
             Policies:
                 - Version: "2012-10-17"
                   Statement:

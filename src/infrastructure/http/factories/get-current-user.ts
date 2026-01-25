@@ -2,17 +2,22 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { errorHandler, Responses, ValidationError } from "@jigjoy-io/serverless-core"
 import { GetCurrentUserUseCase } from "@app/ports/use-cases/get-current-user"
 
-function getCookie(headers: Record<string, string | undefined>, name: string) {
-    const raw = headers.cookie ?? headers.Cookie
-    if (!raw) return null
-    const part = raw.split(";").map(s => s.trim()).find(x => x.startsWith(name + "="))
-    return part ? decodeURIComponent(part.slice(name.length + 1)) : null
+function getBearerToken(headers: Record<string, string | undefined>): string | null {
+    const authorization = headers.authorization ?? headers.Authorization
+    if (!authorization) return null
+    
+    const parts = authorization.trim().split(" ")
+    if (parts.length !== 2 || parts[0].toLowerCase() !== "bearer") {
+        return null
+    }
+    
+    return parts[1]
 }
 
 export function createGetCurrentUserHandler(getCurrentUserUseCase: GetCurrentUserUseCase) {
 	return async function createGetCurrentUserHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
-			const accessToken = getCookie(event.headers, "accessToken")
+			const accessToken = getBearerToken(event.headers)
 			if (!accessToken) 
                 throw new ValidationError("No access token")
 
