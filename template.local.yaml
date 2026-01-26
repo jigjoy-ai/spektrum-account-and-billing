@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: account-and-billing (LOCAL)
+
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures:
+      - x86_64
+    MemorySize: 128
+    Timeout: 100
+
+Resources:
+  LocalApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: local
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'content-type,authorization'"
+        AllowOrigin: "'*'"
+
+  sendMagicLinkChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/http/handlers/send-magic-link-challenge.handler
+      Description: Send magic link challenge (local)
+      Environment:
+        Variables:
+          KMS_KEY_ID: ""
+          USER_POOL_ID: ""
+          USER_POOL_CLIENT_ID: ""
+          DESTINATION_URL: ""
+          FROM_ADDRESS: ""
+          SENDGRID_API_KEY: ""
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LocalApi
+            Path: /challenge/magic-link
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Target: "es2020"
+        Platform: node
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/infrastructure/http/handlers/send-magic-link-challenge.ts
+
+  verifyMagicLinkChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: verify-magic-link-challenge.handler
+      Description: Verify magic link challenge (local)
+      Environment:
+        Variables:
+          USER_POOL_ID: ""
+          USER_POOL_CLIENT_ID: ""
+          KMS_KEY_ID: ""
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LocalApi
+            Path: /challenge/magic-link/verify
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Target: "es2020"
+        Platform: node
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/infrastructure/http/handlers/verify-magic-link-challenge.ts

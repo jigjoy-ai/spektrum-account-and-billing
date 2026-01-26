@@ -28,9 +28,10 @@
 		"typescript": "^5.5.2"
 	},
 	"scripts": {
-		"build": "sam build --profile Development",
+		"build:local": "sam build --profile Development -t template.local.yaml ",
+		"build": "sam build --profile Development -t template.yaml ",
 		"deploy": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
-		"serve": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
+		"serve": "sam local start-api --profile Development -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
 		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
 		"dev": "npm-run-all --parallel serve docs",
 		"test": "rstest -c rstest.config.ts",
