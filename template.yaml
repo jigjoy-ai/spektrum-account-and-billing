@@ -1,354 +1,335 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-    account-and-billing
+  account-and-billing
 
 Transform:
-    - AWS::Serverless-2016-10-31
-
-Globals:
-    Api:
-        Cors:
-            AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-            AllowHeaders: "'content-type,authorization'"
-            AllowOrigin: "'*'"
+  - AWS::Serverless-2016-10-31
 
 Resources:
-    JigJoyUserPool:
-        Type: AWS::Cognito::UserPool
-        Properties:
-            UserPoolName: jigJoyUserPool
-            Policies:
-                PasswordPolicy:
-                    MinimumLength: 8
-            UsernameAttributes:
-                - email
-            Schema:
-                - AttributeDataType: String
-                  Name: email
-                  Required: true
-                - AttributeDataType: String
-                  Mutable: true
-                  Required: false
-                  Name: authChallenge
-            LambdaConfig:
-                CreateAuthChallenge: !GetAtt CreateAuthChallenge.Arn
-                DefineAuthChallenge: !GetAtt DefineAuthChallenge.Arn
-                PreSignUp: !GetAtt PreSignUp.Arn
-                PostAuthentication: !GetAtt PostAuthentication.Arn
-                VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
-                PreTokenGeneration: !GetAtt PreTokenGeneration.Arn
+  JigJoyUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: jigJoyUserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Required: false
+          Name: authChallenge
+      LambdaConfig:
+        CreateAuthChallenge: !GetAtt CreateAuthChallenge.Arn
+        DefineAuthChallenge: !GetAtt DefineAuthChallenge.Arn
+        PreSignUp: !GetAtt PreSignUp.Arn
+        PostAuthentication: !GetAtt PostAuthentication.Arn
+        VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
+        PreTokenGeneration: !GetAtt PreTokenGeneration.Arn
 
-    WebClient:
-        Type: AWS::Cognito::UserPoolClient
-        Properties:
-            UserPoolId: !Ref JigJoyUserPool
-            ClientName: webClient
-            ExplicitAuthFlows:
-                - ALLOW_CUSTOM_AUTH
-                - ALLOW_REFRESH_TOKEN_AUTH
-            PreventUserExistenceErrors: ENABLED
-            AccessTokenValidity: 60
-            IdTokenValidity: 60
-            TokenValidityUnits:
-                AccessToken: minutes
-                IdToken: minutes
+  WebClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref JigJoyUserPool
+      ClientName: webClient
+      ExplicitAuthFlows:
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      AccessTokenValidity: 60
+      IdTokenValidity: 60
+      TokenValidityUnits:
+        AccessToken: minutes
+        IdToken: minutes
 
-    EncryptionKey:
-        Type: AWS::KMS::Key
-        Properties:
-            Enabled: true
-            EnableKeyRotation: true
-            KeyPolicy:
-                Version: "2012-10-17"
-                Id: key-default-1
-                Statement:
-                    - Sid: Enable IAM User Permissions
-                      Effect: Allow
-                      Principal:
-                          AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
-                      Action: kms:*
-                      Resource: "*"
-            MultiRegion: false
-            PendingWindowInDays: 7
+  EncryptionKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: key-default-1
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+      MultiRegion: false
+      PendingWindowInDays: 7
 
-    DefineAuthChallenge:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.defineAuthChallengeHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.ts
+  DefineAuthChallenge:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.defineAuthChallengeHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/define-auth-challenge.ts
 
-    CreateAuthChallenge:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.createAuthChallengeHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.ts
+  CreateAuthChallenge:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.createAuthChallengeHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/create-auth-challenge.ts
 
-    VerifyAuthChallengeResponse:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-            Environment:
-                Variables:
-                    KMS_KEY_ID: !Ref EncryptionKey
-            Policies:
-                - Version: "2012-10-17"
-                  Statement:
-                      - Effect: Allow
-                        Action: kms:Decrypt
-                        Resource: !GetAtt EncryptionKey.Arn
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.ts
+  VerifyAuthChallengeResponse:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.verifyAuthChallengeResponseHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Environment:
+        Variables:
+          KMS_KEY_ID: !Ref EncryptionKey
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: kms:Decrypt
+              Resource: !GetAtt EncryptionKey.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/verify-auth-challenge-response.ts
 
-    PreSignUp:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.preSignUpHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.ts
+  PreSignUp:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.preSignUpHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/pre-sign-up.ts
 
-    PostAuthentication:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/post-authentication.postAuthenticationHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-            Policies:
-                - Statement:
-                      - Sid: AttributesUpdate
-                        Effect: Allow
-                        Action:
-                            - cognito-idp:AdminUpdateUserAttributes
-                        Resource: "*"
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/post-authentication.ts
+  PostAuthentication:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/post-authentication.postAuthenticationHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Policies:
+        - Statement:
+            - Sid: AttributesUpdate
+              Effect: Allow
+              Action:
+                - cognito-idp:AdminUpdateUserAttributes
+              Resource: "*"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/post-authentication.ts
 
-    PreTokenGeneration:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.preTokenGenerationHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.ts
+  PreTokenGeneration:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.preTokenGenerationHandler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.ts
 
-    UserPoolCreateAuthChallengeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt CreateAuthChallenge.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolCreateAuthChallengeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt CreateAuthChallenge.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolVerifyAuthChallengeResponseLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt VerifyAuthChallengeResponse.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolVerifyAuthChallengeResponseLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt VerifyAuthChallengeResponse.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolDefineAuthChallengeLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt DefineAuthChallenge.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolDefineAuthChallengeLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt DefineAuthChallenge.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolPreSignUpLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt PreSignUp.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolPreSignUpLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt PreSignUp.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolPostAuthenticationLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt PostAuthentication.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolPostAuthenticationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt PostAuthentication.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolPreTokenGenerationLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt PreTokenGeneration.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
+  UserPoolPreTokenGenerationLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:invokeFunction
+      Principal: cognito-idp.amazonaws.com
+      FunctionName: !GetAtt PreTokenGeneration.Arn
+      SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    sendMagicLinkChallengeFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/http/handlers/send-magic-link-challenge.handler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-            Description: Send magic link challenge to user email
-            Environment:
-                Variables:
-                    KMS_KEY_ID: !Ref EncryptionKey
-                    USER_POOL_ID: !Ref JigJoyUserPool
-                    USER_POOL_CLIENT_ID: !Ref WebClient
-                    DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
-                    FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
-                    SENDGRID_API_KEY: "{{resolve:secretsmanager:vars:SecretString:SendgridApiKey}}"
-            Policies:
-                - Version: "2012-10-17"
-                  Statement:
-                      - Effect: Allow
-                        Action: ses:SendEmail
-                        Resource: "*"
-                      - Effect: Allow
-                        Action: kms:Encrypt
-                        Resource: !GetAtt EncryptionKey.Arn
-                      - Effect: Allow
-                        Action:
-                            [
-                                "cognito-idp:AdminUpdateUserAttributes",
-                                "cognito-idp:AdminGetUser",
-                                "cognito-idp:AdminCreateUser",
-                            ]
-                        Resource: !GetAtt JigJoyUserPool.Arn
-            Events:
-                Api:
-                    Type: Api
-                    Properties:
-                        Path: /auth/challenge/magic-link
-                        Method: POST
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/http/handlers/send-magic-link-challenge.ts
+  sendMagicLinkChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/http/handlers/send-magic-link-challenge.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Send magic link challenge to user email
+      Environment:
+        Variables:
+          KMS_KEY_ID: !Ref EncryptionKey
+          USER_POOL_ID: !Ref JigJoyUserPool
+          USER_POOL_CLIENT_ID: !Ref WebClient
+          DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
+          FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
+          SENDGRID_API_KEY: "{{resolve:secretsmanager:vars:SecretString:SendgridApiKey}}"
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: ses:SendEmail
+              Resource: "*"
+            - Effect: Allow
+              Action: kms:Encrypt
+              Resource: !GetAtt EncryptionKey.Arn
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminUpdateUserAttributes
+                - cognito-idp:AdminGetUser
+                - cognito-idp:AdminCreateUser
+              Resource: !GetAtt JigJoyUserPool.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/http/handlers/send-magic-link-challenge.ts
 
-    verifyMagicLinkChallengeFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/http/handlers/verify-magic-link-challenge.handler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-            Description: Verify magic link challenge
-            Environment:
-                Variables:
-                    USER_POOL_ID: !Ref JigJoyUserPool
-                    USER_POOL_CLIENT_ID: !Ref WebClient
-                    KMS_KEY_ID: !Ref EncryptionKey
-            Policies:
-                - Version: "2012-10-17"
-                  Statement:
-                      - Effect: Allow
-                        Action: kms:Decrypt
-                        Resource: !GetAtt EncryptionKey.Arn
-                      - Effect: Allow
-                        Action:
-                            [
-                                "cognito-idp:AdminGetUser",
-                                "cognito-idp:AdminUpdateUserAttributes",
-                            ]
-                        Resource: !GetAtt JigJoyUserPool.Arn
-            Events:
-                Api:
-                    Type: Api
-                    Properties:
-                        Path: /auth/challenge/magic-link/verify
-                        Method: POST
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
+  verifyMagicLinkChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/infrastructure/http/handlers/verify-magic-link-challenge.handler
+      Runtime: nodejs22.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: Verify magic link challenge
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref JigJoyUserPool
+          USER_POOL_CLIENT_ID: !Ref WebClient
+          KMS_KEY_ID: !Ref EncryptionKey
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: kms:Decrypt
+              Resource: !GetAtt EncryptionKey.Arn
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminGetUser
+                - cognito-idp:AdminUpdateUserAttributes
+              Resource: !GetAtt JigJoyUserPool.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
 
 Outputs:
-    CognitoUserPoolId:
-        Value: !Ref JigJoyUserPool
-        Export:
-            Name: CognitoUserPoolId
+  CognitoUserPoolId:
+    Value: !Ref JigJoyUserPool
+    Export:
+      Name: !Sub "${AWS::StackName}-CognitoUserPoolId"
 
-    CognitoUserPoolClientId:
-        Value: !Ref WebClient
-        Export:
-            Name: CognitoUserPoolClientId
+  CognitoUserPoolClientId:
+    Value: !Ref WebClient
+    Export:
+      Name: !Sub "${AWS::StackName}-CognitoUserPoolClientId"
 
-    AuthApiGatewayUrl:
-        Description: "API Gateway URL for authentication and authorization"
-        Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-        Export:
-            Name: AuthApiGatewayUrl
+  SendMagicLinkChallengeFnArn:
+    Value: !GetAtt sendMagicLinkChallengeFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-SendMagicLinkChallengeFnArn"
+
+  VerifyMagicLinkChallengeFnArn:
+    Value: !GetAtt verifyMagicLinkChallengeFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-VerifyMagicLinkChallengeFnArn"
