@@ -10,7 +10,6 @@ interface ChallengeData {
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-
 	private users: Map<string, UserData> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
 	private accessTokens: Map<string, string> = new Map() // accessToken -> email

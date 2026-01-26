@@ -1,5 +1,5 @@
 import { EmailSender } from "@app/ports/services/email-sender"
-import sgMail from '@sendgrid/mail'
+import sgMail from "@sendgrid/mail"
 import { Email } from "@domain/email"
 
 export class SendgridEmailSender implements EmailSender {
@@ -17,7 +17,7 @@ export class SendgridEmailSender implements EmailSender {
 			subject: email.getSubject(),
 			html: email.getBody(),
 		}
-		
+
 		await sgMail.send(msg)
 	}
 }

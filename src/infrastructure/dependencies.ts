@@ -11,7 +11,10 @@ const sendgridEmailSender = new SendgridEmailSender()
 const USER_POOL_ID = process.env.USER_POOL_ID as string
 const USER_POOL_CLIENT_ID = process.env.USER_POOL_CLIENT_ID as string
 
-const identityManagementService: IdentityManagementService = new CognitoIdentityManagementService(USER_POOL_ID, USER_POOL_CLIENT_ID)
+const identityManagementService: IdentityManagementService = new CognitoIdentityManagementService(
+	USER_POOL_ID,
+	USER_POOL_CLIENT_ID,
+)
 
 const DESTINATION_URL = process.env.DESTINATION_URL as string
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string

@@ -5,7 +5,6 @@ import { LoginEmailParams, LoginEmailFactory } from "@domain/login-email-factory
 import { MagicLinkBuilder } from "@app/services/magic-link-builder"
 
 export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
-	
 	private readonly EXPIRATION_MINUTES: number = 5
 
 	constructor(
@@ -14,7 +13,6 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 		private readonly fromAddress: string,
 		private readonly destinationUrl: string,
 	) {}
-	
 
 	async execute(userEmail: string): Promise<void> {
 		const userExists = await this.identityManagementService.hasUser(userEmail)
@@ -24,10 +22,11 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			await this.identityManagementService.createUser(userEmail)
 		}
 
-
 		// Token will be used to verify magic link
-		const challengeToken = await this.identityManagementService.issueAuthChallenge(userEmail, this.EXPIRATION_MINUTES)
-
+		const challengeToken = await this.identityManagementService.issueAuthChallenge(
+			userEmail,
+			this.EXPIRATION_MINUTES,
+		)
 
 		const loginLink = MagicLinkBuilder.create(this.destinationUrl, userEmail, challengeToken)
 

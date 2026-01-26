@@ -19,7 +19,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 			emailSender,
 			identityManagementService,
 			fromAddress,
-			destinationUrl
+			destinationUrl,
 		)
 	})
 
@@ -121,7 +121,6 @@ describe("Send Magic Link Challenge UseCase", () => {
 		await expect(sendMagicLinkChallengeUseCase.execute(userEmail)).rejects.toThrow(errorMessage)
 	})
 
-
 	it("should throw an error when emailSender.sendEmail fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
@@ -193,13 +192,17 @@ describe("Send Magic Link Challenge UseCase", () => {
 
 		// Act
 		await sendMagicLinkChallengeUseCase.execute(userEmail)
-		const firstChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(userEmail)
+		const firstChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(
+			userEmail,
+		)
 
 		// Add a small delay to ensure different timestamps
 		await new Promise((resolve) => setTimeout(resolve, 10))
 
 		await sendMagicLinkChallengeUseCase.execute(userEmail)
-		const secondChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(userEmail)
+		const secondChallengeToken = (identityManagementService as InMemoryIdentityManagementService).getChallengeToken(
+			userEmail,
+		)
 
 		// Assert
 		expect(firstChallengeToken).toBeDefined()

@@ -4,7 +4,9 @@ import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigj
 import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 
 export function createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase) {
-	return async function createSendMagicLinkChallengeHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	return async function createSendMagicLinkChallengeHandler({
+		body,
+	}: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			if (!body) throw new ValidationError("No page body")
 

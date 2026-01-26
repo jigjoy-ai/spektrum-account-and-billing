@@ -1,7 +1,9 @@
 import { AWSKeyManagementService } from "@infra/services/cognito-identity-management/util/aws-key-management-service"
 import { VerifyAuthChallengeResponseTriggerEvent } from "aws-lambda"
 
-export async function verifyAuthChallengeResponseHandler(event: VerifyAuthChallengeResponseTriggerEvent): Promise<VerifyAuthChallengeResponseTriggerEvent> {
+export async function verifyAuthChallengeResponseHandler(
+	event: VerifyAuthChallengeResponseTriggerEvent,
+): Promise<VerifyAuthChallengeResponseTriggerEvent> {
 	const email = event.request.userAttributes.email
 	const privateChallengeParams = event.request.privateChallengeParameters || {}
 	const expected = privateChallengeParams.challenge
@@ -11,7 +13,9 @@ export async function verifyAuthChallengeResponseHandler(event: VerifyAuthChalle
 
 	// Check if challenge is missing
 	if (!expected || expected === "") {
-		console.error("VerifyAuthChallengeResponse - custom:authChallenge attribute was not set or CreateAuthChallenge did not run properly")
+		console.error(
+			"VerifyAuthChallengeResponse - custom:authChallenge attribute was not set or CreateAuthChallenge did not run properly",
+		)
 		event.response.answerCorrect = false
 		return event
 	}
@@ -44,9 +48,9 @@ export async function verifyAuthChallengeResponseHandler(event: VerifyAuthChalle
 		const now = new Date().toJSON()
 		const isExpired = now > payload.expiration
 		const emailMatches = payload.email === email
-		
+
 		console.log("Validation - Email matches:", emailMatches, "Is expired:", isExpired, "Current time:", now)
-		
+
 		isValid = emailMatches && !isExpired
 	} catch (error) {
 		console.error("Error decrypting challenge token", error)

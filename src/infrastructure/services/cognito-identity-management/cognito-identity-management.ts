@@ -12,7 +12,7 @@ import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { AuthSession } from "@domain/auth-session"
 import { UserData } from "@domain/user-data"
-
+import { ValidationError } from "@jigjoy-io/serverless-core"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
 	private readonly cognito: CognitoIdentityProviderClient
@@ -29,7 +29,9 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 
 		this.awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
-		this.cognito = cognitoClient || new CognitoIdentityProviderClient({ region: process.env.AWS_REGION, profile: process.env.AWS_PROFILE })
+		this.cognito =
+			cognitoClient ||
+			new CognitoIdentityProviderClient({ region: process.env.AWS_REGION, profile: process.env.AWS_PROFILE })
 	}
 
 	async hasUser(email: string): Promise<boolean> {
@@ -60,7 +62,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
-
 		const now = new Date()
 		const EXPIRATION_IN_MS = expirationInMinutes * this.ONE_MINUTE_IN_MS
 		const expiresAt = new Date(now.getTime() + EXPIRATION_IN_MS)
@@ -70,7 +71,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 			expiration: expiresAt.toJSON(),
 		}
 
-        const rawChallengeToken = await this.awsKeyManagementService.encrypt(JSON.stringify(payload))
+		const rawChallengeToken = await this.awsKeyManagementService.encrypt(JSON.stringify(payload))
 		const challengeTokenB64 = Buffer.from(rawChallengeToken).toString("base64")
 
 		await this.cognito.send(
@@ -82,8 +83,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		)
 
 		return challengeTokenB64
-		  
-
 	}
 
 	async isAuthorized(authToken: string): Promise<boolean> {
@@ -126,40 +125,46 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
+		let challengeResponse: InitiateAuthCommandOutput
+		try {
 
-		// This will trigger DefineAuthChallenge 
-		// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
-		const authResponse = await this.cognito.send(
-			new InitiateAuthCommand({
-				AuthFlow: "CUSTOM_AUTH",
-				ClientId: this.userPoolClientId,
-				AuthParameters: { USERNAME: email },
-			})
-		)
+			// This will trigger DefineAuthChallenge 
+			// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
+			const authResponse = await this.cognito.send(
+				new InitiateAuthCommand({
+					AuthFlow: "CUSTOM_AUTH",
+					ClientId: this.userPoolClientId,
+					AuthParameters: { USERNAME: email },
+				})
+			)
 
-		if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
-			throw new Error("Challenge not found")
+			if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
+				throw new Error("Challenge not found")
+			}
+
+			// This will trigger verifyAuthChallengeResponseHandler
+			challengeResponse = await this.cognito.send(
+				new RespondToAuthChallengeCommand({
+					ClientId: this.userPoolClientId,
+					ChallengeName: "CUSTOM_CHALLENGE",
+					Session: authResponse.Session,
+					ChallengeResponses: {
+						USERNAME: email,
+						ANSWER: challenge,
+					},
+				})
+			)
+
+			const userData = await this.extractUserData(challengeResponse)
+			const accessToken = this.extractAccessToken(challengeResponse)
+	
+			console.log("verifyAuthChallenge - Verification successful")
+	
+			return AuthSession.create(accessToken, userData)
+		} catch (error: any) {
+			console.error("verifyAuthChallenge - Error verifying challenge:", error)
+			throw new ValidationError("Failed to verify challenge")
 		}
 
-		// This will trigger verifyAuthChallengeResponseHandler
-		const challengeResponse = await this.cognito.send(
-			new RespondToAuthChallengeCommand({
-				ClientId: this.userPoolClientId,
-				ChallengeName: "CUSTOM_CHALLENGE",
-				Session: authResponse.Session,
-				ChallengeResponses: {
-					USERNAME: email,
-					ANSWER: challenge,
-				},
-			})
-		)
-
-		const userData = await this.extractUserData(challengeResponse)
-		const accessToken = this.extractAccessToken(challengeResponse)
-
-		console.log("verifyAuthChallenge - Verification successful")
-
-		const authSession = AuthSession.create(accessToken, userData)
-		return authSession
 	}
 }

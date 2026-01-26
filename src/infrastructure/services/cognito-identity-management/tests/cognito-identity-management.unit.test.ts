@@ -205,4 +205,3 @@ describe("Cognito Identity Management Service Unit", () => {
 		)
 	})
 })
-

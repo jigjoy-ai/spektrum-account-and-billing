@@ -4,8 +4,12 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
 
-export function createVerifyMagicLinkChallengeHandler(verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase) {
-	return async function createVerifyMagicLinkChallengeHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export function createVerifyMagicLinkChallengeHandler(
+	verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase,
+) {
+	return async function createVerifyMagicLinkChallengeHandler(
+		event: APIGatewayProxyEvent,
+	): Promise<APIGatewayProxyResult> {
 		try {
 			if (!event.body) throw new ValidationError("No page body")
 

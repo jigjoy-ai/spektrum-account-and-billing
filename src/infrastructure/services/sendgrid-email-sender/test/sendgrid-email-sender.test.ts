@@ -7,7 +7,7 @@ describe("SendGrid Email Sender", () => {
 
 	const sendgridApiKey = process.env.SENDGRID_API_KEY as string
 	const testRecipientEmail = process.env.TEST_RECIPIENT_EMAIL || "test@example.com"
-    const testSenderEmail = process.env.FROM_ADDRESS || "team@jigjoy.io"
+	const testSenderEmail = process.env.FROM_ADDRESS || "team@jigjoy.io"
 
 	beforeEach(() => {
 		try {
@@ -20,33 +20,20 @@ describe("SendGrid Email Sender", () => {
 	})
 
 	it("should send an email successfully", async () => {
-
-		const email = new Email(
-			testRecipientEmail,
-			testSenderEmail,
-			"Test Subject",
-			"<p>This is a test email body</p>",
-		)
+		const email = new Email(testRecipientEmail, testSenderEmail, "Test Subject", "<p>This is a test email body</p>")
 
 		// SendGrid should send the email without throwing an error
 		await expect(emailSender.sendEmail(email)).resolves.not.toThrow()
 	})
 
 	it("should send email with HTML body", async () => {
-
 		const htmlBody = "<html><body><h1>Test</h1><p>HTML content</p></body></html>"
-		const email = new Email(
-			testRecipientEmail,
-			testSenderEmail,
-			"HTML Test Subject",
-			htmlBody,
-		)
+		const email = new Email(testRecipientEmail, testSenderEmail, "HTML Test Subject", htmlBody)
 
 		await expect(emailSender.sendEmail(email)).resolves.not.toThrow()
 	})
 
 	it("should send email with all email properties correctly", async () => {
-
 		const recipient = testRecipientEmail
 		const sender = testSenderEmail
 		const subject = "Integration Test Email"
@@ -58,19 +45,8 @@ describe("SendGrid Email Sender", () => {
 	})
 
 	it("should handle sending multiple emails", async () => {
-
-		const email1 = new Email(
-			testRecipientEmail,
-			testSenderEmail,
-			"First Email",
-			"<p>First email body</p>",
-		)
-		const email2 = new Email(
-			testRecipientEmail,
-			testSenderEmail,
-			"Second Email",
-			"<p>Second email body</p>",
-		)
+		const email1 = new Email(testRecipientEmail, testSenderEmail, "First Email", "<p>First email body</p>")
+		const email2 = new Email(testRecipientEmail, testSenderEmail, "Second Email", "<p>Second email body</p>")
 
 		await expect(emailSender.sendEmail(email1)).resolves.not.toThrow()
 		await expect(emailSender.sendEmail(email2)).resolves.not.toThrow()
@@ -94,12 +70,7 @@ describe("SendGrid Email Sender", () => {
 				return
 			}
 
-			const email = new Email(
-				"invalid@example.com",
-				testSenderEmail,
-				"Test Subject",
-				"<p>Test body</p>",
-			)
+			const email = new Email("invalid@example.com", testSenderEmail, "Test Subject", "<p>Test body</p>")
 
 			// The current implementation throws errors when SendGrid API call fails
 			await expect(invalidEmailSender.sendEmail(email)).rejects.toThrow()
@@ -116,12 +87,7 @@ describe("SendGrid Email Sender", () => {
 	it("should send email with verified sender address", async () => {
 		// Only test with the verified sender address
 		// SendGrid requires sender addresses to be verified, so we can't test with arbitrary addresses
-		const email = new Email(
-			testRecipientEmail,
-			testSenderEmail,
-			"Test from verified sender",
-			"<p>Test body</p>",
-		)
+		const email = new Email(testRecipientEmail, testSenderEmail, "Test from verified sender", "<p>Test body</p>")
 		await expect(emailSender.sendEmail(email)).resolves.not.toThrow()
 	})
 })

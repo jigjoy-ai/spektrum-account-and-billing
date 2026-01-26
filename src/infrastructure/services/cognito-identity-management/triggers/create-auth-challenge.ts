@@ -6,7 +6,9 @@ export async function createAuthChallengeHandler(event: any) {
 
 	if (!authChallenge || authChallenge === "") {
 		console.error("CreateAuthChallenge - ERROR: custom:authChallenge attribute is missing or empty!")
-		console.error("CreateAuthChallenge - This means issueAuthChallenge was not called or the attribute was not saved properly")
+		console.error(
+			"CreateAuthChallenge - This means issueAuthChallenge was not called or the attribute was not saved properly",
+		)
 		// Still set it to empty string so VerifyAuthChallengeResponse can detect the issue
 		event.response.privateChallengeParameters = {
 			challenge: "",

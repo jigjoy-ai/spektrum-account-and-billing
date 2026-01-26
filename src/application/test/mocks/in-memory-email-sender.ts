@@ -12,12 +12,7 @@ export class InMemoryEmailSender implements EmailSender {
 		}
 
 		// Store a copy of the email
-		const emailCopy = new Email(
-			email.getRecipient(),
-			email.getSender(),
-			email.getSubject(),
-			email.getBody(),
-		)
+		const emailCopy = new Email(email.getRecipient(), email.getSender(), email.getSubject(), email.getBody())
 		this.sentEmails.push(emailCopy)
 	}
 

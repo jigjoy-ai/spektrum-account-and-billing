@@ -92,9 +92,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const user = await cognitoClient.send(getUserCommand)
 
 		expect(user).toBeDefined()
-		const authChallengeAttribute = user.UserAttributes?.find(
-			(attr) => attr.Name === "custom:authChallenge",
-		)
+		const authChallengeAttribute = user.UserAttributes?.find((attr) => attr.Name === "custom:authChallenge")
 		expect(authChallengeAttribute).toBeDefined()
 		expect(authChallengeAttribute?.Value).toBe(challengeToken)
 		expect(challengeToken).toBeTruthy()
@@ -114,9 +112,7 @@ describe("Cognito Identity Management Service Integration", () => {
 			Username: email,
 		})
 		let user = await cognitoClient.send(getUserCommand)
-		let authChallengeAttribute = user.UserAttributes?.find(
-			(attr) => attr.Name === "custom:authChallenge",
-		)
+		let authChallengeAttribute = user.UserAttributes?.find((attr) => attr.Name === "custom:authChallenge")
 		expect(authChallengeAttribute?.Value).toBe(firstToken)
 
 		// Update challenge
@@ -128,9 +124,7 @@ describe("Cognito Identity Management Service Integration", () => {
 			Username: email,
 		})
 		user = await cognitoClient.send(getUserCommand)
-		authChallengeAttribute = user.UserAttributes?.find(
-			(attr) => attr.Name === "custom:authChallenge",
-		)
+		authChallengeAttribute = user.UserAttributes?.find((attr) => attr.Name === "custom:authChallenge")
 		expect(authChallengeAttribute?.Value).toBe(secondToken)
 		expect(secondToken).not.toBe(firstToken)
 	})
@@ -164,11 +158,16 @@ describe("Cognito Identity Management Service Integration", () => {
 		const nonExistentEmail = `test-nonexistent-challenge-${Date.now()}@example.com`
 		const expirationInMinutes = 15
 
-		await expect(identityManagementService.issueAuthChallenge(nonExistentEmail, expirationInMinutes)).rejects.toThrow()
+		await expect(
+			identityManagementService.issueAuthChallenge(nonExistentEmail, expirationInMinutes),
+		).rejects.toThrow()
 	})
 
 	it("should throw an error when user pool ID is invalid", async () => {
-		const invalidIdentityManagementService = new CognitoIdentityManagementService("invalid-pool-id", userPoolClientId)
+		const invalidIdentityManagementService = new CognitoIdentityManagementService(
+			"invalid-pool-id",
+			userPoolClientId,
+		)
 		const email = `test-invalid-${Date.now()}@example.com`
 
 		await expect(invalidIdentityManagementService.createUser(email)).rejects.toThrow()
@@ -187,12 +186,13 @@ describe("Cognito Identity Management Service Integration", () => {
 
 	it("should handle findByEmail error for non-UserNotFoundException", async () => {
 		// Create a repository with invalid pool ID to trigger an error
-		const invalidIdentityManagementService = new CognitoIdentityManagementService("invalid-pool-id", userPoolClientId)
+		const invalidIdentityManagementService = new CognitoIdentityManagementService(
+			"invalid-pool-id",
+			userPoolClientId,
+		)
 		const email = `test-error-${Date.now()}@example.com`
 
-		await expect(invalidIdentityManagementService.hasUser(email)).rejects.toThrow(
-			"Error getting user from Cognito",
-		)
+		await expect(invalidIdentityManagementService.hasUser(email)).rejects.toThrow("Error getting user from Cognito")
 	})
 
 	it("should create user with SUPPRESS message action", async () => {
@@ -251,4 +251,3 @@ describe("Cognito Identity Management Service Integration", () => {
 		await expect(identityManagementService.verifyAuthChallenge(email, invalidChallenge)).rejects.toThrow()
 	})
 })
-

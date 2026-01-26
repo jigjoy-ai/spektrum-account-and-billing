@@ -1,6 +1,6 @@
 export class UserData {
 	private constructor(
-        private readonly id: string,
+		private readonly id: string,
 		private readonly email: string,
 	) {}
 
@@ -16,4 +16,3 @@ export class UserData {
 		return new UserData(id, email)
 	}
 }
-
