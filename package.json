@@ -29,11 +29,10 @@
 	},
 	"scripts": {
 		"build:local": "sam build --profile Development -t template.local.yaml ",
-		"build": "sam build --profile Development -t template.yaml ",
-		"deploy": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
-		"serve": "sam local start-api --profile Development -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
+		"serve:local": "sam local start-api --profile Development -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
+		"build:dev": "sam build --profile Development -t template.yaml ",
+		"deploy:dev": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
 		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
-		"dev": "npm-run-all --parallel serve docs",
 		"test": "rstest -c rstest.config.ts",
 		"coverage": "rstest --coverage",
 		"format": "prettier --write \"src/**/*.{ts,tsx}\""
