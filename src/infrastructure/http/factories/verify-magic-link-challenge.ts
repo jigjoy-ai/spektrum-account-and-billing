@@ -27,7 +27,13 @@ export function createVerifyMagicLinkChallengeHandler(
 			console.log("verify-magic-link-challenge handler - Email:", email)
 
 			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(email, challenge)
-			return Responses._200(authSession)
+			return Responses._200({
+				accessToken: authSession.getAccessToken(),
+				userData: {
+					id: authSession.getUserData().getId(),
+					email: authSession.getUserData().getEmail(),
+				},
+			})
 		} catch (error) {
 			return errorHandler(error)
 		}

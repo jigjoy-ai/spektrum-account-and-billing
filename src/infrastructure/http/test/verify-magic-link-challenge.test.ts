@@ -2,6 +2,8 @@ import { APIGatewayProxyEvent } from "aws-lambda"
 import { describe, it, expect, beforeEach } from "@rstest/core"
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { createVerifyMagicLinkChallengeHandler } from "@infra/http/factories/verify-magic-link-challenge"
+import { AuthSession } from "@domain/auth-session"
+import { UserData } from "@domain/user-data"
 
 describe("Verify Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
@@ -13,9 +15,13 @@ describe("Verify Magic Link Handler", () => {
 
 	it("returns 200 and access token when magic link is verified successfully", async () => {
 		const mockAccessToken = "mock-access-token-12345"
+		const mockUserEmail = "user@example.com"
+		const mockUserData = UserData.rehydrate("user-id-123", mockUserEmail)
+		const mockAuthSession = AuthSession.create(mockAccessToken, mockUserData)
+
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
-				return mockAccessToken
+				return mockAuthSession
 			},
 		}
 
@@ -23,7 +29,7 @@ describe("Verify Magic Link Handler", () => {
 
 		const event = {
 			body: JSON.stringify({
-				email: "user@example.com",
+				email: mockUserEmail,
 				challenge: "test-challenge",
 			}),
 		} as unknown as APIGatewayProxyEvent
@@ -35,6 +41,9 @@ describe("Verify Magic Link Handler", () => {
 		const body = JSON.parse(result.body)
 
 		expect(body.accessToken).toBe(mockAccessToken)
+		expect(body.userData).toBeDefined()
+		expect(body.userData.id).toBe("user-id-123")
+		expect(body.userData.email).toBe(mockUserEmail)
 	})
 
 	it("returns 400 when body is missing", async () => {
@@ -275,11 +284,16 @@ describe("Verify Magic Link Handler", () => {
 		let capturedEmail: string | undefined
 		let capturedChallenge: string | undefined
 
+		const mockAuthSession = AuthSession.create(
+			"mock-access-token",
+			UserData.rehydrate("user-id", "test@example.com"),
+		)
+
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string, challenge: string) => {
 				capturedEmail = email
 				capturedChallenge = challenge
-				return "mock-access-token"
+				return mockAuthSession
 			},
 		}
 
@@ -303,8 +317,9 @@ describe("Verify Magic Link Handler", () => {
 	it("returns 200 for valid email addresses with different formats", async () => {
 		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
-			execute: async () => {
-				return mockAccessToken
+			execute: async (email: string) => {
+				const mockUserData = UserData.rehydrate("user-id", email)
+				return AuthSession.create(mockAccessToken, mockUserData)
 			},
 		}
 
@@ -331,6 +346,8 @@ describe("Verify Magic Link Handler", () => {
 
 			const body = JSON.parse(result.body)
 			expect(body.accessToken).toBe(mockAccessToken)
+			expect(body.userData).toBeDefined()
+			expect(body.userData.email).toBe(email)
 		}
 	})
 })
