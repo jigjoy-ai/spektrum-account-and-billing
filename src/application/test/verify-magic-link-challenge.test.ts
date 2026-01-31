@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "@rstest/core"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
 import { InMemoryIdentityManagementService } from "@app/test/mocks/in-memory-identity-management-service"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
+import { AuthSession } from "@domain/auth-session"
 
 describe("Verify Magic Link Challenge UseCase", () => {
 	let verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallenge
@@ -19,12 +20,18 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		// Act
-		const accessToken = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
+		const authSession = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
 
-		// Assert - Should return an access token
+		// Assert - Should return an AuthSession with access token and user data
+		expect(authSession).toBeDefined()
+		expect(authSession).toBeInstanceOf(AuthSession)
+		const accessToken = authSession.getAccessToken()
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken).toContain("session-")
+		const userData = authSession.getUserData()
+		expect(userData).toBeDefined()
+		expect(userData.getEmail()).toBe(userEmail)
 	})
 
 	it("should throw an error when user does not exist", async () => {
@@ -109,14 +116,17 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken2 = await identityManagementService.issueAuthChallenge(userEmail2, 5)
 
 		// Act
-		const accessToken1 = await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
-		const accessToken2 = await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
+		const authSession1 = await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
+		const authSession2 = await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
 
-		// Assert - Both should return access tokens
-		expect(accessToken1).toBeDefined()
-		expect(accessToken2).toBeDefined()
-		expect(typeof accessToken1).toBe("string")
-		expect(typeof accessToken2).toBe("string")
+		// Assert - Both should return AuthSession instances with different access tokens and user data
+		expect(authSession1).toBeDefined()
+		expect(authSession2).toBeDefined()
+		expect(authSession1).toBeInstanceOf(AuthSession)
+		expect(authSession2).toBeInstanceOf(AuthSession)
+		expect(authSession1.getAccessToken()).not.toBe(authSession2.getAccessToken())
+		expect(authSession1.getUserData().getEmail()).toBe(userEmail1)
+		expect(authSession2.getUserData().getEmail()).toBe(userEmail2)
 	})
 
 	it("should not verify challenge with wrong user email", async () => {
