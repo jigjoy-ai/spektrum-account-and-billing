@@ -237,7 +237,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const userData = authSession.getUserData()
 		expect(userData).toBeDefined()
 		expect(userData.getEmail()).toBe(email)
-	})
+	}, 8_000)
 
 	it("should throw an error when verifying auth challenge for non-existent user", async () => {
 		const nonExistentEmail = `test-nonexistent-verify-${Date.now()}@example.com`

@@ -160,11 +160,15 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	
 			console.log("verifyAuthChallenge - Verification successful")
 	
-			return AuthSession.create(accessToken, userData)
-		} catch (error: any) {
-			console.error("verifyAuthChallenge - Error verifying challenge:", error)
-			throw new ValidationError("Failed to verify challenge")
+		return AuthSession.create(accessToken, userData)
+	} catch (error: any) {
+		console.error("verifyAuthChallenge - Error verifying challenge:", error)
+		// Preserve "Challenge not found" error message
+		if (error.message === "Challenge not found") {
+			throw error
 		}
+		throw new ValidationError("Failed to verify challenge")
+	}
 
 	}
 }
