@@ -15,11 +15,11 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	) {}
 
 	async execute(userEmail: string): Promise<void> {
-		const userExists = await this.identityManagementService.hasUser(userEmail)
+		const userExists = await this.identityManagementService.exists(userEmail)
 
 		// If the account does not exist, create it
 		if (!userExists) {
-			await this.identityManagementService.createUser(userEmail)
+			throw new Error("User does not exist. Please create an account.")
 		}
 
 		// Token will be used to verify magic link

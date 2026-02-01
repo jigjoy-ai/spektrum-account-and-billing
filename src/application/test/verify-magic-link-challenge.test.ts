@@ -16,7 +16,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should successfully verify magic link challenge for existing user with valid challenge", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		// Act
@@ -40,7 +40,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken = "some-challenge-token"
 
 		// Verify user doesn't exist
-		const userDoesNotExist = await identityManagementService.hasUser(userEmail)
+		const userDoesNotExist = await identityManagementService.exists(userEmail)
 		expect(userDoesNotExist).toBe(false)
 
 		// Act & Assert
@@ -49,7 +49,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		)
 	})
 
-	it("should throw an error when identityManagementService.hasUser fails", async () => {
+	it("should throw an error when identityManagementService.exists fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		const challengeToken = "some-challenge-token"
@@ -64,7 +64,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when identityManagementService.verifyAuthChallenge fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		const errorMessage = "Failed to verify auth challenge"
@@ -78,7 +78,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is invalid", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 		const invalidChallengeToken = "invalid-challenge-token"
 
 		// Act & Assert
@@ -90,7 +90,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is expired", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		// Issue a challenge with 0 minutes expiration (expired immediately)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 0)
@@ -109,8 +109,8 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.createUser(userEmail1)
-		await identityManagementService.createUser(userEmail2)
+		await identityManagementService.create(userEmail1)
+		await identityManagementService.create(userEmail2)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 		const challengeToken2 = await identityManagementService.issueAuthChallenge(userEmail2, 5)
@@ -134,8 +134,8 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.createUser(userEmail1)
-		await identityManagementService.createUser(userEmail2)
+		await identityManagementService.create(userEmail1)
+		await identityManagementService.create(userEmail2)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 

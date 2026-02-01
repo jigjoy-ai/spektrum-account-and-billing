@@ -6,11 +6,10 @@ export class VerifyMagicLinkChallenge implements VerifyMagicLinkChallengeUseCase
 	constructor(private readonly identityManagementService: IdentityManagementService) {}
 
 	async execute(email: string, challenge: string): Promise<AuthSession> {
-		const userExists = await this.identityManagementService.hasUser(email)
+		const user = await this.identityManagementService.get(email)
 
-		// If the user does not exist, create user
-		if (!userExists) {
-			throw new Error("User does not exist. Please request a new magic link.")
+		if (!user) {
+			throw new Error("User does not exist. Please create an account.")
 		}
 
 		const authSession: AuthSession = await this.identityManagementService.verifyAuthChallenge(email, challenge)

@@ -23,22 +23,27 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 	private shouldFailOnVerifyAuthChallenge: boolean = false
 	private failureError: Error = new Error("Identity management service unavailable")
 
-	async createUser(email: string): Promise<void> {
+	async create(email: string): Promise<UserIdentity> {
 		if (this.shouldFailOnCreateUser) {
 			throw this.failureError
 		}
 		// Only create user if it doesn't exist
+		let user = UserIdentity.rehydrate(randomUUID(), email)
 		if (!this.users.has(email)) {
-			const userId = randomUUID()
-			this.users.set(email, UserIdentity.rehydrate(userId, email))
+			this.users.set(email, user)
 		}
+		return user
 	}
 
-	async hasUser(email: string): Promise<boolean> {
+	async exists(email: string): Promise<boolean> {
 		if (this.shouldFailOnHasUser) {
 			throw this.failureError
 		}
 		return this.users.has(email)
+	}
+
+	async get(email: string): Promise<UserIdentity | null> {
+		return this.users.get(email) ?? null
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {

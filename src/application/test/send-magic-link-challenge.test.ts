@@ -26,7 +26,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 	it("should successfully send magic link for existing account", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		// Act
 		await sendMagicLinkChallengeUseCase.execute(userEmail)
@@ -52,7 +52,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 		const userEmail = "newuser@example.com"
 
 		// Verify user doesn't exist before sending magic link
-		const userDoesNotExist = await identityManagementService.hasUser(userEmail)
+		const userDoesNotExist = await identityManagementService.exists(userEmail)
 		expect(userDoesNotExist).toBe(false)
 
 		// Act
@@ -60,7 +60,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 
 		// Assert
 
-		const userExists = await identityManagementService.hasUser(userEmail)
+		const userExists = await identityManagementService.exists(userEmail)
 		expect(userExists).toBe(true)
 
 		const inMemoryEmailSender = emailSender as InMemoryEmailSender
@@ -86,7 +86,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 		expect(challengeToken!.length).toBeGreaterThan(0)
 	})
 
-	it("should throw an error when identityManagementService.hasUser fails", async () => {
+	it("should throw an error when identityManagementService.exists fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		const errorMessage = "Database connection failed"
@@ -111,7 +111,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 	it("should throw an error when identityManagementService.issueAuthChallenge fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		const errorMessage = "Failed to issue auth challenge"
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
@@ -124,7 +124,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 	it("should throw an error when emailSender.sendEmail fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		const errorMessage = "Email service unavailable"
 		const inMemoryEmailSender = emailSender as InMemoryEmailSender
@@ -152,7 +152,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 	it("should not send email if auth challenge issuance fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		const errorMessage = "Failed to issue auth challenge"
 		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
@@ -188,7 +188,7 @@ describe("Send Magic Link Challenge UseCase", () => {
 	it("should generate new challenge token when sending magic link multiple times for same user", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
 
 		// Act
 		await sendMagicLinkChallengeUseCase.execute(userEmail)

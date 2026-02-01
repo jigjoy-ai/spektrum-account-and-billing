@@ -11,7 +11,6 @@ import {
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { AuthSession } from "@domain/auth-session"
-import { Account } from "@domain/account"
 import { ValidationError } from "@jigjoy-io/serverless-core"
 import { UserIdentity } from "@domain/user-identity"
 
@@ -35,7 +34,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 			new CognitoIdentityProviderClient({ region: process.env.AWS_REGION, profile: process.env.AWS_PROFILE })
 	}
 
-	async hasUser(email: string): Promise<boolean> {
+	async exists(email: string): Promise<boolean> {
 		try {
 			const getUserCommand = new AdminGetUserCommand({
 				Username: email,
@@ -53,13 +52,28 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async createUser(email: string): Promise<void> {
+	async get(email: string): Promise<UserIdentity | null> {
+		const getUserCommand = new AdminGetUserCommand({
+			Username: email,
+			UserPoolId: this.userPoolId,
+		})
+		const user = await this.cognito.send(getUserCommand)
+
+		if (!user) {
+			return null
+		}
+		const userEmail = (user.UserAttributes?.find((attr) => attr.Name === "email")?.Value as string) ?? ""
+		return UserIdentity.rehydrate(user.Username as string, userEmail)
+	}
+
+	async create(email: string): Promise<UserIdentity> {
 		const createUserCommand = new AdminCreateUserCommand({
 			Username: email,
 			UserPoolId: this.userPoolId,
 			MessageAction: "SUPPRESS",
 		})
-		await this.cognito.send(createUserCommand)
+		const response = await this.cognito.send(createUserCommand)
+		return UserIdentity.rehydrate(response.User?.Username as string, email)
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
