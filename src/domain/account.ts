@@ -1,4 +1,4 @@
-export class UserData {
+export class Account {
 	private constructor(
 		private readonly id: string,
 		private readonly email: string,
@@ -12,7 +12,7 @@ export class UserData {
 		return this.email
 	}
 
-	static rehydrate(id: string, email: string): UserData {
-		return new UserData(id, email)
+	static rehydrate(id: string, email: string): Account {
+		return new Account(id, email)
 	}
 }

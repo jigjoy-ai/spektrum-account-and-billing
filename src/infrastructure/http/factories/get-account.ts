@@ -13,8 +13,8 @@ function getBearerToken(headers: Record<string, string | undefined>): string | n
 	return parts[1]
 }
 
-export function createGetCurrentUserHandler() {
-	return async function createGetCurrentUserHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+export function createGetAccountHandler() {
+	return async function createGetAccountHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			const accessToken = getBearerToken(event.headers)
 			if (!accessToken) throw new ValidationError("No access token")

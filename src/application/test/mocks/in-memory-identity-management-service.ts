@@ -1,6 +1,6 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { AuthSession } from "@domain/auth-session"
-import { UserData } from "@domain/user-data"
+import { Account } from "@domain/account"
 import { randomUUID } from "crypto"
 
 interface ChallengeData {
@@ -10,7 +10,7 @@ interface ChallengeData {
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-	private users: Map<string, UserData> = new Map()
+	private users: Map<string, Account> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
 	private accessTokens: Map<string, string> = new Map() // accessToken -> email
 	private challengeCounter: number = 0
@@ -29,7 +29,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		// Only create user if it doesn't exist
 		if (!this.users.has(email)) {
 			const userId = randomUUID()
-			this.users.set(email, UserData.rehydrate(userId, email))
+			this.users.set(email, Account.rehydrate(userId, email))
 		}
 	}
 
@@ -80,7 +80,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		const accessToken = `session-${email}-${Date.now()}`
 		// Store the mapping of access token to email
 		this.accessTokens.set(accessToken, email)
-		return AuthSession.create(accessToken, UserData.rehydrate(email, email))
+		return AuthSession.create(accessToken, Account.rehydrate(email, email))
 	}
 
 	// Helper methods for testing
@@ -105,13 +105,13 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		}
 
 		// Get user data to retrieve the UUID
-		const userData = this.users.get(email)
-		if (!userData) {
-			throw new Error("User not found")
+		const account = this.users.get(email)
+		if (!account) {
+			throw new Error("Account not found")
 		}
 
-		// Return CurrentUser with UUID as userId
-		return AuthSession.create(accessToken, userData)
+		// Return AuthSession with account
+		return AuthSession.create(accessToken, account)
 	}
 
 	setShouldFailOnHasUser(shouldFail: boolean, error?: Error): void {

@@ -234,9 +234,9 @@ describe("Cognito Identity Management Service Integration", () => {
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken.length).toBeGreaterThan(0)
-		const userData = authSession.getUserData()
-		expect(userData).toBeDefined()
-		expect(userData.getEmail()).toBe(email)
+		const account = authSession.getAccount()
+		expect(account).toBeDefined()
+		expect(account.getEmail()).toBe(email)
 	}, 8_000)
 
 	it("should throw an error when verifying auth challenge for non-existent user", async () => {

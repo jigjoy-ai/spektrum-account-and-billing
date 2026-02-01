@@ -11,7 +11,7 @@ import {
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { AuthSession } from "@domain/auth-session"
-import { UserData } from "@domain/user-data"
+import { Account } from "@domain/account"
 import { ValidationError } from "@jigjoy-io/serverless-core"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
@@ -101,7 +101,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async extractUserData(challengeResponse: InitiateAuthCommandOutput): Promise<UserData> {
+	async extractAccount(challengeResponse: InitiateAuthCommandOutput): Promise<Account> {
 		if (!challengeResponse.AuthenticationResult?.IdToken) {
 			console.error("verifyAuthChallenge - No id token in response")
 			throw new Error("Failed to verify challenge")
@@ -113,7 +113,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		})
 
 		const payload = await verifier.verify(challengeResponse.AuthenticationResult.IdToken as string)
-		return UserData.rehydrate(payload.sub, payload.email as string)
+		return Account.rehydrate(payload.sub, payload.email as string)
 	}
 
 	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
@@ -127,15 +127,14 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
 		let challengeResponse: InitiateAuthCommandOutput
 		try {
-
-			// This will trigger DefineAuthChallenge 
+			// This will trigger DefineAuthChallenge
 			// DefineAuthChallenge will trigger createAuthChallenge if Custom Challenge is required
 			const authResponse = await this.cognito.send(
 				new InitiateAuthCommand({
 					AuthFlow: "CUSTOM_AUTH",
 					ClientId: this.userPoolClientId,
 					AuthParameters: { USERNAME: email },
-				})
+				}),
 			)
 
 			if (authResponse.ChallengeName !== "CUSTOM_CHALLENGE" || !authResponse.Session) {
@@ -152,23 +151,22 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 						USERNAME: email,
 						ANSWER: challenge,
 					},
-				})
+				}),
 			)
 
-			const userData = await this.extractUserData(challengeResponse)
+			const account = await this.extractAccount(challengeResponse)
 			const accessToken = this.extractAccessToken(challengeResponse)
-	
-			console.log("verifyAuthChallenge - Verification successful")
-	
-		return AuthSession.create(accessToken, userData)
-	} catch (error: any) {
-		console.error("verifyAuthChallenge - Error verifying challenge:", error)
-		// Preserve "Challenge not found" error message
-		if (error.message === "Challenge not found") {
-			throw error
-		}
-		throw new ValidationError("Failed to verify challenge")
-	}
 
+			console.log("verifyAuthChallenge - Verification successful")
+
+			return AuthSession.create(accessToken, account)
+		} catch (error: any) {
+			console.error("verifyAuthChallenge - Error verifying challenge:", error)
+			// Preserve "Challenge not found" error message
+			if (error.message === "Challenge not found") {
+				throw error
+			}
+			throw new ValidationError("Failed to verify challenge")
+		}
 	}
 }
