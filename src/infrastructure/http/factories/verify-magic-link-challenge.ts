@@ -30,8 +30,8 @@ export function createVerifyMagicLinkChallengeHandler(
 			return Responses._200({
 				accessToken: authSession.getAccessToken(),
 				userData: {
-					id: authSession.getAccount().getId(),
-					email: authSession.getAccount().getEmail(),
+					id: authSession.getUserIdentity().getId(),
+					email: authSession.getUserIdentity().getEmail(),
 				},
 			})
 		} catch (error) {

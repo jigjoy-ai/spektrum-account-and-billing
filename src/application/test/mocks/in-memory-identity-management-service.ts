@@ -2,6 +2,7 @@ import { IdentityManagementService } from "@app/ports/services/identity-manageme
 import { AuthSession } from "@domain/auth-session"
 import { Account } from "@domain/account"
 import { randomUUID } from "crypto"
+import { UserIdentity } from "@domain/user-identity"
 
 interface ChallengeData {
 	email: string
@@ -10,7 +11,7 @@ interface ChallengeData {
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-	private users: Map<string, Account> = new Map()
+	private users: Map<string, UserIdentity> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
 	private accessTokens: Map<string, string> = new Map() // accessToken -> email
 	private challengeCounter: number = 0
@@ -29,7 +30,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		// Only create user if it doesn't exist
 		if (!this.users.has(email)) {
 			const userId = randomUUID()
-			this.users.set(email, Account.rehydrate(userId, email))
+			this.users.set(email, UserIdentity.rehydrate(userId, email))
 		}
 	}
 
@@ -80,7 +81,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		const accessToken = `session-${email}-${Date.now()}`
 		// Store the mapping of access token to email
 		this.accessTokens.set(accessToken, email)
-		return AuthSession.create(accessToken, Account.rehydrate(email, email))
+		return AuthSession.create(accessToken, UserIdentity.rehydrate(email, email))
 	}
 
 	// Helper methods for testing

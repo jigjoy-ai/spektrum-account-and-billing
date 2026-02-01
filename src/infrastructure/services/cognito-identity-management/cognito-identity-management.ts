@@ -13,6 +13,7 @@ import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { AuthSession } from "@domain/auth-session"
 import { Account } from "@domain/account"
 import { ValidationError } from "@jigjoy-io/serverless-core"
+import { UserIdentity } from "@domain/user-identity"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
 	private readonly cognito: CognitoIdentityProviderClient
@@ -101,7 +102,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async extractAccount(challengeResponse: InitiateAuthCommandOutput): Promise<Account> {
+	async extractUserIdentity(challengeResponse: InitiateAuthCommandOutput): Promise<UserIdentity> {
 		if (!challengeResponse.AuthenticationResult?.IdToken) {
 			console.error("verifyAuthChallenge - No id token in response")
 			throw new Error("Failed to verify challenge")
@@ -113,7 +114,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		})
 
 		const payload = await verifier.verify(challengeResponse.AuthenticationResult.IdToken as string)
-		return Account.rehydrate(payload.sub, payload.email as string)
+		return UserIdentity.rehydrate(payload.sub, payload.email as string)
 	}
 
 	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
@@ -154,12 +155,12 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 				}),
 			)
 
-			const account = await this.extractAccount(challengeResponse)
+			const userIdentity = await this.extractUserIdentity(challengeResponse)
 			const accessToken = this.extractAccessToken(challengeResponse)
 
 			console.log("verifyAuthChallenge - Verification successful")
 
-			return AuthSession.create(accessToken, account)
+			return AuthSession.create(accessToken, userIdentity)
 		} catch (error: any) {
 			console.error("verifyAuthChallenge - Error verifying challenge:", error)
 			// Preserve "Challenge not found" error message
