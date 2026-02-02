@@ -4,7 +4,7 @@ import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-mag
 import { createVerifyMagicLinkChallengeHandler } from "@infra/http/factories/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
 import { Account } from "@domain/account"
-import { UserIdentity } from "@domain/user-identity"
+import { User } from "@domain/user"
 
 describe("Verify Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
@@ -17,8 +17,8 @@ describe("Verify Magic Link Handler", () => {
 	it("returns 200 and access token when magic link is verified successfully", async () => {
 		const mockAccessToken = "mock-access-token-12345"
 		const mockUserEmail = "user@example.com"
-		const mockUserIdentity = UserIdentity.rehydrate("user-id-123", mockUserEmail)
-		const mockAuthSession = AuthSession.create(mockAccessToken, mockUserIdentity)
+		const mockUser = User.rehydrate("user-id-123", mockUserEmail)
+		const mockAuthSession = AuthSession.create(mockAccessToken, mockUser)
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
@@ -285,10 +285,7 @@ describe("Verify Magic Link Handler", () => {
 		let capturedEmail: string | undefined
 		let capturedChallenge: string | undefined
 
-		const mockAuthSession = AuthSession.create(
-			"mock-access-token",
-			UserIdentity.rehydrate("user-id", "test@example.com"),
-		)
+		const mockAuthSession = AuthSession.create("mock-access-token", User.rehydrate("user-id", "test@example.com"))
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string, challenge: string) => {
@@ -319,8 +316,8 @@ describe("Verify Magic Link Handler", () => {
 		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string) => {
-				const mockUserIdentity = UserIdentity.rehydrate("user-id", email)
-				return AuthSession.create(mockAccessToken, mockUserIdentity)
+				const mockUser = User.rehydrate("user-id", email)
+				return AuthSession.create(mockAccessToken, mockUser)
 			},
 		}
 

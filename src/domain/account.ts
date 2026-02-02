@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from "uuid"
-import { UserIdentity } from "./user-identity"
+import crypto from "crypto"
+import { User } from "./user"
 
 export class Account {
 	private constructor(
 		private readonly id: string,
-		private readonly email: string,
+		private readonly rootEmail: string,
 		private creditsUsd: number,
-		private users: UserIdentity[],
+		private users: User[],
 		private apiKeys: string[],
 	) {}
 
@@ -14,8 +15,8 @@ export class Account {
 		return this.id
 	}
 
-	getEmail(): string {
-		return this.email
+	getRootEmail(): string {
+		return this.rootEmail
 	}
 
 	getRemainingCredits(): number {
@@ -39,11 +40,11 @@ export class Account {
 		this.creditsUsd -= amount
 	}
 
-	addUser(user: UserIdentity): void {
+	addUser(user: User): void {
 		this.users.push(user)
 	}
 
-	removeUser(user: UserIdentity): void {
+	removeUser(user: User): void {
 		if (!this.users.includes(user)) {
 			throw new Error("User not found")
 		}
@@ -56,7 +57,7 @@ export class Account {
 	}
 
 	generateApiKey(): string {
-		const apiKey = uuidv4()
+		const apiKey = crypto.randomBytes(32).toString("hex")
 		this.apiKeys.push(apiKey)
 		return apiKey
 	}
@@ -79,12 +80,21 @@ export class Account {
 		return apiKeys
 	}
 
-	static rehydrate(id: string, email: string, credits: number, users: UserIdentity[], apiKeys: string[]): Account {
+	static rehydrate(id: string, email: string, credits: number, users: User[], apiKeys: string[]): Account {
 		return new Account(id, email, credits, users, apiKeys)
 	}
 
-	static create(email: string, user: UserIdentity, creditsUsd: number): Account {
+	static create(rootEmail: string, user: User, freeCreditsUsd: number): Account {
 		const id = uuidv4()
-		return new Account(id, email, creditsUsd, [user], [])
+
+		if (freeCreditsUsd < 0) {
+			throw new Error("Free credits must be greater than or equal to 0")
+		}
+
+		if (freeCreditsUsd > 5) {
+			throw new Error("Free credits must be less than or equal to $5")
+		}
+
+		return new Account(id, rootEmail, freeCreditsUsd, [user], [])
 	}
 }

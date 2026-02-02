@@ -12,7 +12,7 @@ import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { AuthSession } from "@domain/auth-session"
 import { ValidationError } from "@jigjoy-io/serverless-core"
-import { UserIdentity } from "@domain/user-identity"
+import { User } from "@domain/user"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
 	private readonly cognito: CognitoIdentityProviderClient
@@ -52,7 +52,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async get(email: string): Promise<UserIdentity | null> {
+	async get(email: string): Promise<User | null> {
 		const getUserCommand = new AdminGetUserCommand({
 			Username: email,
 			UserPoolId: this.userPoolId,
@@ -63,17 +63,17 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 			return null
 		}
 		const userEmail = (user.UserAttributes?.find((attr) => attr.Name === "email")?.Value as string) ?? ""
-		return UserIdentity.rehydrate(user.Username as string, userEmail)
+		return User.rehydrate(user.Username as string, userEmail)
 	}
 
-	async create(email: string): Promise<UserIdentity> {
+	async create(email: string): Promise<User> {
 		const createUserCommand = new AdminCreateUserCommand({
 			Username: email,
 			UserPoolId: this.userPoolId,
 			MessageAction: "SUPPRESS",
 		})
 		const response = await this.cognito.send(createUserCommand)
-		return UserIdentity.rehydrate(response.User?.Username as string, email)
+		return User.rehydrate(response.User?.Username as string, email)
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
@@ -116,7 +116,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async extractUserIdentity(challengeResponse: InitiateAuthCommandOutput): Promise<UserIdentity> {
+	async rehydrateUser(challengeResponse: InitiateAuthCommandOutput): Promise<User> {
 		if (!challengeResponse.AuthenticationResult?.IdToken) {
 			console.error("verifyAuthChallenge - No id token in response")
 			throw new Error("Failed to verify challenge")
@@ -128,7 +128,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		})
 
 		const payload = await verifier.verify(challengeResponse.AuthenticationResult.IdToken as string)
-		return UserIdentity.rehydrate(payload.sub, payload.email as string)
+		return User.rehydrate(payload.sub, payload.email as string)
 	}
 
 	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
@@ -169,12 +169,12 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 				}),
 			)
 
-			const userIdentity = await this.extractUserIdentity(challengeResponse)
+			const user: User = await this.rehydrateUser(challengeResponse)
 			const accessToken = this.extractAccessToken(challengeResponse)
 
 			console.log("verifyAuthChallenge - Verification successful")
 
-			return AuthSession.create(accessToken, userIdentity)
+			return AuthSession.create(accessToken, user)
 		} catch (error: any) {
 			console.error("verifyAuthChallenge - Error verifying challenge:", error)
 			// Preserve "Challenge not found" error message

@@ -9,7 +9,7 @@ export class CreateAccount implements CreateAccountUseCase {
 		private readonly identityManagementService: IdentityManagementService,
 	) {}
 
-	async execute(email: string): Promise<Account> {
+	async execute(email: string): Promise<void> {
 		const accountExists = await this.accountRepository.exists(email)
 
 		if (accountExists) {
@@ -22,7 +22,5 @@ export class CreateAccount implements CreateAccountUseCase {
 		const account = Account.create(email, user, freeCreditsUsd)
 
 		await this.accountRepository.save(account)
-
-		return account
 	}
 }

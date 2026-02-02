@@ -2,7 +2,7 @@ import { IdentityManagementService } from "@app/ports/services/identity-manageme
 import { AuthSession } from "@domain/auth-session"
 import { Account } from "@domain/account"
 import { randomUUID } from "crypto"
-import { UserIdentity } from "@domain/user-identity"
+import { User } from "@domain/user"
 
 interface ChallengeData {
 	email: string
@@ -11,7 +11,7 @@ interface ChallengeData {
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-	private users: Map<string, UserIdentity> = new Map()
+	private users: Map<string, User> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
 	private accessTokens: Map<string, string> = new Map() // accessToken -> email
 	private challengeCounter: number = 0
@@ -23,12 +23,12 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 	private shouldFailOnVerifyAuthChallenge: boolean = false
 	private failureError: Error = new Error("Identity management service unavailable")
 
-	async create(email: string): Promise<UserIdentity> {
+	async create(email: string): Promise<User> {
 		if (this.shouldFailOnCreateUser) {
 			throw this.failureError
 		}
 		// Only create user if it doesn't exist
-		let user = UserIdentity.rehydrate(randomUUID(), email)
+		let user = User.rehydrate(randomUUID(), email)
 		if (!this.users.has(email)) {
 			this.users.set(email, user)
 		}
@@ -42,7 +42,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		return this.users.has(email)
 	}
 
-	async get(email: string): Promise<UserIdentity | null> {
+	async get(email: string): Promise<User | null> {
 		return this.users.get(email) ?? null
 	}
 
@@ -86,7 +86,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		const accessToken = `session-${email}-${Date.now()}`
 		// Store the mapping of access token to email
 		this.accessTokens.set(accessToken, email)
-		return AuthSession.create(accessToken, UserIdentity.rehydrate(email, email))
+		return AuthSession.create(accessToken, User.rehydrate(email, email))
 	}
 
 	// Helper methods for testing

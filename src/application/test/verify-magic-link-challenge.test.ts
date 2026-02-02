@@ -29,9 +29,9 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken).toContain("session-")
-		const userIdentity = authSession.getUserIdentity()
-		expect(userIdentity).toBeDefined()
-		expect(userIdentity.getEmail()).toBe(userEmail)
+		const user = authSession.getUser()
+		expect(user).toBeDefined()
+		expect(user.getEmail()).toBe(userEmail)
 	})
 
 	it("should throw an error when user does not exist", async () => {
@@ -45,7 +45,7 @@ describe("Verify Magic Link Challenge UseCase", () => {
 
 		// Act & Assert
 		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)).rejects.toThrow(
-			"User does not exist. Please request a new magic link.",
+			"User does not exist. Please create an account.",
 		)
 	})
 
@@ -125,8 +125,8 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		expect(authSession1).toBeInstanceOf(AuthSession)
 		expect(authSession2).toBeInstanceOf(AuthSession)
 		expect(authSession1.getAccessToken()).not.toBe(authSession2.getAccessToken())
-		expect(authSession1.getUserIdentity().getEmail()).toBe(userEmail1)
-		expect(authSession2.getUserIdentity().getEmail()).toBe(userEmail2)
+		expect(authSession1.getUser().getEmail()).toBe(userEmail1)
+		expect(authSession2.getUser().getEmail()).toBe(userEmail2)
 	})
 
 	it("should not verify challenge with wrong user email", async () => {

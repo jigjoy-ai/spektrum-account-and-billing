@@ -71,9 +71,8 @@ describe("Cognito Identity Management Service Integration", () => {
 		testEmails.push(email)
 
 		await identityManagementService.create(email)
-		const found = await identityManagementService.get(email)
+		const found = await identityManagementService.exists(email)
 
-		expect(found).not.toBeNull()
 		expect(found).toBe(true)
 	})
 
@@ -234,9 +233,9 @@ describe("Cognito Identity Management Service Integration", () => {
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken.length).toBeGreaterThan(0)
-		const userIdentity = authSession.getUserIdentity()
-		expect(userIdentity).toBeDefined()
-		expect(userIdentity.getEmail()).toBe(email)
+		const user = authSession.getUser()
+		expect(user).toBeDefined()
+		expect(user.getEmail()).toBe(email)
 	}, 8_000)
 
 	it("should throw an error when verifying auth challenge for non-existent user", async () => {
