@@ -5,6 +5,10 @@ import { CognitoIdentityManagementService } from "./services/cognito-identity-ma
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
+import { CreateAccount } from "@app/use-cases/create-account"
+import { AccountRepository } from "@app/ports/repositories/account-repository"
+import { CreateAccountUseCase } from "@app/ports/use-cases/create-account"
+import { DynamoDBAccountRepository } from "./repositories/dynamo-db-account-repository"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
@@ -27,5 +31,12 @@ export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new 
 )
 
 export const verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(
+	identityManagementService,
+)
+
+const accountRepository: AccountRepository = new DynamoDBAccountRepository()
+
+export const createAccountUseCase: CreateAccountUseCase = new CreateAccount(
+	accountRepository,
 	identityManagementService,
 )
