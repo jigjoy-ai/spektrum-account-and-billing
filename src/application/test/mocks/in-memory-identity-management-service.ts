@@ -1,6 +1,5 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { AuthSession } from "@domain/auth-session"
-import { Account } from "@domain/account"
 import { randomUUID } from "crypto"
 import { User } from "@domain/user"
 
