@@ -5,7 +5,6 @@ import {
 	AdminGetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { CognitoIdentityManagementService } from "@infra/services/cognito-identity-management/cognito-identity-management"
-import { AuthSession } from "@domain/auth-session"
 
 describe("Cognito Identity Management Service Integration", () => {
 	let identityManagementService: CognitoIdentityManagementService
@@ -216,7 +215,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		expect(user.UserStatus).toBe("FORCE_CHANGE_PASSWORD")
 	})
 
-	it("should verify auth challenge and return AuthSession", async () => {
+	it("should verify auth challenge and return access token", async () => {
 		const email = `test-verify-challenge-${Date.now()}@example.com`
 		const expirationInMinutes = 15
 		testEmails.push(email)
@@ -225,17 +224,11 @@ describe("Cognito Identity Management Service Integration", () => {
 		const challengeToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify the challenge - this requires Cognito triggers to be configured
-		const authSession = await identityManagementService.verifyAuthChallenge(email, challengeToken)
+		const accessToken = await identityManagementService.verifyAuthChallenge(email, challengeToken)
 
-		expect(authSession).toBeDefined()
-		expect(authSession).toBeInstanceOf(AuthSession)
-		const accessToken = authSession.getAccessToken()
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken.length).toBeGreaterThan(0)
-		const user = authSession.getUser()
-		expect(user).toBeDefined()
-		expect(user.getEmail()).toBe(email)
 	}, 8_000)
 
 	it("should throw an error when verifying auth challenge for non-existent user", async () => {

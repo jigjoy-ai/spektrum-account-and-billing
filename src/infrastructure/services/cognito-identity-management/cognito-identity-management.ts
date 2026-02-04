@@ -116,21 +116,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		}
 	}
 
-	async rehydrateUser(challengeResponse: InitiateAuthCommandOutput): Promise<User> {
-		if (!challengeResponse.AuthenticationResult?.IdToken) {
-			console.error("verifyAuthChallenge - No id token in response")
-			throw new Error("Failed to verify challenge")
-		}
-		const verifier = await CognitoJwtVerifier.create({
-			userPoolId: this.userPoolId,
-			tokenUse: "id",
-			clientId: this.userPoolClientId,
-		})
-
-		const payload = await verifier.verify(challengeResponse.AuthenticationResult.IdToken as string)
-		return User.rehydrate(payload.sub, payload.email as string)
-	}
-
 	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
 		if (!challengeResponse.AuthenticationResult?.AccessToken) {
 			console.error("verifyAuthChallenge - No access token in response")
@@ -139,7 +124,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		return challengeResponse.AuthenticationResult.AccessToken as string
 	}
 
-	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
+	async verifyAuthChallenge(email: string, challenge: string): Promise<string> {
 		let challengeResponse: InitiateAuthCommandOutput
 		try {
 			// This will trigger DefineAuthChallenge
@@ -168,13 +153,11 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 					},
 				}),
 			)
-
-			const user: User = await this.rehydrateUser(challengeResponse)
 			const accessToken = this.extractAccessToken(challengeResponse)
 
 			console.log("verifyAuthChallenge - Verification successful")
 
-			return AuthSession.create(accessToken, user)
+			return accessToken
 		} catch (error: any) {
 			console.error("verifyAuthChallenge - Error verifying challenge:", error)
 			// Preserve "Challenge not found" error message

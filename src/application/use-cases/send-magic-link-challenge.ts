@@ -3,6 +3,7 @@ import { EmailSender } from "@app/ports/services/email-sender"
 import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 import { LoginEmailParams, LoginEmailFactory } from "@domain/login-email-factory"
 import { MagicLinkBuilder } from "@app/services/magic-link-builder"
+import { AccountService } from "@app/ports/services/account-service"
 
 export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	private readonly EXPIRATION_MINUTES: number = 5
@@ -10,16 +11,17 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	constructor(
 		private readonly emailSender: EmailSender,
 		private readonly identityManagementService: IdentityManagementService,
+		private readonly accountService: AccountService,
 		private readonly fromAddress: string,
 		private readonly destinationUrl: string,
 	) {}
 
 	async execute(userEmail: string): Promise<void> {
-		const userExists = await this.identityManagementService.exists(userEmail)
+		const account = await this.accountService.getAccount(userEmail)
 
 		// If the account does not exist, create it
-		if (!userExists) {
-			throw new Error("User does not exist. Please create an account.")
+		if (!account) {
+			await this.accountService.createAccount(userEmail, 5.0)
 		}
 
 		// Token will be used to verify magic link

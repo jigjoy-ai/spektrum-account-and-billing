@@ -84,7 +84,7 @@ export class Account {
 		return new Account(id, email, credits, users, apiKeys)
 	}
 
-	static create(rootEmail: string, user: User, freeCreditsUsd: number): Account {
+	static create(rootEmail: string, freeCreditsUsd: number): Account {
 		const id = uuidv4()
 
 		if (freeCreditsUsd < 0) {
@@ -95,6 +95,6 @@ export class Account {
 			throw new Error("Free credits must be less than or equal to $5")
 		}
 
-		return new Account(id, rootEmail, freeCreditsUsd, [user], [])
+		return new Account(id, rootEmail, freeCreditsUsd, [], [])
 	}
 }

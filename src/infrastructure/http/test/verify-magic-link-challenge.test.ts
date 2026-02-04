@@ -4,7 +4,6 @@ import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-mag
 import { createVerifyMagicLinkChallengeHandler } from "@infra/http/factories/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
 import { Account } from "@domain/account"
-import { User } from "@domain/user"
 
 describe("Verify Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
@@ -17,8 +16,8 @@ describe("Verify Magic Link Handler", () => {
 	it("returns 200 and access token when magic link is verified successfully", async () => {
 		const mockAccessToken = "mock-access-token-12345"
 		const mockUserEmail = "user@example.com"
-		const mockUser = User.rehydrate("user-id-123", mockUserEmail)
-		const mockAuthSession = AuthSession.create(mockAccessToken, mockUser)
+		const mockAccount = Account.rehydrate("account-id-123", mockUserEmail, 0, [], [])
+		const mockAuthSession = AuthSession.create(mockAccessToken, mockAccount)
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
@@ -43,8 +42,10 @@ describe("Verify Magic Link Handler", () => {
 
 		expect(body.accessToken).toBe(mockAccessToken)
 		expect(body.userData).toBeDefined()
-		expect(body.userData.id).toBe("user-id-123")
+		expect(body.userData.id).toBe("account-id-123")
 		expect(body.userData.email).toBe(mockUserEmail)
+		expect(body.userData.credits).toBe(0)
+		expect(body.userData.apiKeys).toEqual([])
 	})
 
 	it("returns 400 when body is missing", async () => {
@@ -285,7 +286,8 @@ describe("Verify Magic Link Handler", () => {
 		let capturedEmail: string | undefined
 		let capturedChallenge: string | undefined
 
-		const mockAuthSession = AuthSession.create("mock-access-token", User.rehydrate("user-id", "test@example.com"))
+		const mockAccount = Account.rehydrate("account-id", "test@example.com", 0, [], [])
+		const mockAuthSession = AuthSession.create("mock-access-token", mockAccount)
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string, challenge: string) => {
@@ -316,8 +318,8 @@ describe("Verify Magic Link Handler", () => {
 		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string) => {
-				const mockUser = User.rehydrate("user-id", email)
-				return AuthSession.create(mockAccessToken, mockUser)
+				const mockAccount = Account.rehydrate("account-id", email, 0, [], [])
+				return AuthSession.create(mockAccessToken, mockAccount)
 			},
 		}
 

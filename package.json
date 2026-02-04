@@ -10,7 +10,8 @@
 		"@aws-sdk/lib-dynamodb": "^3.398.0",
 		"@jigjoy-io/serverless-core": "^0.0.4",
 		"@sendgrid/mail": "^8.1.5",
-		"aws-jwt-verify": "^5.1.1"
+		"aws-jwt-verify": "^5.1.1",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@rstest/core": "^0.7.9",
