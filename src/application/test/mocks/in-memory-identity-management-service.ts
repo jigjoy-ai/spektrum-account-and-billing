@@ -1,8 +1,6 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
-import { AuthSession } from "@domain/auth-session"
-import { Account } from "@domain/account"
-import { randomUUID } from "crypto"
-import { UserIdentity } from "@domain/user-identity"
+import { User } from "@domain/user"
+import { v4 as uuidv4 } from 'uuid'
 
 interface ChallengeData {
 	email: string
@@ -11,34 +9,43 @@ interface ChallengeData {
 }
 
 export class InMemoryIdentityManagementService implements IdentityManagementService {
-	private users: Map<string, UserIdentity> = new Map()
+	private users: Map<string, User> = new Map()
 	private challenges: Map<string, ChallengeData> = new Map()
 	private accessTokens: Map<string, string> = new Map() // accessToken -> email
 	private challengeCounter: number = 0
 
 	// Failure injection flags
 	private shouldFailOnHasUser: boolean = false
+	private shouldFailOnGet: boolean = false
 	private shouldFailOnCreateUser: boolean = false
 	private shouldFailOnIssueAuthChallenge: boolean = false
 	private shouldFailOnVerifyAuthChallenge: boolean = false
 	private failureError: Error = new Error("Identity management service unavailable")
 
-	async createUser(email: string): Promise<void> {
+	async create(email: string): Promise<User> {
 		if (this.shouldFailOnCreateUser) {
 			throw this.failureError
 		}
 		// Only create user if it doesn't exist
+		let user = User.rehydrate(uuidv4(), email)
 		if (!this.users.has(email)) {
-			const userId = randomUUID()
-			this.users.set(email, UserIdentity.rehydrate(userId, email))
+			this.users.set(email, user)
 		}
+		return user
 	}
 
-	async hasUser(email: string): Promise<boolean> {
+	async exists(email: string): Promise<boolean> {
 		if (this.shouldFailOnHasUser) {
 			throw this.failureError
 		}
 		return this.users.has(email)
+	}
+
+	async get(email: string): Promise<User | null> {
+		if (this.shouldFailOnGet) {
+			throw this.failureError
+		}
+		return this.users.get(email) ?? null
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
@@ -62,7 +69,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		return challengeB64
 	}
 
-	async verifyAuthChallenge(email: string, challenge: string): Promise<AuthSession> {
+	async verifyAuthChallenge(email: string, challenge: string): Promise<string> {
 		if (this.shouldFailOnVerifyAuthChallenge) {
 			throw this.failureError
 		}
@@ -81,7 +88,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		const accessToken = `session-${email}-${Date.now()}`
 		// Store the mapping of access token to email
 		this.accessTokens.set(accessToken, email)
-		return AuthSession.create(accessToken, UserIdentity.rehydrate(email, email))
+		return accessToken
 	}
 
 	// Helper methods for testing
@@ -96,23 +103,6 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 			}
 		}
 		return latestChallenge?.challenge
-	}
-
-	async getCurrentUserFromAccessToken(accessToken: string): Promise<AuthSession> {
-		// Look up the email from the stored access token mapping
-		const email = this.accessTokens.get(accessToken)
-		if (!email) {
-			throw new Error("Invalid access token")
-		}
-
-		// Get user data to retrieve the UUID
-		const account = this.users.get(email)
-		if (!account) {
-			throw new Error("Account not found")
-		}
-
-		// Return AuthSession with account
-		return AuthSession.create(accessToken, account)
 	}
 
 	setShouldFailOnHasUser(shouldFail: boolean, error?: Error): void {
@@ -143,12 +133,20 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 		}
 	}
 
+	setShouldFailOnGet(shouldFail: boolean, error?: Error): void {
+		this.shouldFailOnGet = shouldFail
+		if (error) {
+			this.failureError = error
+		}
+	}
+
 	clear(): void {
 		this.users.clear()
 		this.challenges.clear()
 		this.accessTokens.clear()
 		this.challengeCounter = 0
 		this.shouldFailOnHasUser = false
+		this.shouldFailOnGet = false
 		this.shouldFailOnCreateUser = false
 		this.shouldFailOnIssueAuthChallenge = false
 		this.shouldFailOnVerifyAuthChallenge = false

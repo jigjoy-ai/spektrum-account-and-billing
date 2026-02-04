@@ -1,37 +1,41 @@
 import { describe, it, expect, beforeEach } from "@rstest/core"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
 import { InMemoryIdentityManagementService } from "@app/test/mocks/in-memory-identity-management-service"
-import { IdentityManagementService } from "@app/ports/services/identity-management-service"
+import { InMemoryAccountService } from "@app/test/mocks/in-memory-account-service"
+import { AccountService } from "@app/ports/services/account-service"
 import { AuthSession } from "@domain/auth-session"
 
 describe("Verify Magic Link Challenge UseCase", () => {
 	let verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallenge
-	let identityManagementService: IdentityManagementService
+	let identityManagementService: InMemoryIdentityManagementService
+	let accountService: AccountService
 
 	beforeEach(() => {
 		identityManagementService = new InMemoryIdentityManagementService()
-		verifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(identityManagementService)
+		accountService = new InMemoryAccountService(identityManagementService)
+		verifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(identityManagementService, accountService)
 	})
 
 	it("should successfully verify magic link challenge for existing user with valid challenge", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
+		await accountService.createAccount(userEmail, 0)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		// Act
 		const authSession = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
 
-		// Assert - Should return an AuthSession with access token and user data
+		// Assert - Should return an AuthSession with access token and account
 		expect(authSession).toBeDefined()
 		expect(authSession).toBeInstanceOf(AuthSession)
 		const accessToken = authSession.getAccessToken()
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
-		expect(accessToken).toContain("session-")
-		const userIdentity = authSession.getUserIdentity()
-		expect(userIdentity).toBeDefined()
-		expect(userIdentity.getEmail()).toBe(userEmail)
+		expect(accessToken.length).toBeGreaterThan(0)
+		const account = authSession.getAccount()
+		expect(account).toBeDefined()
+		expect(account.getRootEmail()).toBe(userEmail)
 	})
 
 	it("should throw an error when user does not exist", async () => {
@@ -40,22 +44,21 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const challengeToken = "some-challenge-token"
 
 		// Verify user doesn't exist
-		const userDoesNotExist = await identityManagementService.hasUser(userEmail)
+		const userDoesNotExist = await identityManagementService.exists(userEmail)
 		expect(userDoesNotExist).toBe(false)
 
 		// Act & Assert
 		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)).rejects.toThrow(
-			"User does not exist. Please request a new magic link.",
+			"User does not exist. Please create an account.",
 		)
 	})
 
-	it("should throw an error when identityManagementService.hasUser fails", async () => {
+	it("should throw an error when identityManagementService.get fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
 		const challengeToken = "some-challenge-token"
 		const errorMessage = "Database connection failed"
-		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		inMemoryIdentityService.setShouldFailOnHasUser(true, new Error(errorMessage))
+		identityManagementService.setShouldFailOnGet(true, new Error(errorMessage))
 
 		// Act & Assert
 		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)).rejects.toThrow(errorMessage)
@@ -64,12 +67,12 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when identityManagementService.verifyAuthChallenge fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
+		await accountService.createAccount(userEmail, 0)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		const errorMessage = "Failed to verify auth challenge"
-		const inMemoryIdentityService = identityManagementService as InMemoryIdentityManagementService
-		inMemoryIdentityService.setShouldFailOnVerifyAuthChallenge(true, new Error(errorMessage))
+		identityManagementService.setShouldFailOnVerifyAuthChallenge(true, new Error(errorMessage))
 
 		// Act & Assert
 		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)).rejects.toThrow(errorMessage)
@@ -78,7 +81,8 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is invalid", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
+		await accountService.createAccount(userEmail, 0)
 		const invalidChallengeToken = "invalid-challenge-token"
 
 		// Act & Assert
@@ -90,7 +94,8 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is expired", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.createUser(userEmail)
+		await identityManagementService.create(userEmail)
+		await accountService.createAccount(userEmail, 0)
 
 		// Issue a challenge with 0 minutes expiration (expired immediately)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 0)
@@ -109,8 +114,10 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.createUser(userEmail1)
-		await identityManagementService.createUser(userEmail2)
+		await identityManagementService.create(userEmail1)
+		await identityManagementService.create(userEmail2)
+		await accountService.createAccount(userEmail1, 0)
+		await accountService.createAccount(userEmail2, 0)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 		const challengeToken2 = await identityManagementService.issueAuthChallenge(userEmail2, 5)
@@ -119,14 +126,14 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const authSession1 = await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
 		const authSession2 = await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
 
-		// Assert - Both should return AuthSession instances with different access tokens and user data
+		// Assert - Both should return AuthSession instances with different access tokens and account data
 		expect(authSession1).toBeDefined()
 		expect(authSession2).toBeDefined()
 		expect(authSession1).toBeInstanceOf(AuthSession)
 		expect(authSession2).toBeInstanceOf(AuthSession)
 		expect(authSession1.getAccessToken()).not.toBe(authSession2.getAccessToken())
-		expect(authSession1.getUserIdentity().getEmail()).toBe(userEmail1)
-		expect(authSession2.getUserIdentity().getEmail()).toBe(userEmail2)
+		expect(authSession1.getAccount().getRootEmail()).toBe(userEmail1)
+		expect(authSession2.getAccount().getRootEmail()).toBe(userEmail2)
 	})
 
 	it("should not verify challenge with wrong user email", async () => {
@@ -134,8 +141,10 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.createUser(userEmail1)
-		await identityManagementService.createUser(userEmail2)
+		await identityManagementService.create(userEmail1)
+		await identityManagementService.create(userEmail2)
+		await accountService.createAccount(userEmail1, 0)
+		await accountService.createAccount(userEmail2, 0)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 

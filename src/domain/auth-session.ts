@@ -1,20 +1,20 @@
-import { UserIdentity } from "./user-identity"
+import { Account } from "./account"
 
 export class AuthSession {
 	private constructor(
 		private readonly accessToken: string,
-		private readonly userIdentity: UserIdentity,
+		private readonly account: Account,
 	) {}
 
-	static create(accessToken: string, userIdentity: UserIdentity): AuthSession {
-		return new AuthSession(accessToken, userIdentity)
+	static create(accessToken: string, account: Account): AuthSession {
+		return new AuthSession(accessToken, account)
 	}
 
 	getAccessToken(): string {
 		return this.accessToken
 	}
 
-	getUserIdentity(): UserIdentity {
-		return this.userIdentity
+	getAccount(): Account {
+		return this.account
 	}
 }

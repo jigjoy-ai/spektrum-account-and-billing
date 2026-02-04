@@ -5,7 +5,6 @@ import {
 	AdminGetUserCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { CognitoIdentityManagementService } from "@infra/services/cognito-identity-management/cognito-identity-management"
-import { AuthSession } from "@domain/auth-session"
 
 describe("Cognito Identity Management Service Integration", () => {
 	let identityManagementService: CognitoIdentityManagementService
@@ -42,7 +41,7 @@ describe("Cognito Identity Management Service Integration", () => {
 	it("should return false when finding a non-existent user", async () => {
 		const nonExistentEmail = `test-nonexistent-${Date.now()}@example.com`
 
-		const result = await identityManagementService.hasUser(nonExistentEmail)
+		const result = await identityManagementService.exists(nonExistentEmail)
 
 		expect(result).toBe(false)
 	})
@@ -51,7 +50,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const email = `test-create-${Date.now()}@example.com`
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 
 		// Verify user was created by fetching from Cognito
 		const getUserCommand = new AdminGetUserCommand({
@@ -70,10 +69,9 @@ describe("Cognito Identity Management Service Integration", () => {
 		const email = `test-find-${Date.now()}@example.com`
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
-		const found = await identityManagementService.hasUser(email)
+		await identityManagementService.create(email)
+		const found = await identityManagementService.exists(email)
 
-		expect(found).not.toBeNull()
 		expect(found).toBe(true)
 	})
 
@@ -82,7 +80,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const expirationInMinutes = 15
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 		const challengeToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify challenge was set by fetching user attributes
@@ -104,7 +102,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const expirationInMinutes = 15
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 		const firstToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify first challenge
@@ -135,11 +133,11 @@ describe("Cognito Identity Management Service Integration", () => {
 		const email2 = `test-multi-2-${Date.now()}@example.com`
 		testEmails.push(email1, email2)
 
-		await identityManagementService.createUser(email1)
-		await identityManagementService.createUser(email2)
+		await identityManagementService.create(email1)
+		await identityManagementService.create(email2)
 
-		const found1 = await identityManagementService.hasUser(email1)
-		const found2 = await identityManagementService.hasUser(email2)
+		const found1 = await identityManagementService.exists(email1)
+		const found2 = await identityManagementService.exists(email2)
 
 		expect(found1).toBe(true)
 		expect(found2).toBe(true)
@@ -149,10 +147,10 @@ describe("Cognito Identity Management Service Integration", () => {
 		const email = `test-duplicate-${Date.now()}@example.com`
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 
 		// Attempt to create the same user again
-		await expect(identityManagementService.createUser(email)).rejects.toThrow()
+		await expect(identityManagementService.create(email)).rejects.toThrow()
 	})
 
 	it("should throw an error when issuing auth challenge for non-existent user", async () => {
@@ -171,15 +169,15 @@ describe("Cognito Identity Management Service Integration", () => {
 		)
 		const email = `test-invalid-${Date.now()}@example.com`
 
-		await expect(invalidIdentityManagementService.createUser(email)).rejects.toThrow()
+		await expect(invalidIdentityManagementService.create(email)).rejects.toThrow()
 	})
 
 	it("should return Account with correct email after rehydration", async () => {
 		const email = `test-rehydrate-${Date.now()}@example.com`
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
-		const found = await identityManagementService.hasUser(email)
+		await identityManagementService.create(email)
+		const found = await identityManagementService.exists(email)
 
 		expect(found).not.toBeNull()
 		expect(found).toBe(true)
@@ -193,14 +191,14 @@ describe("Cognito Identity Management Service Integration", () => {
 		)
 		const email = `test-error-${Date.now()}@example.com`
 
-		await expect(invalidIdentityManagementService.hasUser(email)).rejects.toThrow("Error getting user from Cognito")
+		await expect(invalidIdentityManagementService.exists(email)).rejects.toThrow("Error getting user from Cognito")
 	})
 
 	it("should create user with SUPPRESS message action", async () => {
 		const email = `test-suppress-${Date.now()}@example.com`
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 
 		// Verify user was created (if message action wasn't SUPPRESS, Cognito would send welcome email)
 		const getUserCommand = new AdminGetUserCommand({
@@ -217,26 +215,20 @@ describe("Cognito Identity Management Service Integration", () => {
 		expect(user.UserStatus).toBe("FORCE_CHANGE_PASSWORD")
 	})
 
-	it("should verify auth challenge and return AuthSession", async () => {
+	it("should verify auth challenge and return access token", async () => {
 		const email = `test-verify-challenge-${Date.now()}@example.com`
 		const expirationInMinutes = 15
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 		const challengeToken = await identityManagementService.issueAuthChallenge(email, expirationInMinutes)
 
 		// Verify the challenge - this requires Cognito triggers to be configured
-		const authSession = await identityManagementService.verifyAuthChallenge(email, challengeToken)
+		const accessToken = await identityManagementService.verifyAuthChallenge(email, challengeToken)
 
-		expect(authSession).toBeDefined()
-		expect(authSession).toBeInstanceOf(AuthSession)
-		const accessToken = authSession.getAccessToken()
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken.length).toBeGreaterThan(0)
-		const userIdentity = authSession.getUserIdentity()
-		expect(userIdentity).toBeDefined()
-		expect(userIdentity.getEmail()).toBe(email)
 	}, 8_000)
 
 	it("should throw an error when verifying auth challenge for non-existent user", async () => {
@@ -251,7 +243,7 @@ describe("Cognito Identity Management Service Integration", () => {
 		const invalidChallenge = "invalid-challenge-token"
 		testEmails.push(email)
 
-		await identityManagementService.createUser(email)
+		await identityManagementService.create(email)
 		await identityManagementService.issueAuthChallenge(email, 15)
 
 		// Attempt to verify with wrong challenge token

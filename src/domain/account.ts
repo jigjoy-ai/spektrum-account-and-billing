@@ -1,16 +1,22 @@
+import { v4 as uuidv4 } from "uuid"
+import crypto from "crypto"
+import { User } from "./user"
+
 export class Account {
 	private constructor(
 		private readonly id: string,
-		private readonly email: string,
+		private readonly rootEmail: string,
 		private creditsUsd: number,
+		private users: User[],
+		private apiKeys: string[],
 	) {}
 
 	getId(): string {
 		return this.id
 	}
 
-	getEmail(): string {
-		return this.email
+	getRootEmail(): string {
+		return this.rootEmail
 	}
 
 	getRemainingCredits(): number {
@@ -34,12 +40,61 @@ export class Account {
 		this.creditsUsd -= amount
 	}
 
-	static rehydrate(id: string, email: string, credits: number): Account {
-		return new Account(id, email, credits)
+	addUser(user: User): void {
+		this.users.push(user)
 	}
 
-	static create(id: string, email: string): Account {
-		const creditsUsd = 5.0
-		return new Account(id, email, creditsUsd)
+	removeUser(user: User): void {
+		if (!this.users.includes(user)) {
+			throw new Error("User not found")
+		}
+
+		if (this.users.length === 1) {
+			throw new Error("Cannot remove last user")
+		}
+
+		this.users = this.users.filter((u) => u.getId() !== user.getId())
+	}
+
+	generateApiKey(): string {
+		const apiKey = crypto.randomBytes(32).toString("hex")
+		this.apiKeys.push(apiKey)
+		return apiKey
+	}
+
+	revokeApiKey(apiKeyIndex: number): void {
+		if (apiKeyIndex < 0 || apiKeyIndex >= this.apiKeys.length) {
+			throw new Error("API key index out of bounds")
+		}
+		this.apiKeys.splice(apiKeyIndex, 1)
+	}
+
+	hasApiKey(apiKey: string): boolean {
+		return this.apiKeys.includes(apiKey)
+	}
+
+	getApiKeys(): string[] {
+		const apiKeys = this.apiKeys.map((key) => {
+			return key.substring(0, 8) + "xxxxxx" + key.substring(key.length - 8)
+		})
+		return apiKeys
+	}
+
+	static rehydrate(id: string, email: string, credits: number, users: User[], apiKeys: string[]): Account {
+		return new Account(id, email, credits, users, apiKeys)
+	}
+
+	static create(rootEmail: string, freeCreditsUsd: number): Account {
+		const id = uuidv4()
+
+		if (freeCreditsUsd < 0) {
+			throw new Error("Free credits must be greater than or equal to 0")
+		}
+
+		if (freeCreditsUsd > 5) {
+			throw new Error("Free credits must be less than or equal to $5")
+		}
+
+		return new Account(id, rootEmail, freeCreditsUsd, [], [])
 	}
 }

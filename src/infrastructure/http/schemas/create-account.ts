@@ -1,0 +1,10 @@
+export const createAccountSchema = {
+	type: "object",
+	required: ["email"],
+	properties: {
+		email: {
+			type: "string",
+			format: "email",
+		},
+	},
+}

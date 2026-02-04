@@ -24,14 +24,17 @@ export function createVerifyMagicLinkChallengeHandler(
 
 			const { email, challenge } = parsedBody
 
-			console.log("verify-magic-link-challenge handler - Email:", email)
-
 			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(email, challenge)
+			const account = authSession.getAccount()
+			const accessToken = authSession.getAccessToken()
+			
 			return Responses._200({
-				accessToken: authSession.getAccessToken(),
+				accessToken: accessToken,
 				userData: {
-					id: authSession.getUserIdentity().getId(),
-					email: authSession.getUserIdentity().getEmail(),
+					id: account.getId(),
+					email: account.getRootEmail(),
+					credits: account.getRemainingCredits(),
+					apiKeys: account.getApiKeys(),
 				},
 			})
 		} catch (error) {
