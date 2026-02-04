@@ -73,11 +73,19 @@ export class Account {
 		return this.apiKeys.includes(apiKey)
 	}
 
-	getApiKeys(): string[] {
+	getApiKeysForDisplay(): string[] {
 		const apiKeys = this.apiKeys.map((key) => {
 			return key.substring(0, 8) + "xxxxxx" + key.substring(key.length - 8)
 		})
 		return apiKeys
+	}
+
+	getUsers(): User[] {
+		return [...this.users]
+	}
+
+	getApiKeys(): string[] {
+		return [...this.apiKeys]
 	}
 
 	static rehydrate(id: string, email: string, credits: number, users: User[], apiKeys: string[]): Account {
