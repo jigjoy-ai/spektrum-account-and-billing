@@ -9,7 +9,7 @@ export class AccountMapper {
 			rootEmail: account.getRootEmail(),
 			creditsUsd: account.getRemainingCredits(),
 			users: account.getUsers().map((u) => ({ id: u.getId(), email: u.getEmail() })),
-			apiKeys: account.getApiKeysForPersistence(),
+			apiKeys: account.getApiKeys(),
 		}
 	}
 

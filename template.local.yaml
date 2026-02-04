@@ -29,6 +29,7 @@ Resources:
       Description: Send magic link challenge (local)
       Environment:
         Variables:
+          ACCOUNT_TABLE: ""
           KMS_KEY_ID: ""
           USER_POOL_ID: ""
           USER_POOL_CLIENT_ID: ""
@@ -60,6 +61,7 @@ Resources:
       Description: Verify magic link challenge (local)
       Environment:
         Variables:
+          ACCOUNT_TABLE: ""
           USER_POOL_ID: ""
           USER_POOL_CLIENT_ID: ""
           KMS_KEY_ID: ""

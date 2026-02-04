@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
+import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
 import { AccountRepository } from "@app/ports/repositories/account-repository"
 import { Account } from "@domain/account"
 import { AccountMapper } from "@infra/repositories/mappers/account-mapper"
@@ -13,7 +13,7 @@ const ddbDocClient = DynamoDBDocumentClient.from(client)
 
 export class DynamoDBAccountRepository implements AccountRepository {
 	async save(account: Account): Promise<Account> {
-		const tableName = process.env.ACCOUNT_TABLE
+		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Saving account with id: ${account.getId()} to DynamoDB table ${tableName}`)
 
 		const record: AccountRecord = AccountMapper.toRecord(account)
@@ -28,7 +28,7 @@ export class DynamoDBAccountRepository implements AccountRepository {
 	}
 
 	async getByEmail(email: string): Promise<Account | null> {
-		const tableName = process.env.ACCOUNT_TABLE
+		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Getting account by email: ${email} from DynamoDB table ${tableName}`)
 
 		try {

@@ -9,7 +9,7 @@ Resources:
     AccountTable:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: !Sub "${AWS::StackName}-Account"
+            TableName: Account
             BillingMode: PAY_PER_REQUEST
             AttributeDefinitions:
                 - AttributeName: id
