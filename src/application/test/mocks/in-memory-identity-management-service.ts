@@ -1,6 +1,6 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
-import { randomUUID } from "crypto"
 import { User } from "@domain/user"
+import { v4 as uuidv4 } from 'uuid'
 
 interface ChallengeData {
 	email: string
@@ -27,7 +27,7 @@ export class InMemoryIdentityManagementService implements IdentityManagementServ
 			throw this.failureError
 		}
 		// Only create user if it doesn't exist
-		let user = User.rehydrate(randomUUID(), email)
+		let user = User.rehydrate(uuidv4(), email)
 		if (!this.users.has(email)) {
 			this.users.set(email, user)
 		}
