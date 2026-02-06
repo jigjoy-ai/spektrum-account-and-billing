@@ -10,25 +10,18 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider"
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
-import { AuthSession } from "@domain/auth-session"
 import { ValidationError } from "@jigjoy-io/serverless-core"
 import { User } from "@domain/user"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {
 	private readonly cognito: CognitoIdentityProviderClient
 	private readonly ONE_MINUTE_IN_MS: number = 60 * 1000
-	private readonly awsKeyManagementService: AWSKeyManagementService
 
 	constructor(
 		private readonly userPoolId: string,
 		private readonly userPoolClientId: string,
 		cognitoClient?: CognitoIdentityProviderClient,
 	) {
-		if (!process.env.KMS_KEY_ID) {
-			throw new Error("KMS_KEY_ID environment variable is required")
-		}
-
-		this.awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
 		this.cognito =
 			cognitoClient ||
 			new CognitoIdentityProviderClient({ region: process.env.AWS_REGION, profile: process.env.AWS_PROFILE })
@@ -77,6 +70,13 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
+		
+		if (!process.env.KMS_KEY_ID) {
+			throw new Error("KMS_KEY_ID environment variable is required")
+		}
+
+		const awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
+		
 		const now = new Date()
 		const EXPIRATION_IN_MS = expirationInMinutes * this.ONE_MINUTE_IN_MS
 		const expiresAt = new Date(now.getTime() + EXPIRATION_IN_MS)
@@ -86,7 +86,7 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 			expiration: expiresAt.toJSON(),
 		}
 
-		const rawChallengeToken = await this.awsKeyManagementService.encrypt(JSON.stringify(payload))
+		const rawChallengeToken = await awsKeyManagementService.encrypt(JSON.stringify(payload))
 		const challengeTokenB64 = Buffer.from(rawChallengeToken).toString("base64")
 
 		await this.cognito.send(

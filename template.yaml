@@ -27,6 +27,76 @@ Resources:
                   Projection:
                       ProjectionType: ALL
 
+    ApiKeyTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: ApiKey
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+                - AttributeName: keyHash
+                  AttributeType: S
+                - AttributeName: accountId
+                  AttributeType: S
+                - AttributeName: statusCreatedAt
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+            GlobalSecondaryIndexes:
+                - IndexName: keyHashGSI
+                  KeySchema:
+                      - AttributeName: keyHash
+                        KeyType: HASH
+                  Projection:
+                      ProjectionType: ALL
+                - IndexName: accountIdStatusGSI
+                  KeySchema:
+                      - AttributeName: accountId
+                        KeyType: HASH
+                      - AttributeName: statusCreatedAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+
+    ApiUsageTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: ApiUsage
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+                - AttributeName: apiKeyId
+                  AttributeType: S
+                - AttributeName: accountId
+                  AttributeType: S
+                - AttributeName: occurredAt
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+                - AttributeName: occurredAt
+                  KeyType: RANGE
+            GlobalSecondaryIndexes:
+                - IndexName: apiKeyIdGSI
+                  KeySchema:
+                      - AttributeName: apiKeyId
+                        KeyType: HASH
+                      - AttributeName: occurredAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+                - IndexName: accountIdGSI
+                  KeySchema:
+                      - AttributeName: accountId
+                        KeyType: HASH
+                      - AttributeName: occurredAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+
     JigJoyUserPool:
         Type: AWS::Cognito::UserPool
         Properties:
@@ -343,6 +413,8 @@ Resources:
                         Resource:
                             - !GetAtt AccountTable.Arn
                             - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt ApiKeyTable.Arn
+                            - !Sub "${ApiKeyTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -351,6 +423,40 @@ Resources:
                 Sourcemap: true
                 EntryPoints:
                     - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
+
+    createApiKeyFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/create-api-key.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Create api key
+            Environment:
+                Variables:
+                    API_KEY_TABLE: !Ref ApiKeyTable
+                    ACCOUNT_TABLE: !Ref AccountTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action:
+                            - dynamodb:PutItem
+                            - dynamodb:GetItem
+                            - dynamodb:Query
+                        Resource:
+                            - !GetAtt AccountTable.Arn
+                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt ApiKeyTable.Arn
+                            - !Sub "${ApiKeyTable.Arn}/index/*"
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
 
 Outputs:
     AccountTableName:
@@ -372,6 +478,11 @@ Outputs:
         Value: !GetAtt sendMagicLinkChallengeFunction.Arn
         Export:
             Name: !Sub "${AWS::StackName}-SendMagicLinkChallengeFnArn"
+
+    CreateApiKeyFnArn:
+        Value: !GetAtt createApiKeyFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-CreateApiKeyFnArn"
 
     VerifyMagicLinkChallengeFnArn:
         Value: !GetAtt verifyMagicLinkChallengeFunction.Arn

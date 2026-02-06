@@ -9,12 +9,11 @@ export class AccountMapper {
 			rootEmail: account.getRootEmail(),
 			creditsUsd: account.getRemainingCredits(),
 			users: account.getUsers().map((u) => ({ id: u.getId(), email: u.getEmail() })),
-			apiKeys: account.getApiKeys(),
 		}
 	}
 
 	static toDomain(record: AccountRecord): Account {
 		const users = record.users.map((u: UserRecord) => User.rehydrate(u.id, u.email))
-		return Account.rehydrate(record.id, record.rootEmail, record.creditsUsd, users, record.apiKeys)
+		return Account.rehydrate(record.id, record.rootEmail, record.creditsUsd, users)
 	}
 }
