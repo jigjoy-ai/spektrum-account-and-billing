@@ -27,6 +27,66 @@ Resources:
                   Projection:
                       ProjectionType: ALL
 
+    ApiKeyTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: ApiKey
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: keyHash
+                  AttributeType: S
+                - AttributeName: accountId
+                  AttributeType: S
+                - AttributeName: statusCreatedAt
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: keyHash
+                  KeyType: HASH
+            GlobalSecondaryIndexes:
+                - IndexName: accountIdStatusGSI
+                  KeySchema:
+                      - AttributeName: accountId
+                        KeyType: HASH
+                      - AttributeName: statusCreatedAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+
+    ApiUsageTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: ApiUsage
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+                - AttributeName: apiKeyId
+                  AttributeType: S
+                - AttributeName: accountId
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+                - AttributeName: occurredAt
+                  KeyType: RANGE
+            GlobalSecondaryIndexes:
+                - IndexName: apiKeyIdGSI
+                  KeySchema:
+                      - AttributeName: apiKeyId
+                        KeyType: HASH
+                      - AttributeName: occurredAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+                - IndexName: accountIdGSI
+                  KeySchema:
+                      - AttributeName: accountId
+                        KeyType: HASH
+                      - AttributeName: occurredAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+
     JigJoyUserPool:
         Type: AWS::Cognito::UserPool
         Properties:

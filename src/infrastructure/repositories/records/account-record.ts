@@ -8,5 +8,4 @@ export interface AccountRecord {
 	rootEmail: string
 	creditsUsd: number
 	users: UserRecord[]
-	apiKeys: string[]
 }
