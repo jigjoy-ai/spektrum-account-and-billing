@@ -3,6 +3,7 @@ import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigj
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
+import { AuthSessionMapper } from "../mappers/auth-session-mapper"
 
 export function createVerifyMagicLinkChallengeHandler(
 	verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase,
@@ -25,17 +26,10 @@ export function createVerifyMagicLinkChallengeHandler(
 			const { email, challenge } = parsedBody
 
 			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(email, challenge)
-			const account = authSession.getAccount()
-			const accessToken = authSession.getAccessToken()
+			const authSessionDTO = AuthSessionMapper.toDTO(authSession)
 
 			return Responses._200({
-				accessToken: accessToken,
-				userData: {
-					id: account.getId(),
-					email: account.getRootEmail(),
-					credits: account.getRemainingCredits(),
-					apiKeys: account.getApiKeysForDisplay(),
-				},
+				authSession: authSessionDTO,
 			})
 		} catch (error) {
 			return errorHandler(error)

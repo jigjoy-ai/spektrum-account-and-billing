@@ -6,9 +6,11 @@ import { IdentityManagementService } from "@app/ports/services/identity-manageme
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
 import { AccountRepository } from "@app/ports/repositories/account-repository"
-import { DynamoDBAccountRepository } from "./repositories/dynamo-db-account-repository"
-import { DefaultAccountService } from "@app/services/default-account-service"
-import { AccountService } from "@app/ports/services/account-service"
+import { DynamoDBAccountRepository } from "./repositories/dynamodb-account-repository"
+import { ApiKeyRepository } from "@app/ports/repositories/api-key-repository"
+import { DynamoDBApiKeyRepository } from "./repositories/dynamodb-api-key-repository"
+import { CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
+import { CreateApiKey } from "@app/use-cases/create-api-key"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
@@ -24,17 +26,20 @@ const DESTINATION_URL = process.env.DESTINATION_URL as string
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string
 
 const accountRepository: AccountRepository = new DynamoDBAccountRepository()
-const accountService: AccountService = new DefaultAccountService(accountRepository, identityManagementService)
+const apiKeyRepository: ApiKeyRepository = new DynamoDBApiKeyRepository()
 
 export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new SendMagicLinkChallenge(
 	sendgridEmailSender,
 	identityManagementService,
-	accountService,
+	accountRepository,
 	FROM_ADDRESS,
 	DESTINATION_URL,
 )
 
 export const verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(
 	identityManagementService,
-	accountService,
+	accountRepository,
+	apiKeyRepository,
 )
+
+export const createApiKeyUseCase: CreateApiKeyUseCase = new CreateApiKey(accountRepository, apiKeyRepository)

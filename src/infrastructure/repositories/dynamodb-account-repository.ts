@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
 import { AccountRepository } from "@app/ports/repositories/account-repository"
 import { Account } from "@domain/account"
 import { AccountMapper } from "@infra/repositories/mappers/account-mapper"
@@ -12,6 +12,31 @@ const client = new DynamoDBClient({
 const ddbDocClient = DynamoDBDocumentClient.from(client)
 
 export class DynamoDBAccountRepository implements AccountRepository {
+	async getById(id: string): Promise<Account | null> {
+		const tableName = process.env.ACCOUNT_TABLE as string
+		console.log(`Getting account by id: ${id} from DynamoDB table ${tableName}`)
+
+		try {
+			const result = await ddbDocClient.send(
+				new GetCommand({
+					TableName: tableName,
+					Key: { id },
+				}),
+			)
+
+			if (!result.Item) {
+				console.log(`Account with id ${id} not found`)
+				return null
+			}
+
+			const record: AccountRecord = result.Item as AccountRecord
+			return AccountMapper.toDomain(record)
+		} catch (error) {
+			console.error(`Error getting account by id ${id}:`, error)
+			throw new Error(`Failed to get account by id ${id}: ${error}`)
+		}
+	}
+	
 	async save(account: Account): Promise<Account> {
 		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Saving account with id: ${account.getId()} to DynamoDB table ${tableName}`)

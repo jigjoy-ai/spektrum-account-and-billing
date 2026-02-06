@@ -65,6 +65,7 @@ Resources:
           USER_POOL_ID: ""
           USER_POOL_CLIENT_ID: ""
           KMS_KEY_ID: ""
+          API_KEY_TABLE: ""
       Events:
         Api:
           Type: Api
@@ -81,3 +82,30 @@ Resources:
         Minify: false
         EntryPoints:
           - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
+    
+  createApiKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: create-api-key.handler
+      Description: Create api key (local)
+      Environment:
+        Variables:
+          ACCOUNT_TABLE: ""
+          API_KEY_TABLE: ""
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LocalApi
+            Path: /api-key
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Target: "es2020"
+        Platform: node
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/infrastructure/http/handlers/create-api-key.ts
