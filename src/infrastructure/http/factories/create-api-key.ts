@@ -23,7 +23,13 @@ export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCa
 			const name = parsedBody.name
 
 			const apiKey = await createApiKeyUseCase.execute(accountId, name)
-			return Responses._201({ apiKey })
+            
+			return Responses._201({
+                id: apiKey.getId(),
+                keyHash: apiKey.getKeyHash(),
+                key: apiKey.getSecretKey(),
+                name: apiKey.getName(),
+            })
 		} catch (error) {
 			return errorHandler(error)
 		}
