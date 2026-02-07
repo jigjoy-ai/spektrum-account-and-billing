@@ -6,7 +6,7 @@ import { ApiKey } from "@domain/api-key"
 export class CreateApiKey implements CreateApiKeyUseCase {
 	constructor(private readonly accountRepository: AccountRepository, private readonly apiKeyRepository: ApiKeyRepository) {}
 
-	async execute(accountId: string, name: string): Promise<string> {
+	async execute(accountId: string, name: string): Promise<ApiKey> {
 		const account = await this.accountRepository.getById(accountId)
 		if (!account) {
 			throw new Error(`Account with id ${accountId} not found`)
@@ -15,6 +15,6 @@ export class CreateApiKey implements CreateApiKeyUseCase {
         
 		const apiKey = ApiKey.create(accountId, name)
 		await this.apiKeyRepository.save(apiKey)
-		return apiKey.getKeyHash()
+		return apiKey
 	}
 }
