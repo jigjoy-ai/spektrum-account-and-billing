@@ -458,6 +458,37 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
 
+    processCreditsPurchaseFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/process-credits-purchase.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Process credits purchase
+            Environment:
+                Variables:
+                    ACCOUNT_TABLE: !Ref AccountTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                    - Effect: Allow
+                      Action:
+                          - dynamodb:PutItem
+                          - dynamodb:GetItem
+                          - dynamodb:Query
+                      Resource:
+                          - !GetAtt AccountTable.Arn
+                          - !Sub "${AccountTable.Arn}/index/*"
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+
 Outputs:
     AccountTableName:
         Value: !Ref AccountTable

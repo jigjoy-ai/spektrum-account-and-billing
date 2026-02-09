@@ -14,6 +14,6 @@ export class AccountMapper {
 
 	static toDomain(record: AccountRecord): Account {
 		const users = record.users.map((u: UserRecord) => User.rehydrate(u.id, u.email))
-		return Account.rehydrate(record.id, record.rootEmail, record.creditsUsd, users)
+		return Account.rehydrate(record.id, record.rootEmail, Number(record.creditsUsd), users)
 	}
 }
