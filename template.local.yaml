@@ -109,3 +109,29 @@ Resources:
         Minify: false
         EntryPoints:
           - src/infrastructure/http/handlers/create-api-key.ts
+
+  processCreditsPurchaseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: process-credits-purchase.handler
+      Description: Process credits purchase (local)
+      Environment:
+        Variables:
+          ACCOUNT_TABLE: ""
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref LocalApi
+            Path: /credits
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Target: "es2020"
+        Platform: node
+        Sourcemap: true
+        Minify: false
+        EntryPoints:
+          - src/infrastructure/http/handlers/process-credits-purchase.ts
