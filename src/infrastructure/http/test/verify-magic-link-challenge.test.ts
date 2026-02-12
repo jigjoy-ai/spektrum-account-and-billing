@@ -16,8 +16,8 @@ describe("Verify Magic Link Handler", () => {
 	it("returns 200 and access token when magic link is verified successfully", async () => {
 		const mockAccessToken = "mock-access-token-12345"
 		const mockUserEmail = "user@example.com"
-		const mockAccount = Account.rehydrate("account-id-123", mockUserEmail, 0, [], [])
-		const mockAuthSession = AuthSession.create(mockAccessToken, mockAccount)
+		const mockAccount = Account.rehydrate("account-id-123", mockUserEmail, 0, [])
+		const mockAuthSession = AuthSession.create(mockAccessToken, mockAccount, [])
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
@@ -286,8 +286,8 @@ describe("Verify Magic Link Handler", () => {
 		let capturedEmail: string | undefined
 		let capturedChallenge: string | undefined
 
-		const mockAccount = Account.rehydrate("account-id", "test@example.com", 0, [], [])
-		const mockAuthSession = AuthSession.create("mock-access-token", mockAccount)
+		const mockAccount = Account.rehydrate("account-id", "test@example.com", 0, [])
+		const mockAuthSession = AuthSession.create("mock-access-token", mockAccount, [])
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string, challenge: string) => {
@@ -318,8 +318,8 @@ describe("Verify Magic Link Handler", () => {
 		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string) => {
-				const mockAccount = Account.rehydrate("account-id", email, 0, [], [])
-				return AuthSession.create(mockAccessToken, mockAccount)
+				const mockAccount = Account.rehydrate("account-id", email, 0, [])
+				return AuthSession.create(mockAccessToken, mockAccount, [])
 			},
 		}
 
