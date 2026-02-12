@@ -8,7 +8,7 @@
 		"@aws-sdk/client-dynamodb": "^3.398.0",
 		"@aws-sdk/client-kms": "^3.632.0",
 		"@aws-sdk/lib-dynamodb": "^3.398.0",
-		"@jigjoy-io/serverless-core": "^0.0.4",
+		"@jigjoy-ai/serverless-core": "^0.0.5",
 		"@sendgrid/mail": "^8.1.5",
 		"aws-jwt-verify": "^5.1.1",
 		"uuid": "^13.0.0"
