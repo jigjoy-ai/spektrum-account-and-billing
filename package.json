@@ -29,10 +29,10 @@
 		"typescript": "^5.5.2"
 	},
 	"scripts": {
-		"build:local": "sam build --profile Development -t template.local.yaml ",
-		"serve:local": "sam local start-api --profile Development -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
-		"build:dev": "sam build --profile Development -t template.yaml ",
-		"deploy:dev": "sam deploy --profile Development --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
+		"build:local": "sam build --profile spektrum-dev -t template.local.yaml ",
+		"serve:local": "sam local start-api --profile spektrum-dev -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
+		"build:dev": "sam build --profile spektrum-dev -t template.yaml ",
+		"deploy:dev": "sam deploy --profile spektrum-dev --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
 		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
 		"test": "rstest -c rstest.config.ts",
 		"coverage": "rstest --coverage",
