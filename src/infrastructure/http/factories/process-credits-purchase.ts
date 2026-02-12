@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
+import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 import { processCreditsPurchaseSchema } from "../schemas/process-credits-purchase"
 

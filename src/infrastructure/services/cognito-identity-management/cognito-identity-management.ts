@@ -10,7 +10,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider"
 import { AWSKeyManagementService } from "./util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
-import { ValidationError } from "@jigjoy-io/serverless-core"
+import { ValidationError } from "@jigjoy-ai/serverless-core"
 import { User } from "@domain/user"
 
 export class CognitoIdentityManagementService implements IdentityManagementService {

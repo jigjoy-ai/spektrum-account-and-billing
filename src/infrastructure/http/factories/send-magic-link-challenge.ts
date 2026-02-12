@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { sendMagicLinkChallengeSchema } from "../schemas/send-magic-link-challenge"
-import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
+import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 
 export function createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase) {

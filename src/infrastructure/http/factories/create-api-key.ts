@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { createApiKeySchema } from "@infra/http/schemas/create-api-key"
-import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
+import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
 
 export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCase) {

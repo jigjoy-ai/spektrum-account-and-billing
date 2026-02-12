@@ -1,5 +1,5 @@
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
-import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-io/serverless-core"
+import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
