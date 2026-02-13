@@ -9,7 +9,7 @@ Resources:
     AccountTable:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: Account
+            TableName: !Sub "${AWS::StackName}-Account"
             BillingMode: PAY_PER_REQUEST
             AttributeDefinitions:
                 - AttributeName: id
@@ -30,7 +30,7 @@ Resources:
     ApiKeyTable:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: ApiKey
+            TableName: !Sub "${AWS::StackName}-ApiKey"
             BillingMode: PAY_PER_REQUEST
             AttributeDefinitions:
                 - AttributeName: id
@@ -63,7 +63,7 @@ Resources:
     ApiUsageTable:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: ApiUsage
+            TableName: !Sub "${AWS::StackName}-ApiUsage"
             BillingMode: PAY_PER_REQUEST
             AttributeDefinitions:
                 - AttributeName: id
