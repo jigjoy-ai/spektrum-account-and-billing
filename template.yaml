@@ -474,20 +474,56 @@ Resources:
             Policies:
                 - Version: "2012-10-17"
                   Statement:
-                    - Effect: Allow
-                      Action:
-                          - dynamodb:PutItem
-                          - dynamodb:GetItem
-                          - dynamodb:Query
-                      Resource:
-                          - !GetAtt AccountTable.Arn
-                          - !Sub "${AccountTable.Arn}/index/*"
+                      - Effect: Allow
+                        Action:
+                            - dynamodb:PutItem
+                            - dynamodb:GetItem
+                            - dynamodb:Query
+                        Resource:
+                            - !GetAtt AccountTable.Arn
+                            - !Sub "${AccountTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
                 Minify: true
                 Target: "es2020"
                 Sourcemap: true
+
+    chargeFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/charge.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Charge account credits
+            Environment:
+                Variables:
+                    ACCOUNT_TABLE: !Ref AccountTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action: dynamodb:PutItem
+                        Resource: !GetAtt AccountTable.Arn
+                      - Effect: Allow
+                        Action: dynamodb:GetItem
+                        Resource: !GetAtt AccountTable.Arn
+                      - Effect: Allow
+                        Action: dynamodb:Query
+                        Resource:
+                            - !GetAtt AccountTable.Arn
+                            - !Sub "${AccountTable.Arn}/index/*"
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/charge.ts
 
 Outputs:
     AccountTableName:
@@ -519,3 +555,13 @@ Outputs:
         Value: !GetAtt verifyMagicLinkChallengeFunction.Arn
         Export:
             Name: !Sub "${AWS::StackName}-VerifyMagicLinkChallengeFnArn"
+
+    ProcessCreditsPurchaseFnArn:
+        Value: !GetAtt processCreditsPurchaseFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-ProcessCreditsPurchaseFnArn"
+
+    ChargeFnArn:
+        Value: !GetAtt chargeFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-ChargeFnArn"
