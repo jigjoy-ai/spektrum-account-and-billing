@@ -1,3 +1,3 @@
 export interface ChargeUseCase {
-	execute(accountId: string, amount: number): Promise<void>
+	execute(accountId: string, providerCostUsd: number): Promise<number>
 }

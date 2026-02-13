@@ -17,13 +17,11 @@ export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 
 			schemaValidator(chargeSchema, parsedBody)
 
-			const { accountId, amount } = parsedBody
+			const { accountId, providerCostUsd } = parsedBody
 
-			await chargeUseCase.execute(accountId, amount)
+			const totalCostUsd = await chargeUseCase.execute(accountId, providerCostUsd)
 
-			return Responses._200({
-				message: "Credits charged successfully",
-			})
+			return Responses._200({ totalCostUsd })
 		} catch (error) {
 			return errorHandler(error)
 		}
