@@ -13,6 +13,8 @@ import { CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
 import { CreateApiKey } from "@app/use-cases/create-api-key"
 import { ProcessCreditsPurchase } from "@app/use-cases/process-credits-purchase"
 import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
+import { ChargeUseCase } from "@app/ports/use-cases/charge"
+import { Charge } from "@app/use-cases/charge"
 
 const sendgridEmailSender = new SendgridEmailSender()
 
@@ -45,5 +47,5 @@ export const verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase = 
 )
 
 export const createApiKeyUseCase: CreateApiKeyUseCase = new CreateApiKey(accountRepository, apiKeyRepository)
-
-export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(accountRepository) 
+export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(accountRepository)
+export const chargeUseCase: ChargeUseCase = new Charge(accountRepository)

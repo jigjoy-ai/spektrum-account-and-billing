@@ -32,9 +32,10 @@ export class Account {
 	}
 
 	deductCredits(amount: number): void {
-		if (this.creditsUsd <= 0) {
-			throw new Error("No remaining credits")
+		if (amount < 0) {
+			throw new Error("Amount must be greater than 0")
 		}
+
 		this.creditsUsd -= amount
 	}
 
