@@ -16,27 +16,22 @@ export class DynamoDBAccountRepository implements AccountRepository {
 		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Getting account by id: ${id} from DynamoDB table ${tableName}`)
 
-		try {
-			const result = await ddbDocClient.send(
-				new GetCommand({
-					TableName: tableName,
-					Key: { id },
-				}),
-			)
+		const result = await ddbDocClient.send(
+			new GetCommand({
+				TableName: tableName,
+				Key: { id },
+			}),
+		)
 
-			if (!result.Item) {
-				console.log(`Account with id ${id} not found`)
-				return null
-			}
-
-			const record: AccountRecord = result.Item as AccountRecord
-			return AccountMapper.toDomain(record)
-		} catch (error) {
-			console.error(`Error getting account by id ${id}:`, error)
-			throw new Error(`Failed to get account by id ${id}: ${error}`)
+		if (!result.Item) {
+			console.log(`Account with id ${id} not found`)
+			return null
 		}
+
+		const record: AccountRecord = result.Item as AccountRecord
+		return AccountMapper.toDomain(record)
 	}
-	
+
 	async save(account: Account): Promise<Account> {
 		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Saving account with id: ${account.getId()} to DynamoDB table ${tableName}`)
@@ -56,27 +51,22 @@ export class DynamoDBAccountRepository implements AccountRepository {
 		const tableName = process.env.ACCOUNT_TABLE as string
 		console.log(`Getting account by email: ${email} from DynamoDB table ${tableName}`)
 
-		try {
-			const result = await ddbDocClient.send(
-				new QueryCommand({
-					TableName: tableName,
-					IndexName: "rootEmailGSI",
-					KeyConditionExpression: "rootEmail = :rootEmail",
-					ExpressionAttributeValues: { ":rootEmail": email },
-				}),
-			)
+		const result = await ddbDocClient.send(
+			new QueryCommand({
+				TableName: tableName,
+				IndexName: "rootEmailGSI",
+				KeyConditionExpression: "rootEmail = :rootEmail",
+				ExpressionAttributeValues: { ":rootEmail": email },
+			}),
+		)
 
-			if (!result.Items || result.Items.length === 0) {
-				console.log(`Account with rootEmail ${email} not found`)
-				return null
-			}
-
-			const record: AccountRecord = result.Items[0] as AccountRecord
-			return AccountMapper.toDomain(record)
-		} catch (error) {
-			console.error(`Error getting account by email ${email}:`, error)
-			throw new Error(`Failed to get account by email ${email}: ${error}`)
+		if (!result.Items || result.Items.length === 0) {
+			console.log(`Account with rootEmail ${email} not found`)
+			return null
 		}
+
+		const record: AccountRecord = result.Items[0] as AccountRecord
+		return AccountMapper.toDomain(record)
 	}
 
 	async exists(email: string): Promise<boolean> {
