@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >-
-    account-and-billing
+    Account and Billing is service for managing accounts and billing for the Spektrum AI coding platform.
 
 Transform:
     - AWS::Serverless-2016-10-31
