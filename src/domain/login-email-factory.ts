@@ -1,4 +1,7 @@
+import React from "react"
+import { renderToStaticMarkup } from "react-dom/server"
 import { Email } from "@domain/email"
+import { MagicLinkEmail } from "@infra/email-templates/magic-link-email"
 
 export type LoginEmailParams = {
 	recipient: string
@@ -11,14 +14,14 @@ export class LoginEmailFactory {
 	static create(params: LoginEmailParams): Email {
 		const subject = "JigJoy Login Link"
 
-		const body = `
-			<html>
-				<body>
-					<p>This is your one-time sign in link (it will expire in ${params.expirationInMinutes} mins):</p>
-					<a href="${params.loginLink}" target="_blank">Click here to login</a>
-				</body>
-			</html>
-			`.trim()
+		const body =
+			"<!DOCTYPE html>" +
+			renderToStaticMarkup(
+				React.createElement(MagicLinkEmail, {
+					loginLink: params.loginLink,
+					expirationInMinutes: params.expirationInMinutes,
+				}),
+			)
 
 		return new Email(params.recipient, params.sender, subject, body)
 	}

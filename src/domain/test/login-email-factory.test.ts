@@ -54,7 +54,7 @@ describe("LoginEmailFactory", () => {
 		const body = email.getBody()
 		expect(body).toContain(loginLink)
 		expect(body).toContain(`href="${loginLink}"`)
-		expect(body).toContain("Click here to login")
+		expect(body).toContain("Sign in to JigJoy")
 	})
 
 	it("should include expiration time in the email body", () => {
@@ -72,7 +72,7 @@ describe("LoginEmailFactory", () => {
 
 		// Assert
 		const body = email.getBody()
-		expect(body).toContain(`expire in ${expirationInMinutes} mins`)
+		expect(body).toContain(`${expirationInMinutes} minutes`)
 	})
 
 	it("should create HTML formatted email body", () => {
@@ -89,12 +89,9 @@ describe("LoginEmailFactory", () => {
 
 		// Assert
 		const body = email.getBody()
-		expect(body).toContain("<html>")
-		expect(body).toContain("<body>")
-		expect(body).toContain("</body>")
+		expect(body).toContain("<!DOCTYPE html")
+		expect(body).toContain("<html")
 		expect(body).toContain("</html>")
-		expect(body).toContain("<a href")
-		expect(body).toContain('target="_blank"')
 	})
 
 	it("should handle different expiration times correctly", () => {
@@ -114,7 +111,7 @@ describe("LoginEmailFactory", () => {
 
 			// Assert
 			const body = email.getBody()
-			expect(body).toContain(`expire in ${expirationInMinutes} mins`)
+			expect(body).toContain(`${expirationInMinutes} minutes`)
 		})
 	})
 
@@ -142,24 +139,6 @@ describe("LoginEmailFactory", () => {
 			expect(body).toContain(loginLink)
 			expect(body).toContain(`href="${loginLink}"`)
 		})
-	})
-
-	it("should trim whitespace from the email body", () => {
-		// Arrange
-		const params = {
-			recipient: "user@example.com",
-			sender: "noreply@jigjoy.com",
-			loginLink: "https://app.jigjoy.com/login?token=abc123",
-			expirationInMinutes: 15,
-		}
-
-		// Act
-		const email = LoginEmailFactory.create(params)
-
-		// Assert
-		const body = email.getBody()
-		expect(body).not.toMatch(/^\s+/)
-		expect(body).not.toMatch(/\s+$/)
 	})
 
 	it("should create different Email instances for different recipients", () => {
@@ -203,10 +182,9 @@ describe("LoginEmailFactory", () => {
 
 		// Assert
 		const body = email.getBody()
-		expect(body).toContain("one-time sign in link")
+		expect(body).toContain("Sign in to JigJoy")
 		expect(body).toContain("expire in")
-		expect(body).toContain("mins")
-		expect(body).toContain("Click here to login")
+		expect(body).toContain("minutes")
 		expect(body).toContain(params.loginLink)
 	})
 })

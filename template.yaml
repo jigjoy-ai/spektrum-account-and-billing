@@ -345,13 +345,10 @@ Resources:
                     ACCOUNT_TABLE: !Ref AccountTable
                     DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
-                    SENDGRID_API_KEY: "{{resolve:secretsmanager:vars:SecretString:SendgridApiKey}}"
+                    RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
             Policies:
                 - Version: "2012-10-17"
                   Statement:
-                      - Effect: Allow
-                        Action: ses:SendEmail
-                        Resource: "*"
                       - Effect: Allow
                         Action: kms:Encrypt
                         Resource: !GetAtt EncryptionKey.Arn
