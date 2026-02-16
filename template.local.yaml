@@ -35,7 +35,7 @@ Resources:
                     USER_POOL_CLIENT_ID: ""
                     DESTINATION_URL: ""
                     FROM_ADDRESS: ""
-                    SENDGRID_API_KEY: ""
+                    RESEND_API_KEY: ""
             Events:
                 Api:
                     Type: Api
