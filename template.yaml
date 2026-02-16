@@ -394,6 +394,7 @@ Resources:
                     USER_POOL_CLIENT_ID: !Ref WebClient
                     KMS_KEY_ID: !Ref EncryptionKey
                     ACCOUNT_TABLE: !Ref AccountTable
+                    API_KEY_TABLE: !Ref ApiKeyTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:

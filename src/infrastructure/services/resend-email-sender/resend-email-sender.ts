@@ -3,15 +3,17 @@ import { Resend } from "resend"
 import { Email } from "@domain/email"
 
 export class ResendEmailSender implements EmailSender {
-	private readonly resend: Resend
+	private resend: Resend | null = null
 
-	constructor() {
-		const RESEND_API_KEY = process.env.RESEND_API_KEY as string
-		this.resend = new Resend(RESEND_API_KEY)
+	private getClient(): Resend {
+		if (!this.resend) {
+			this.resend = new Resend(process.env.RESEND_API_KEY as string)
+		}
+		return this.resend
 	}
 
 	async sendEmail(email: Email): Promise<void> {
-		await this.resend.emails.send({
+		await this.getClient().emails.send({
 			from: email.getSender(),
 			to: email.getRecipient(),
 			subject: email.getSubject(),
