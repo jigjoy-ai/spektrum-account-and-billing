@@ -16,7 +16,7 @@ paths:
             summary: Send magic login link
             description: >
                 Sends a magic login link to a user's email address.
-                Behind the scenes uses Cognito, KMS and SendGrid/SES.
+                Behind the scenes uses Cognito, KMS and Resend.
             operationId: sendMagicLink
             requestBody:
                 required: true

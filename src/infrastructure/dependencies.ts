@@ -1,5 +1,4 @@
 import { SendMagicLinkChallenge } from "@app/use-cases/send-magic-link-challenge"
-import { SendgridEmailSender } from "./services/sendgrid-email-sender/sendgrid-email-sender"
 import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 import { CognitoIdentityManagementService } from "./services/cognito-identity-management/cognito-identity-management"
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
@@ -15,8 +14,10 @@ import { ProcessCreditsPurchase } from "@app/use-cases/process-credits-purchase"
 import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 import { ChargeUseCase } from "@app/ports/use-cases/charge"
 import { Charge } from "@app/use-cases/charge"
+import { EmailSender } from "@app/ports/services/email-sender"
+import { ResendEmailSender } from "./services/resend-email/resend-email-sender"
 
-const sendgridEmailSender = new SendgridEmailSender()
+const resendEmailSender: EmailSender = new ResendEmailSender()
 
 const USER_POOL_ID = process.env.USER_POOL_ID as string
 const USER_POOL_CLIENT_ID = process.env.USER_POOL_CLIENT_ID as string
@@ -33,7 +34,7 @@ const accountRepository: AccountRepository = new DynamoDBAccountRepository()
 const apiKeyRepository: ApiKeyRepository = new DynamoDBApiKeyRepository()
 
 export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new SendMagicLinkChallenge(
-	sendgridEmailSender,
+	resendEmailSender,
 	identityManagementService,
 	accountRepository,
 	FROM_ADDRESS,
