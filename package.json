@@ -9,8 +9,8 @@
 		"@aws-sdk/client-kms": "^3.632.0",
 		"@aws-sdk/lib-dynamodb": "^3.398.0",
 		"@jigjoy-ai/serverless-core": "^0.0.5",
-		"@sendgrid/mail": "^8.1.5",
 		"aws-jwt-verify": "^5.1.1",
+		"resend": "^6.9.2",
 		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
