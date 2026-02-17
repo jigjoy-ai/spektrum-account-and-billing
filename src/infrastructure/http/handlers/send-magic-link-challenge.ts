@@ -1,4 +1,19 @@
 import { createSendMagicLinkChallengeHandler } from "@infra/http/factories/send-magic-link-challenge"
-import { sendMagicLinkChallengeUseCase } from "@infra/dependencies"
+import { SendMagicLinkChallenge } from "@app/use-cases/send-magic-link-challenge"
+import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
+import { resendEmailSender } from "@infra/services/resend-email"
+import { identityManagementService } from "@infra/services/cognito-identity-management"
+import { accountRepository } from "@infra/repositories/account-repository"
+
+const DESTINATION_URL = process.env.DESTINATION_URL as string
+const FROM_ADDRESS = process.env.FROM_ADDRESS as string
+
+export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new SendMagicLinkChallenge(
+	resendEmailSender,
+	identityManagementService,
+	accountRepository,
+	FROM_ADDRESS,
+	DESTINATION_URL,
+)
 
 export const handler = createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCase)

@@ -8,7 +8,7 @@ import {
 	InitiateAuthCommandOutput,
 	RespondToAuthChallengeCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
-import { AWSKeyManagementService } from "./util/aws-key-management-service"
+import { AWSKeyManagementService } from "@infra/services/cognito-identity-management/util/aws-key-management-service"
 import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { ValidationError } from "@jigjoy-ai/serverless-core"
 import { User } from "@domain/user"
@@ -70,13 +70,12 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 	}
 
 	async issueAuthChallenge(email: string, expirationInMinutes: number): Promise<string> {
-		
 		if (!process.env.KMS_KEY_ID) {
 			throw new Error("KMS_KEY_ID environment variable is required")
 		}
 
 		const awsKeyManagementService = new AWSKeyManagementService(process.env.KMS_KEY_ID)
-		
+
 		const now = new Date()
 		const EXPIRATION_IN_MS = expirationInMinutes * this.ONE_MINUTE_IN_MS
 		const expiresAt = new Date(now.getTime() + EXPIRATION_IN_MS)
