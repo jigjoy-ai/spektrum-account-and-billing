@@ -9,7 +9,6 @@ import {
 	RespondToAuthChallengeCommand,
 } from "@aws-sdk/client-cognito-identity-provider"
 import { AWSKeyManagementService } from "@infra/services/cognito-identity-management/util/aws-key-management-service"
-import { CognitoJwtVerifier } from "aws-jwt-verify"
 import { ValidationError } from "@jigjoy-ai/serverless-core"
 import { User } from "@domain/user"
 
@@ -97,22 +96,6 @@ export class CognitoIdentityManagementService implements IdentityManagementServi
 		)
 
 		return challengeTokenB64
-	}
-
-	async isAuthorized(authToken: string): Promise<boolean> {
-		const verifier = await CognitoJwtVerifier.create({
-			userPoolId: this.userPoolId,
-			tokenUse: "access",
-			clientId: this.userPoolClientId,
-		})
-
-		try {
-			await verifier.verify(authToken)
-			return true
-		} catch (error: any) {
-			console.error("isAuthorized - Error verifying token:", error)
-			return false
-		}
 	}
 
 	extractAccessToken(challengeResponse: InitiateAuthCommandOutput): string {
