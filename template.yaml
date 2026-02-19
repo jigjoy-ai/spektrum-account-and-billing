@@ -270,6 +270,17 @@ Resources:
                 - x86_64
             MemorySize: 128
             Timeout: 100
+            Environment:
+                Variables:
+                    ACCOUNT_TABLE: !Ref AccountTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action: dynamodb:Query
+                        Resource:
+                            - !GetAtt AccountTable.Arn
+                            - !Sub "${AccountTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
