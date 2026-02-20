@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from "@rstest/core"
 import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { createVerifyMagicLinkChallengeHandler } from "@infra/http/factories/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
-import { Account } from "@domain/account"
+import { Organization } from "@domain/organization"
 
 describe("Verify Magic Link Handler", () => {
 	let handler: (event: APIGatewayProxyEvent) => Promise<any>
@@ -16,8 +16,9 @@ describe("Verify Magic Link Handler", () => {
 	it("returns 200 and access token when magic link is verified successfully", async () => {
 		const mockAccessToken = "mock-access-token-12345"
 		const mockUserEmail = "user@example.com"
-		const mockAccount = Account.rehydrate("account-id-123", mockUserEmail, 0, [])
-		const mockAuthSession = AuthSession.create(mockAccessToken, mockAccount, [])
+		const mockOwnerId = "owner-id-123"
+		const mockOrganization = Organization.rehydrate("organization-id-123", mockOwnerId, 0, [])
+		const mockAuthSession = AuthSession.create(mockAccessToken, mockUserEmail, mockOrganization, [])
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async () => {
@@ -40,12 +41,12 @@ describe("Verify Magic Link Handler", () => {
 
 		const body = JSON.parse(result.body)
 
-		expect(body.accessToken).toBe(mockAccessToken)
-		expect(body.userData).toBeDefined()
-		expect(body.userData.id).toBe("account-id-123")
-		expect(body.userData.email).toBe(mockUserEmail)
-		expect(body.userData.credits).toBe(0)
-		expect(body.userData.apiKeys).toEqual([])
+		expect(body.authSession.accessToken).toBe(mockAccessToken)
+		expect(body.authSession.userData).toBeDefined()
+		expect(body.authSession.userData.organizationId).toBe("organization-id-123")
+		expect(body.authSession.userData.email).toBe(mockUserEmail)
+		expect(body.authSession.userData.credits).toBe(0)
+		expect(body.authSession.userData.apiKeys).toEqual([])
 	})
 
 	it("returns 400 when body is missing", async () => {
@@ -286,8 +287,8 @@ describe("Verify Magic Link Handler", () => {
 		let capturedEmail: string | undefined
 		let capturedChallenge: string | undefined
 
-		const mockAccount = Account.rehydrate("account-id", "test@example.com", 0, [])
-		const mockAuthSession = AuthSession.create("mock-access-token", mockAccount, [])
+		const mockOrganization = Organization.rehydrate("organization-id", "owner-id", 0, [])
+		const mockAuthSession = AuthSession.create("mock-access-token", "test@example.com", mockOrganization, [])
 
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string, challenge: string) => {
@@ -318,8 +319,8 @@ describe("Verify Magic Link Handler", () => {
 		const mockAccessToken = "mock-access-token"
 		const mockUseCase: VerifyMagicLinkChallengeUseCase = {
 			execute: async (email: string) => {
-				const mockAccount = Account.rehydrate("account-id", email, 0, [])
-				return AuthSession.create(mockAccessToken, mockAccount, [])
+				const mockOrganization = Organization.rehydrate("organization-id", "owner-id", 0, [])
+				return AuthSession.create(mockAccessToken, email, mockOrganization, [])
 			},
 		}
 
@@ -345,9 +346,9 @@ describe("Verify Magic Link Handler", () => {
 			expect(result.statusCode).toBe(200)
 
 			const body = JSON.parse(result.body)
-			expect(body.accessToken).toBe(mockAccessToken)
-			expect(body.userData).toBeDefined()
-			expect(body.userData.email).toBe(email)
+			expect(body.authSession.accessToken).toBe(mockAccessToken)
+			expect(body.authSession.userData).toBeDefined()
+			expect(body.authSession.userData.email).toBe(email)
 		}
 	})
 })

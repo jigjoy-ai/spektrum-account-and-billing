@@ -6,9 +6,9 @@ export class AuthSessionMapper {
 		return {
 			accessToken: authSession.getAccessToken(),
 			userData: {
-				id: authSession.getAccount().getId(),
-				email: authSession.getAccount().getRootEmail(),
-				credits: authSession.getAccount().getRemainingCredits(),
+				organizationId: authSession.getOrganization().getId(),
+				email: authSession.getUserEmail(),
+				credits: authSession.getOrganization().getRemainingCredits(),
 				apiKeys: authSession.getApiKeys().map((apiKey) => ({
 					id: apiKey.getId(),
 					name: apiKey.getName(),

@@ -4,7 +4,7 @@ export class ApiUsage {
 	private constructor(
 		private readonly id: string,
 		private readonly apiKeyId: string,
-		private readonly accountId: string,
+		private readonly organizationId: string,
 		private readonly tokensSpent: number,
 		private readonly pricePerToken: number,
 		private readonly creditsSpentUsd: number,
@@ -19,8 +19,8 @@ export class ApiUsage {
 		return this.apiKeyId
 	}
 
-	getAccountId(): string {
-		return this.accountId
+	getOrganizationId(): string {
+		return this.organizationId
 	}
 
 	getTokensSpent(): number {
@@ -39,8 +39,8 @@ export class ApiUsage {
 		return this.occurredAt
 	}
 
-	static create(apiKeyId: string, accountId: string, tokensSpent: number, pricePerToken: number): ApiUsage {
+	static create(apiKeyId: string, organizationId: string, tokensSpent: number, pricePerToken: number): ApiUsage {
 		const creditsSpentUsd = tokensSpent * pricePerToken
-		return new ApiUsage(uuidv4(), apiKeyId, accountId, tokensSpent, pricePerToken, creditsSpentUsd, new Date())
+		return new ApiUsage(uuidv4(), apiKeyId, organizationId, tokensSpent, pricePerToken, creditsSpentUsd, new Date())
 	}
 }

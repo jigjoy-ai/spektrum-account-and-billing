@@ -6,24 +6,47 @@ Transform:
     - AWS::Serverless-2016-10-31
 
 Resources:
-    AccountTable:
+    OrganizationTable:
         Type: AWS::DynamoDB::Table
         Properties:
-            TableName: !Sub "${AWS::StackName}-Account"
+            TableName: !Sub "${AWS::StackName}-Organization"
             BillingMode: PAY_PER_REQUEST
             AttributeDefinitions:
                 - AttributeName: id
                   AttributeType: S
-                - AttributeName: rootEmail
+                - AttributeName: ownerId
                   AttributeType: S
             KeySchema:
                 - AttributeName: id
                   KeyType: HASH
             GlobalSecondaryIndexes:
-                - IndexName: rootEmailGSI
+                - IndexName: ownerIdGSI
                   KeySchema:
-                      - AttributeName: rootEmail
+                      - AttributeName: ownerId
                         KeyType: HASH
+                  Projection:
+                      ProjectionType: ALL
+
+    OrganizationMemberTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: !Sub "${AWS::StackName}-OrganizationMember"
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: userId
+                  AttributeType: S
+                - AttributeName: organizationId
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: userId
+                  KeyType: HASH
+            GlobalSecondaryIndexes:
+                - IndexName: organizationIdGSI
+                  KeySchema:
+                      - AttributeName: organizationId
+                        KeyType: HASH
+                      - AttributeName: userId
+                        KeyType: RANGE
                   Projection:
                       ProjectionType: ALL
 
@@ -37,7 +60,7 @@ Resources:
                   AttributeType: S
                 - AttributeName: keyHash
                   AttributeType: S
-                - AttributeName: accountId
+                - AttributeName: organizationId
                   AttributeType: S
                 - AttributeName: statusCreatedAt
                   AttributeType: S
@@ -51,9 +74,9 @@ Resources:
                         KeyType: HASH
                   Projection:
                       ProjectionType: ALL
-                - IndexName: accountIdStatusGSI
+                - IndexName: organizationIdStatusGSI
                   KeySchema:
-                      - AttributeName: accountId
+                      - AttributeName: organizationId
                         KeyType: HASH
                       - AttributeName: statusCreatedAt
                         KeyType: RANGE
@@ -70,7 +93,7 @@ Resources:
                   AttributeType: S
                 - AttributeName: apiKeyId
                   AttributeType: S
-                - AttributeName: accountId
+                - AttributeName: organizationId
                   AttributeType: S
                 - AttributeName: occurredAt
                   AttributeType: S
@@ -88,9 +111,9 @@ Resources:
                         KeyType: RANGE
                   Projection:
                       ProjectionType: ALL
-                - IndexName: accountIdGSI
+                - IndexName: organizationIdGSI
                   KeySchema:
-                      - AttributeName: accountId
+                      - AttributeName: organizationId
                         KeyType: HASH
                       - AttributeName: occurredAt
                         KeyType: RANGE
@@ -120,7 +143,6 @@ Resources:
                 PreSignUp: !GetAtt PreSignUp.Arn
                 PostAuthentication: !GetAtt PostAuthentication.Arn
                 VerifyAuthChallengeResponse: !GetAtt VerifyAuthChallengeResponse.Arn
-                PreTokenGeneration: !GetAtt PreTokenGeneration.Arn
 
     WebClient:
         Type: AWS::Cognito::UserPoolClient
@@ -261,24 +283,6 @@ Resources:
                 EntryPoints:
                     - src/infrastructure/services/cognito-identity-management/triggers/post-authentication.ts
 
-    PreTokenGeneration:
-        Type: AWS::Serverless::Function
-        Properties:
-            Handler: src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.preTokenGenerationHandler
-            Runtime: nodejs22.x
-            Architectures:
-                - x86_64
-            MemorySize: 128
-            Timeout: 100
-        Metadata:
-            BuildMethod: esbuild
-            BuildProperties:
-                Minify: true
-                Target: "es2020"
-                Sourcemap: true
-                EntryPoints:
-                    - src/infrastructure/services/cognito-identity-management/triggers/pre-token-generation.ts
-
     UserPoolCreateAuthChallengeLambdaPermission:
         Type: AWS::Lambda::Permission
         Properties:
@@ -319,14 +323,6 @@ Resources:
             FunctionName: !GetAtt PostAuthentication.Arn
             SourceArn: !GetAtt JigJoyUserPool.Arn
 
-    UserPoolPreTokenGenerationLambdaPermission:
-        Type: AWS::Lambda::Permission
-        Properties:
-            Action: lambda:invokeFunction
-            Principal: cognito-idp.amazonaws.com
-            FunctionName: !GetAtt PreTokenGeneration.Arn
-            SourceArn: !GetAtt JigJoyUserPool.Arn
-
     sendMagicLinkChallengeFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -342,7 +338,8 @@ Resources:
                     KMS_KEY_ID: !Ref EncryptionKey
                     USER_POOL_ID: !Ref JigJoyUserPool
                     USER_POOL_CLIENT_ID: !Ref WebClient
-                    ACCOUNT_TABLE: !Ref AccountTable
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
                     DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
                     RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
@@ -367,8 +364,10 @@ Resources:
                             - dynamodb:GetItem
                             - dynamodb:Query
                         Resource:
-                            - !GetAtt AccountTable.Arn
-                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -393,7 +392,9 @@ Resources:
                     USER_POOL_ID: !Ref JigJoyUserPool
                     USER_POOL_CLIENT_ID: !Ref WebClient
                     KMS_KEY_ID: !Ref EncryptionKey
-                    ACCOUNT_TABLE: !Ref AccountTable
+                    API_KEY_TABLE: !Ref ApiKeyTable
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -411,8 +412,10 @@ Resources:
                             - dynamodb:GetItem
                             - dynamodb:Query
                         Resource:
-                            - !GetAtt AccountTable.Arn
-                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
                             - !GetAtt ApiKeyTable.Arn
                             - !Sub "${ApiKeyTable.Arn}/index/*"
         Metadata:
@@ -437,7 +440,8 @@ Resources:
             Environment:
                 Variables:
                     API_KEY_TABLE: !Ref ApiKeyTable
-                    ACCOUNT_TABLE: !Ref AccountTable
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -447,8 +451,10 @@ Resources:
                             - dynamodb:GetItem
                             - dynamodb:Query
                         Resource:
-                            - !GetAtt AccountTable.Arn
-                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
                             - !GetAtt ApiKeyTable.Arn
                             - !Sub "${ApiKeyTable.Arn}/index/*"
         Metadata:
@@ -470,7 +476,8 @@ Resources:
             Description: Process credits purchase
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: !Ref AccountTable
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -480,8 +487,10 @@ Resources:
                             - dynamodb:GetItem
                             - dynamodb:Query
                         Resource:
-                            - !GetAtt AccountTable.Arn
-                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -498,24 +507,27 @@ Resources:
                 - x86_64
             MemorySize: 128
             Timeout: 100
-            Description: Charge account credits
+            Description: Charge credits
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: !Ref AccountTable
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:
                       - Effect: Allow
                         Action: dynamodb:PutItem
-                        Resource: !GetAtt AccountTable.Arn
+                        Resource: !GetAtt OrganizationTable.Arn
                       - Effect: Allow
                         Action: dynamodb:GetItem
-                        Resource: !GetAtt AccountTable.Arn
+                        Resource: !GetAtt OrganizationTable.Arn
                       - Effect: Allow
                         Action: dynamodb:Query
                         Resource:
-                            - !GetAtt AccountTable.Arn
-                            - !Sub "${AccountTable.Arn}/index/*"
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -526,10 +538,15 @@ Resources:
                     - src/infrastructure/http/handlers/charge.ts
 
 Outputs:
-    AccountTableName:
-        Value: !Ref AccountTable
+    OrganizationTableName:
+        Value: !Ref OrganizationTable
         Export:
-            Name: !Sub "${AWS::StackName}-AccountTableName"
+            Name: !Sub "${AWS::StackName}-OrganizationTableName"
+    
+    OrganizationMemberTableName:
+        Value: !Ref OrganizationMemberTable
+        Export:
+            Name: !Sub "${AWS::StackName}-OrganizationMemberTableName"
 
     CognitoUserPoolId:
         Value: !Ref JigJoyUserPool

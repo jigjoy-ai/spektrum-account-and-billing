@@ -1,3 +1,3 @@
 export interface ChargeUseCase {
-	execute(accountId: string, providerCostUsd: number): Promise<number>
+	execute(organizationId: string, providerCostUsd: number): Promise<number>
 }

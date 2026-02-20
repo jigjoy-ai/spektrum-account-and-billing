@@ -11,7 +11,7 @@ export class ApiKey {
 	private constructor(
 		private readonly id: string,
 		private readonly keyHash: string,
-		private readonly accountId: string,
+		private readonly organizationId: string,
 		private readonly secretKey: string,
 		private status: ApiKeyStatus,
 		private readonly name: string,
@@ -38,8 +38,8 @@ export class ApiKey {
 		return this.createdAt
 	}
 
-	getAccountId(): string {
-		return this.accountId
+	getOrganizationId(): string {
+		return this.organizationId
 	}
 
 	getName(): string {
@@ -54,7 +54,7 @@ export class ApiKey {
 		this.status = ApiKeyStatus.DELETED
 	}
 
-	static create(accountId: string, name: string): ApiKey {
+	static create(organizationId: string, name: string): ApiKey {
 
 		if(name.length === 0) {
 			throw new Error("Name must be at least 1 character")
@@ -68,18 +68,18 @@ export class ApiKey {
 		const keyHash = crypto.randomBytes(32).toString("hex")
 		const secretKey = keyHash.substring(0, 8) + "-xxxxxx-" + keyHash.substring(keyHash.length - 8)
 		const createdAt = new Date().toISOString()
-		return new ApiKey(id, keyHash, accountId, secretKey, ApiKeyStatus.ACTIVE, name, createdAt)
+		return new ApiKey(id, keyHash, organizationId, secretKey, ApiKeyStatus.ACTIVE, name, createdAt)
 	}
 
 	static rehydrate(
 		id: string,
 		keyHash: string,
-		accountId: string,
+		organizationId: string,
 		secretKey: string,
 		status: ApiKeyStatus,
 		name: string,
 		createdAt: string,
 	): ApiKey {
-		return new ApiKey(id, keyHash, accountId, secretKey, status, name, createdAt)
+		return new ApiKey(id, keyHash, organizationId, secretKey, status, name, createdAt)
 	}
 }

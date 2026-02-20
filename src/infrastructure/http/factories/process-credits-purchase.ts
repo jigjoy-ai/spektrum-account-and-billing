@@ -26,7 +26,7 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
             const creditAmount = payments.reduce((sum: number, payment: any) => sum + Number(payment.amount) / 100, 0)
 
 			await processCreditsPurchase.execute(creditAmount, email, occuredAt)
-			return Responses._201({ message: "Credits added to account balance" })
+			return Responses._201({ message: "Credits added to organization balance" })
 		} catch (error) {
 			return errorHandler(error)
 		}

@@ -29,7 +29,8 @@ Resources:
             Description: Send magic link challenge (local)
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: ""
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
                     KMS_KEY_ID: ""
                     USER_POOL_ID: ""
                     USER_POOL_CLIENT_ID: ""
@@ -61,7 +62,8 @@ Resources:
             Description: Verify magic link challenge (local)
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: ""
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
                     USER_POOL_ID: ""
                     USER_POOL_CLIENT_ID: ""
                     KMS_KEY_ID: ""
@@ -91,7 +93,8 @@ Resources:
             Description: Create api key (local)
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: ""
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
                     API_KEY_TABLE: ""
             Events:
                 Api:
@@ -118,13 +121,14 @@ Resources:
             Description: Process credits purchase (local)
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: ""
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
             Events:
                 Api:
                     Type: Api
                     Properties:
                         RestApiId: !Ref LocalApi
-                        Path: /credits
+                        Path: /credits/purchase
                         Method: POST
         Metadata:
             BuildMethod: esbuild
@@ -144,13 +148,14 @@ Resources:
             Description: Charge (local)
             Environment:
                 Variables:
-                    ACCOUNT_TABLE: ""
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
             Events:
                 Api:
                     Type: Api
                     Properties:
                         RestApiId: !Ref LocalApi
-                        Path: /charge
+                        Path: /credits/charge
                         Method: POST
         Metadata:
             BuildMethod: esbuild

@@ -1,5 +1,5 @@
 import { ApiKey } from "@domain/api-key"
 
 export interface CreateApiKeyUseCase {
-	execute(accountId: string, name: string): Promise<ApiKey>
+	execute(organizationId: string, name: string): Promise<ApiKey>
 }

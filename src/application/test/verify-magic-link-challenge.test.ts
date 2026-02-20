@@ -1,41 +1,50 @@
 import { describe, it, expect, beforeEach } from "@rstest/core"
 import { VerifyMagicLinkChallenge } from "@app/use-cases/verify-magic-link-challenge"
 import { InMemoryIdentityManagementService } from "@app/test/mocks/in-memory-identity-management-service"
-import { InMemoryAccountService } from "@app/test/mocks/in-memory-account-service"
-import { AccountService } from "@app/ports/services/account-service"
+import { InMemoryOrganizationRepository } from "@app/test/mocks/in-memory-organization-repository"
+import { InMemoryApiKeyRepository } from "@app/test/mocks/in-memory-api-key-repository"
 import { AuthSession } from "@domain/auth-session"
+import { Organization } from "@domain/organization"
 
 describe("Verify Magic Link Challenge UseCase", () => {
 	let verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallenge
 	let identityManagementService: InMemoryIdentityManagementService
-	let accountService: AccountService
+	let organizationRepository: InMemoryOrganizationRepository
+	let apiKeyRepository: InMemoryApiKeyRepository
 
 	beforeEach(() => {
 		identityManagementService = new InMemoryIdentityManagementService()
-		accountService = new InMemoryAccountService(identityManagementService)
-		verifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(identityManagementService, accountService)
+		organizationRepository = new InMemoryOrganizationRepository()
+		apiKeyRepository = new InMemoryApiKeyRepository()
+		verifyMagicLinkChallengeUseCase = new VerifyMagicLinkChallenge(
+			identityManagementService,
+			organizationRepository,
+			apiKeyRepository,
+		)
 	})
 
 	it("should successfully verify magic link challenge for existing user with valid challenge", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.create(userEmail)
-		await accountService.createAccount(userEmail, 0)
+		const user = await identityManagementService.create(userEmail)
+		const organization = Organization.create(user.getId(), 5)
+		await organizationRepository.save(organization)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		// Act
 		const authSession = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
 
-		// Assert - Should return an AuthSession with access token and account
+		// Assert - Should return an AuthSession with access token and organization
 		expect(authSession).toBeDefined()
 		expect(authSession).toBeInstanceOf(AuthSession)
 		const accessToken = authSession.getAccessToken()
 		expect(accessToken).toBeDefined()
 		expect(typeof accessToken).toBe("string")
 		expect(accessToken.length).toBeGreaterThan(0)
-		const account = authSession.getAccount()
-		expect(account).toBeDefined()
-		expect(account.getRootEmail()).toBe(userEmail)
+		const returnedOrganization = authSession.getOrganization()
+		expect(returnedOrganization).toBeDefined()
+		expect(returnedOrganization.getOwnerId()).toBe(user.getId())
+		expect(authSession.getUserEmail()).toBe(userEmail)
 	})
 
 	it("should throw an error when user does not exist", async () => {
@@ -53,6 +62,18 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		)
 	})
 
+	it("should throw an error when organization does not exist", async () => {
+		// Arrange
+		const userEmail = "user@example.com"
+		await identityManagementService.create(userEmail)
+		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
+
+		// Act & Assert
+		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)).rejects.toThrow(
+			"Organization does not exist. Please create an account.",
+		)
+	})
+
 	it("should throw an error when identityManagementService.get fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
@@ -67,8 +88,9 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when identityManagementService.verifyAuthChallenge fails", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.create(userEmail)
-		await accountService.createAccount(userEmail, 0)
+		const user = await identityManagementService.create(userEmail)
+		const organization = Organization.create(user.getId(), 5)
+		await organizationRepository.save(organization)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
 
 		const errorMessage = "Failed to verify auth challenge"
@@ -81,8 +103,9 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is invalid", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.create(userEmail)
-		await accountService.createAccount(userEmail, 0)
+		const user = await identityManagementService.create(userEmail)
+		const organization = Organization.create(user.getId(), 5)
+		await organizationRepository.save(organization)
 		const invalidChallengeToken = "invalid-challenge-token"
 
 		// Act & Assert
@@ -94,8 +117,9 @@ describe("Verify Magic Link Challenge UseCase", () => {
 	it("should throw an error when challenge is expired", async () => {
 		// Arrange
 		const userEmail = "user@example.com"
-		await identityManagementService.create(userEmail)
-		await accountService.createAccount(userEmail, 0)
+		const user = await identityManagementService.create(userEmail)
+		const organization = Organization.create(user.getId(), 5)
+		await organizationRepository.save(organization)
 
 		// Issue a challenge with 0 minutes expiration (expired immediately)
 		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 0)
@@ -114,10 +138,13 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.create(userEmail1)
-		await identityManagementService.create(userEmail2)
-		await accountService.createAccount(userEmail1, 0)
-		await accountService.createAccount(userEmail2, 0)
+		const user1 = await identityManagementService.create(userEmail1)
+		const user2 = await identityManagementService.create(userEmail2)
+
+		const organization1 = Organization.create(user1.getId(), 5)
+		const organization2 = Organization.create(user2.getId(), 5)
+		await organizationRepository.save(organization1)
+		await organizationRepository.save(organization2)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 		const challengeToken2 = await identityManagementService.issueAuthChallenge(userEmail2, 5)
@@ -126,14 +153,14 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const authSession1 = await verifyMagicLinkChallengeUseCase.execute(userEmail1, challengeToken1)
 		const authSession2 = await verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken2)
 
-		// Assert - Both should return AuthSession instances with different access tokens and account data
+		// Assert - Both should return AuthSession instances with different access tokens and organization data
 		expect(authSession1).toBeDefined()
 		expect(authSession2).toBeDefined()
 		expect(authSession1).toBeInstanceOf(AuthSession)
 		expect(authSession2).toBeInstanceOf(AuthSession)
 		expect(authSession1.getAccessToken()).not.toBe(authSession2.getAccessToken())
-		expect(authSession1.getAccount().getRootEmail()).toBe(userEmail1)
-		expect(authSession2.getAccount().getRootEmail()).toBe(userEmail2)
+		expect(authSession1.getOrganization().getOwnerId()).toBe(user1.getId())
+		expect(authSession2.getOrganization().getOwnerId()).toBe(user2.getId())
 	})
 
 	it("should not verify challenge with wrong user email", async () => {
@@ -141,10 +168,13 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		const userEmail1 = "user1@example.com"
 		const userEmail2 = "user2@example.com"
 
-		await identityManagementService.create(userEmail1)
-		await identityManagementService.create(userEmail2)
-		await accountService.createAccount(userEmail1, 0)
-		await accountService.createAccount(userEmail2, 0)
+		const user1 = await identityManagementService.create(userEmail1)
+		const user2 = await identityManagementService.create(userEmail2)
+
+		const organization1 = Organization.create(user1.getId(), 5)
+		const organization2 = Organization.create(user2.getId(), 5)
+		await organizationRepository.save(organization1)
+		await organizationRepository.save(organization2)
 
 		const challengeToken1 = await identityManagementService.issueAuthChallenge(userEmail1, 5)
 
@@ -152,5 +182,20 @@ describe("Verify Magic Link Challenge UseCase", () => {
 		await expect(verifyMagicLinkChallengeUseCase.execute(userEmail2, challengeToken1)).rejects.toThrow(
 			"Invalid challenge",
 		)
+	})
+
+	it("should return empty api keys array when organization has no api keys", async () => {
+		// Arrange
+		const userEmail = "user@example.com"
+		const user = await identityManagementService.create(userEmail)
+		const organization = Organization.create(user.getId(), 5)
+		await organizationRepository.save(organization)
+		const challengeToken = await identityManagementService.issueAuthChallenge(userEmail, 5)
+
+		// Act
+		const authSession = await verifyMagicLinkChallengeUseCase.execute(userEmail, challengeToken)
+
+		// Assert
+		expect(authSession.getApiKeys()).toHaveLength(0)
 	})
 })

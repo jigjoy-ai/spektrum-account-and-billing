@@ -6,7 +6,7 @@ export class ApiKeyMapper {
         return {
             id: apiKey.getId(),
             keyHash: apiKey.getKeyHash(),
-            accountId: apiKey.getAccountId(),
+            organizationId: apiKey.getOrganizationId(),
             secretKey: apiKey.getSecretKey(),
             statusCreatedAt: apiKey.getStatus() + "#" + apiKey.getCreatedAt(),
             name: apiKey.getName(),
@@ -16,7 +16,7 @@ export class ApiKeyMapper {
     }
 
     static toDomain(record: ApiKeyRecord): ApiKey {
-        return ApiKey.rehydrate(record.id, record.keyHash, record.accountId, record.secretKey, record.status, record.name, record.createdAt)
+        return ApiKey.rehydrate(record.id, record.keyHash, record.organizationId, record.secretKey, record.status, record.name, record.createdAt)
     }
 
 

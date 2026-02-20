@@ -19,10 +19,10 @@ export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCa
 
 			schemaValidator(createApiKeySchema, parsedBody)
 
-			const accountId = parsedBody.accountId
+			const organizationId = parsedBody.organizationId
 			const name = parsedBody.name
 
-			const apiKey = await createApiKeyUseCase.execute(accountId, name)
+			const apiKey = await createApiKeyUseCase.execute(organizationId, name)
             
 			return Responses._201({
                 id: apiKey.getId(),

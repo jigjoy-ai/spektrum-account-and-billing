@@ -1,20 +1,20 @@
 import { v4 as uuidv4 } from "uuid"
 import { User } from "./user"
 
-export class Account {
+export class Organization {
 	private constructor(
 		private readonly id: string,
-		private readonly rootEmail: string,
+		private readonly ownerId: string,
 		private creditsUsd: number,
-		private users: User[],
+		private members: User[]
 	) {}
 
 	getId(): string {
 		return this.id
 	}
 
-	getRootEmail(): string {
-		return this.rootEmail
+	getOwnerId(): string {
+		return this.ownerId
 	}
 
 	getRemainingCredits(): number {
@@ -39,31 +39,15 @@ export class Account {
 		this.creditsUsd -= amount
 	}
 
-	addUser(user: User): void {
-		this.users.push(user)
+	getMembers(): User[] {
+		return this.members
 	}
 
-	removeUser(user: User): void {
-		if (!this.users.includes(user)) {
-			throw new Error("User not found")
-		}
-
-		if (this.users.length === 1) {
-			throw new Error("Cannot remove last user")
-		}
-
-		this.users = this.users.filter((u) => u.getId() !== user.getId())
+	static rehydrate(id: string, ownerId: string, credits: number, members: User[]): Organization {
+		return new Organization(id, ownerId, credits, members)
 	}
 
-	getUsers(): User[] {
-		return [...this.users]
-	}
-
-	static rehydrate(id: string, email: string, credits: number, users: User[]): Account {
-		return new Account(id, email, credits, users)
-	}
-
-	static create(rootEmail: string, freeCreditsUsd: number): Account {
+	static create(owner: User, freeCreditsUsd: number): Organization {
 		const id = uuidv4()
 
 		if (freeCreditsUsd < 0) {
@@ -74,6 +58,6 @@ export class Account {
 			throw new Error("Free credits must be less than or equal to $5")
 		}
 
-		return new Account(id, rootEmail, freeCreditsUsd, [])
+		return new Organization(id, owner.getId(), freeCreditsUsd, [owner])
 	}
 }
