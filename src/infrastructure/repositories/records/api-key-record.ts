@@ -3,7 +3,7 @@ import { ApiKeyStatus } from "@domain/api-key"
 export interface ApiKeyRecord {
     id: string
     keyHash: string
-    accountId: string
+    organizationId: string
     secretKey: string
     statusCreatedAt: string
     name: string

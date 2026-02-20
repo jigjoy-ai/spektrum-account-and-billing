@@ -1,3 +1,3 @@
 export interface ProcessCreditsPurchaseUseCase {
-    execute(creditAmount: number, email: string, occuredAt: string):Promise<void>
+    execute(creditAmount: number, organizationId: string, occuredAt: string):Promise<void>
 }

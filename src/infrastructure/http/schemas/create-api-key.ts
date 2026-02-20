@@ -1,8 +1,8 @@
 export const createApiKeySchema = {
 	type: "object",
-	required: ["accountId", "name"],
+	required: ["organizationId", "name"],
 	properties: {
-		accountId: {
+		organizationId: {
 			type: "string",
 		},
 		name: {

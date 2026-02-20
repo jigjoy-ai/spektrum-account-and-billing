@@ -1,19 +1,19 @@
-import { AccountRepository } from "@app/ports/repositories/account-repository"
+import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
 import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 
 export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
 
-    constructor(private readonly accountRepository: AccountRepository){ }
+    constructor(private readonly organizationRepository: OrganizationRepository){ }
 
-    async execute(creditAmount: number, email: string, occuredAt: string): Promise<void> {
-        const account = await this.accountRepository.getByEmail(email)
+    async execute(creditAmount: number, organizationId: string, occuredAt: string): Promise<void> {
+        const organization = await this.organizationRepository.getById(organizationId)
 
-        if (!account) {
-            throw new Error("Account not found")
+        if (!organization) {
+            throw new Error("Organization not found")
         }
 
-        account.addCredits(creditAmount)
-        await this.accountRepository.save(account)
+        organization.addCredits(creditAmount)
+        await this.organizationRepository.save(organization)
 
     }
 

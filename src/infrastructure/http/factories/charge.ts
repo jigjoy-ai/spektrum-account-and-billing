@@ -17,9 +17,9 @@ export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 
 			schemaValidator(chargeSchema, parsedBody)
 
-			const { accountId, providerCostUsd } = parsedBody
+			const { organizationId, providerCostUsd } = parsedBody
 
-			const totalCostUsd = await chargeUseCase.execute(accountId, providerCostUsd)
+			const totalCostUsd = await chargeUseCase.execute(organizationId, providerCostUsd)
 
 			return Responses._200({ totalCostUsd })
 		} catch (error) {

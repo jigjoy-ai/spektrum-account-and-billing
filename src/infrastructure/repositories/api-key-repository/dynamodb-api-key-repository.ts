@@ -56,17 +56,17 @@ export class DynamoDBApiKeyRepository implements ApiKeyRepository {
 		return ApiKeyMapper.toDomain(record)
 	}
 
-	async getActiveByAccountId(accountId: string): Promise<ApiKey[]> {
+	async getActiveByOrganizationId(organizationId: string): Promise<ApiKey[]> {
 		const tableName = process.env.API_KEY_TABLE as string
-		console.log(`Getting active api keys for account with id: ${accountId} from DynamoDB table ${tableName}`)
+		console.log(`Getting active api keys for organization with id: ${organizationId} from DynamoDB table ${tableName}`)
 
 		const result = await ddbDocClient.send(
 			new QueryCommand({
 				TableName: tableName,
-				IndexName: "accountIdStatusGSI",
-				KeyConditionExpression: "accountId = :aid AND begins_with(statusCreatedAt, :p)",
+				IndexName: "organizationIdStatusGSI",
+				KeyConditionExpression: "organizationId = :organizationId AND begins_with(statusCreatedAt, :p)",
 				ExpressionAttributeValues: {
-					":aid": accountId,
+					":organizationId": organizationId,
 					":p": "ACTIVE#",
 				},
 				// optional: newest first
@@ -75,7 +75,7 @@ export class DynamoDBApiKeyRepository implements ApiKeyRepository {
 		)
 
 		if (!result.Items || result.Items.length === 0) {
-			console.log(`No active api keys found for account with id: ${accountId}`)
+			console.log(`No active api keys found for organization with id: ${organizationId}`)
 			return []
 		}
 

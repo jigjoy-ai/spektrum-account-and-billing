@@ -1,5 +1,6 @@
 export interface UserDataDTO {
-	id: string
+	userId: string
+	organizationId: string
 	email: string
 	credits: number,
     apiKeys: ApiKeyDTO[]

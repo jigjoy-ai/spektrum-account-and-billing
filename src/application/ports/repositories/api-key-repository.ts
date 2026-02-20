@@ -4,5 +4,5 @@ export interface ApiKeyRepository {
 	save(apiKey: ApiKey): Promise<ApiKey>
     getById(id: string): Promise<ApiKey | null>
     getByHash(hash: string): Promise<ApiKey | null>
-	getActiveByAccountId(accountId: string): Promise<ApiKey[]>
+	getActiveByOrganizationId(organizationId: string): Promise<ApiKey[]>
 }

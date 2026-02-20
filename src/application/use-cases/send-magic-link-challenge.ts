@@ -3,8 +3,8 @@ import { EmailSender } from "@app/ports/services/email-sender"
 import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 import { LoginEmailParams, LoginEmailFactory } from "@domain/login-email-factory"
 import { MagicLinkBuilder } from "@app/services/magic-link-builder"
-import { Account } from "@domain/account"
-import { AccountRepository } from "@app/ports/repositories/account-repository"
+import { Organization } from "@domain/organization"
+import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
 
 export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	private readonly EXPIRATION_MINUTES: number = 5
@@ -12,34 +12,36 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	constructor(
 		private readonly emailSender: EmailSender,
 		private readonly identityManagementService: IdentityManagementService,
-		private readonly accountRepository: AccountRepository,
+		private readonly organizationRepository: OrganizationRepository,
 		private readonly fromAddress: string,
 		private readonly destinationUrl: string,
 	) {}
 
-	async execute(userEmail: string): Promise<void> {
-		const account = await this.accountRepository.getByEmail(userEmail)
+	async execute(email: string): Promise<void> {
+
+		let user = await this.identityManagementService.get(email)
 
 		// If the account does not exist, create it
-		if (!account) {
+		if (!user) {
 			const freeCreditsUsd = 5.0
-			const user = await this.identityManagementService.create(userEmail)
-			const newAccount = Account.create(userEmail, freeCreditsUsd)
-			newAccount.addUser(user)
-			await this.accountRepository.save(newAccount)
+			user = await this.identityManagementService.create(email)
+			const newOrganization = Organization.create(user, freeCreditsUsd)
+			await this.organizationRepository.save(newOrganization)
+			// TODO: Add user to organization
 		}
 
+		const ownerId = user.getId()
 		// Token will be used to verify magic link
 		const challengeToken = await this.identityManagementService.issueAuthChallenge(
-			userEmail,
+			ownerId,
 			this.EXPIRATION_MINUTES,
 		)
 
-		const loginLink = MagicLinkBuilder.create(this.destinationUrl, userEmail, challengeToken)
+		const loginLink = MagicLinkBuilder.create(this.destinationUrl, ownerId, challengeToken)
 
 		// Create the email to send the magic link
 		const loginEmailParams: LoginEmailParams = {
-			recipient: userEmail,
+			recipient: ownerId,
 			sender: this.fromAddress,
 			loginLink: loginLink,
 			expirationInMinutes: this.EXPIRATION_MINUTES,
