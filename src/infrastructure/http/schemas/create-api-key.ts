@@ -1,10 +1,7 @@
 export const createApiKeySchema = {
 	type: "object",
-	required: ["organizationId", "name"],
+	required: ["name"],
 	properties: {
-		organizationId: {
-			type: "string",
-		},
 		name: {
 			type: "string",
 			minLength: 1,

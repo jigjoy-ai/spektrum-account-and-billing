@@ -17,7 +17,10 @@ export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 
 			schemaValidator(chargeSchema, parsedBody)
 
-			const { organizationId, providerCostUsd } = parsedBody
+			const { providerCostUsd } = parsedBody
+
+			const organizationId = event.headers?.["x-organization-id"] || event.headers?.["X-Organization-Id"]
+			if (!organizationId) throw new ValidationError("Missing header: x-organization-id or X-Organization-Id")
 
 			const totalCostUsd = await chargeUseCase.execute(organizationId, providerCostUsd)
 

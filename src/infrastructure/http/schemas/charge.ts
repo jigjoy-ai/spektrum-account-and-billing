@@ -1,10 +1,7 @@
 export const chargeSchema = {
 	type: "object",
-	required: ["organizationId", "providerCostUsd"],
+	required: ["providerCostUsd"],
 	properties: {
-		organizationId: {
-			type: "string",
-		},
 		providerCostUsd: {
 			type: "number",
 		},
