@@ -3,20 +3,19 @@ import { Email } from "@domain/email"
 import { Resend } from "resend"
 
 export class ResendEmailSender implements EmailSender {
-    private readonly resend: Resend
-    
+	private readonly resend: Resend
+
 	constructor() {
 		try {
 			this.resend = new Resend(process.env.RESEND_API_KEY)
 		} catch (error) {
 			console.error(`Failed to initialize Resend email sender: ${error}`)
 		}
-    }
+	}
 
 	async sendEmail(email: Email): Promise<void> {
+		console.log(`Sending email to ${email.getRecipient()}`)
 
-		console.log(`Sending email ${JSON.stringify(email)}`)
-        
 		const { data, error } = await this.resend.emails.send({
 			from: email.getSender(),
 			to: email.getRecipient(),
