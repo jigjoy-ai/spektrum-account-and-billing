@@ -58,7 +58,9 @@ export class DynamoDBApiKeyRepository implements ApiKeyRepository {
 
 	async getActiveByOrganizationId(organizationId: string): Promise<ApiKey[]> {
 		const tableName = process.env.API_KEY_TABLE as string
-		console.log(`Getting active api keys for organization with id: ${organizationId} from DynamoDB table ${tableName}`)
+		console.log(
+			`Getting active api keys for organization with id: ${organizationId} from DynamoDB table ${tableName}`,
+		)
 
 		const result = await ddbDocClient.send(
 			new QueryCommand({

@@ -4,9 +4,7 @@ import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigj
 import { CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
 
 export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCase) {
-	return async function createCreateApiKeyHandler({
-		body,
-	}: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+	return async function createCreateApiKeyHandler({ body }: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			if (!body) throw new ValidationError("No page body")
 
@@ -19,17 +17,18 @@ export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCa
 
 			schemaValidator(createApiKeySchema, parsedBody)
 
+			const userId = parsedBody.userId
 			const organizationId = parsedBody.organizationId
 			const name = parsedBody.name
 
-			const apiKey = await createApiKeyUseCase.execute(organizationId, name)
-            
+			const { apiKey, rawKey } = await createApiKeyUseCase.execute(organizationId, userId, name)
+
 			return Responses._201({
-                id: apiKey.getId(),
-                keyHash: apiKey.getKeyHash(),
-                key: apiKey.getSecretKey(),
-                name: apiKey.getName(),
-            })
+				id: apiKey.getId(),
+				name: apiKey.getName(),
+				displayKey: apiKey.getDisplayKey(),
+				rawKey: rawKey,
+			})
 		} catch (error) {
 			return errorHandler(error)
 		}
