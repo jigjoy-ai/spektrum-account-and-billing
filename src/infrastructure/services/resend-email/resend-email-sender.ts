@@ -14,6 +14,8 @@ export class ResendEmailSender implements EmailSender {
     }
 
 	async sendEmail(email: Email): Promise<void> {
+
+		console.log(`Sending email ${JSON.stringify(email)}`)
         
 		const { data, error } = await this.resend.emails.send({
 			from: email.getSender(),

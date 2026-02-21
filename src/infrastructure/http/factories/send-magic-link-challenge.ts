@@ -21,6 +21,8 @@ export function createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCas
 
 			const email = parsedBody.email
 
+			console.log(`Sending magic link challenge to email: ${email}`)
+
 			await sendMagicLinkChallengeUseCase.execute(email)
 			return Responses._202({ message: "Magic link challenge sent successfully" })
 		} catch (error) {

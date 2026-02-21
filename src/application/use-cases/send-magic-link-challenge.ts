@@ -19,29 +19,27 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 
 	async execute(email: string): Promise<void> {
 
-		let user = await this.identityManagementService.get(email)
+		const userExists = await this.identityManagementService.exists(email)
 
 		// If the account does not exist, create it
-		if (!user) {
+		if (!userExists) {
 			const freeCreditsUsd = 5.0
-			user = await this.identityManagementService.create(email)
+			const user = await this.identityManagementService.create(email)
 			const newOrganization = Organization.create(user, freeCreditsUsd)
 			await this.organizationRepository.save(newOrganization)
-			// TODO: Add user to organization
 		}
 
-		const ownerId = user.getId()
 		// Token will be used to verify magic link
 		const challengeToken = await this.identityManagementService.issueAuthChallenge(
-			ownerId,
+			email,
 			this.EXPIRATION_MINUTES,
 		)
 
-		const loginLink = MagicLinkBuilder.create(this.destinationUrl, ownerId, challengeToken)
+		const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
 
 		// Create the email to send the magic link
 		const loginEmailParams: LoginEmailParams = {
-			recipient: ownerId,
+			recipient: email,
 			sender: this.fromAddress,
 			loginLink: loginLink,
 			expirationInMinutes: this.EXPIRATION_MINUTES,
