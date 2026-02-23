@@ -1,5 +1,14 @@
 import { ApiKey } from "@domain/api-key"
+import { AuthenticatedUseCase } from "@heksagon/app"
+import { UserData } from "@jigjoy-ai/auth"
 
-export interface CreateApiKeyUseCase {
-	execute(organizationId: string, userId: string, name: string): Promise<{ apiKey: ApiKey; rawKey: string }>
+export type CreateApiKeyParams = {
+	name: string
 }
+
+export type CreateApiKeyResponse = {
+	apiKey: ApiKey
+	rawKey: string
+}
+
+export type CreateApiKeyUseCase = AuthenticatedUseCase<UserData, CreateApiKeyParams, CreateApiKeyResponse>

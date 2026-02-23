@@ -1,7 +1,10 @@
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
-import { ChargeUseCase } from "@app/ports/use-cases/charge"
+import { ChargeParams, ChargeUseCase } from "@app/ports/use-cases/charge"
 import { chargeSchema } from "../schemas/charge"
+import { Auth } from "@heksagon/app"
+import { UserData } from "@jigjoy-ai/auth"
+import { extractAuthData } from "@heksagon/http"
 
 export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 	return async function createChargeHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -17,12 +20,12 @@ export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 
 			schemaValidator(chargeSchema, parsedBody)
 
-			const { providerCostUsd } = parsedBody
+			const params: ChargeParams = parsedBody
 
-			const organizationId = event.headers?.["x-organization-id"] || event.headers?.["X-Organization-Id"]
-			if (!organizationId) throw new ValidationError("Missing header: x-organization-id or X-Organization-Id")
 
-			const totalCostUsd = await chargeUseCase.execute(organizationId, providerCostUsd)
+			const auth: Auth<UserData> = extractAuthData(event)
+
+			const totalCostUsd = await chargeUseCase.execute(auth, params)
 
 			return Responses._200({ totalCostUsd })
 		} catch (error) {

@@ -8,6 +8,9 @@
 		"@aws-sdk/client-dynamodb": "^3.398.0",
 		"@aws-sdk/client-kms": "^3.632.0",
 		"@aws-sdk/lib-dynamodb": "^3.398.0",
+		"@heksagon/app": "^0.0.13",
+		"@heksagon/http": "^0.0.7",
+		"@jigjoy-ai/auth": "^0.1.0",
 		"@jigjoy-ai/serverless-core": "^0.0.5",
 		"resend": "^6.9.2",
 		"uuid": "^13.0.0"
