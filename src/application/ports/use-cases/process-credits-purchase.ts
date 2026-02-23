@@ -1,3 +1,8 @@
-export interface ProcessCreditsPurchaseUseCase {
-    execute(creditAmount: number, organizationId: string, occuredAt: string):Promise<void>
+import { UseCase } from "@heksagon/app"
+
+export type ProcessCreditsPurchaseParams = {
+    creditAmount: number
+    organizationId: string
 }
+
+export type ProcessCreditsPurchaseUseCase = UseCase<ProcessCreditsPurchaseParams, void>

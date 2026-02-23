@@ -1,12 +1,17 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { createApiKeySchema } from "@infra/http/schemas/create-api-key"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
-import { CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
+import { CreateApiKeyParams, CreateApiKeyResponse, CreateApiKeyUseCase } from "@app/ports/use-cases/create-api-key"
+import { UserData } from "@jigjoy-ai/auth"
+import { extractAuthData } from "@heksagon/http"
+import { Auth } from "@heksagon/app"
 
 export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCase) {
 	return async function createCreateApiKeyHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			if (!event.body) throw new ValidationError("No page body")
+
+			const auth: Auth<UserData> = extractAuthData(event)
 
 			let parsedBody
 			try {
@@ -16,23 +21,16 @@ export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCa
 			}
 
 			schemaValidator(createApiKeySchema, parsedBody)
+			const params: CreateApiKeyParams = parsedBody
 
-			const userId = event.headers?.["x-user-id"] || event.headers?.["X-User-Id"]
 
-			if (!userId) throw new ValidationError("Missing header: x-user-id or X-User-Id")
-
-			const organizationId = event.headers?.["x-organization-id"] || event.headers?.["X-Organization-Id"]
-			if (!organizationId) throw new ValidationError("Missing header: x-organization-id or X-Organization-Id")
-
-			const name = parsedBody.name
-
-			const { apiKey, rawKey } = await createApiKeyUseCase.execute(organizationId, userId, name)
+			const result: CreateApiKeyResponse = await createApiKeyUseCase.execute(auth, params)
 
 			return Responses._201({
-				id: apiKey.getId(),
-				name: apiKey.getName(),
-				displayKey: apiKey.getDisplayKey(),
-				rawKey: rawKey,
+				id: result.apiKey.getId(),
+				name: result.apiKey.getName(),
+				displayKey: result.apiKey.getDisplayKey(),
+				rawKey: result.rawKey,
 			})
 		} catch (error) {
 			return errorHandler(error)

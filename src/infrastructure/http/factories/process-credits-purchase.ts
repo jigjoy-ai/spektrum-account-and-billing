@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
-import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
+import { ProcessCreditsPurchaseParams, ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 import { processCreditsPurchaseSchema } from "../schemas/process-credits-purchase"
 
 export function createProcessCreditsPurchaseHandler(processCreditsPurchase: ProcessCreditsPurchaseUseCase) {
@@ -20,12 +20,17 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
 			schemaValidator(processCreditsPurchaseSchema, parsedBody)
 
             const data = parsedBody.data
-			const email = data.custom_data.email
+			const organizationId = data.custom_data.organizationId
             const payments = data.payments
-            const occuredAt = parsedBody.occurred_at
             const creditAmount = payments.reduce((sum: number, payment: any) => sum + Number(payment.amount) / 100, 0)
 
-			await processCreditsPurchase.execute(creditAmount, email, occuredAt)
+
+			const params: ProcessCreditsPurchaseParams = {
+				creditAmount,
+				organizationId
+			}
+			
+			await processCreditsPurchase.execute(params)
 			return Responses._201({ message: "Credits added to organization balance" })
 		} catch (error) {
 			return errorHandler(error)

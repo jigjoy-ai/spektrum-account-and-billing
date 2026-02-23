@@ -1,4 +1,4 @@
-import { VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
+import { VerifyMagicLinkChallengeParams, VerifyMagicLinkChallengeUseCase } from "@app/ports/use-cases/verify-magic-link-challenge"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
@@ -23,9 +23,12 @@ export function createVerifyMagicLinkChallengeHandler(
 
 			schemaValidator(verifyMagicLinkChallengeSchema, parsedBody)
 
-			const { email, challenge } = parsedBody
+			const params: VerifyMagicLinkChallengeParams = {
+				email: parsedBody.email,
+				challenge: parsedBody.challenge
+			}
 
-			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(email, challenge)
+			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(params)
 			const authSessionDTO = AuthSessionMapper.toDTO(authSession)
 
 			return Responses._200({

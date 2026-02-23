@@ -1,6 +1,9 @@
 import { AuthSession } from "@domain/auth-session"
+import { UseCase } from "@heksagon/app"
 
-// This use case will be called automatically by the client to verify the magic link
-export interface VerifyMagicLinkChallengeUseCase {
-	execute(email: string, challenge: string): Promise<AuthSession>
+export type VerifyMagicLinkChallengeParams = {
+	email: string
+	challenge: string
 }
+
+export type VerifyMagicLinkChallengeUseCase = UseCase<VerifyMagicLinkChallengeParams, AuthSession>

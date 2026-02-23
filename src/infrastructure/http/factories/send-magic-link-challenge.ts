@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { sendMagicLinkChallengeSchema } from "../schemas/send-magic-link-challenge"
 import { errorHandler, Responses, schemaValidator, ValidationError } from "@jigjoy-ai/serverless-core"
-import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
+import { SendMagicLinkChallengeParams, SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
 
 export function createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase) {
 	return async function createSendMagicLinkChallengeHandler({
@@ -19,11 +19,11 @@ export function createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCas
 
 			schemaValidator(sendMagicLinkChallengeSchema, parsedBody)
 
-			const email = parsedBody.email
+			const params: SendMagicLinkChallengeParams = {
+				email: parsedBody.email,
+			}
 
-			console.log(`Sending magic link challenge to email: ${email}`)
-
-			await sendMagicLinkChallengeUseCase.execute(email)
+			await sendMagicLinkChallengeUseCase.execute(params)
 			return Responses._202({ message: "Magic link challenge sent successfully" })
 		} catch (error) {
 			return errorHandler(error)

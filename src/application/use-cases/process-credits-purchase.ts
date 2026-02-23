@@ -1,11 +1,13 @@
 import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
-import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
+import { ProcessCreditsPurchaseParams, ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 
 export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
 
     constructor(private readonly organizationRepository: OrganizationRepository){ }
 
-    async execute(creditAmount: number, organizationId: string, occuredAt: string): Promise<void> {
+    async execute(params: ProcessCreditsPurchaseParams): Promise<void> {
+        const { creditAmount, organizationId } = params
+
         const organization = await this.organizationRepository.getById(organizationId)
 
         if (!organization) {
