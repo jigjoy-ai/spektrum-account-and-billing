@@ -9,7 +9,8 @@ export interface UserDataDTO {
 export interface ApiKeyDTO {
 	id: string
 	name: string
-	key: string
+	displayKey: string
+	rawKey?: string
 }
 
 export interface AuthSessionDTO {

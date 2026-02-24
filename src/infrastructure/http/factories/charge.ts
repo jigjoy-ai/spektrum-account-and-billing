@@ -23,7 +23,7 @@ export function createChargeHandler(chargeUseCase: ChargeUseCase) {
 			const params: ChargeParams = parsedBody
 
 
-			const auth: Auth<UserData> = extractAuthData(event)
+			const auth: Auth<UserData> = extractAuthData(event.headers)
 
 			const totalCostUsd = await chargeUseCase.execute(auth, params)
 

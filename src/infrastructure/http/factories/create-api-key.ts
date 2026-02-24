@@ -5,13 +5,14 @@ import { CreateApiKeyParams, CreateApiKeyResponse, CreateApiKeyUseCase } from "@
 import { UserData } from "@jigjoy-ai/auth"
 import { extractAuthData } from "@heksagon/http"
 import { Auth } from "@heksagon/app"
+import { ApiKeyDTO } from "../dtos/auth-session"
 
 export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCase) {
 	return async function createCreateApiKeyHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 		try {
 			if (!event.body) throw new ValidationError("No page body")
 
-			const auth: Auth<UserData> = extractAuthData(event)
+			const auth: Auth<UserData> = extractAuthData(event.headers)
 
 			let parsedBody
 			try {
@@ -26,12 +27,13 @@ export function createCreateApiKeyHandler(createApiKeyUseCase: CreateApiKeyUseCa
 
 			const result: CreateApiKeyResponse = await createApiKeyUseCase.execute(auth, params)
 
-			return Responses._201({
+			const apiKeyDTO: ApiKeyDTO = {
 				id: result.apiKey.getId(),
 				name: result.apiKey.getName(),
 				displayKey: result.apiKey.getDisplayKey(),
 				rawKey: result.rawKey,
-			})
+			}
+			return Responses._201(apiKeyDTO)
 		} catch (error) {
 			return errorHandler(error)
 		}
