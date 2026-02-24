@@ -12,7 +12,7 @@ export class AuthSessionMapper {
 				apiKeys: authSession.getApiKeys().map((apiKey) => ({
 					id: apiKey.getId(),
 					name: apiKey.getName(),
-					key: apiKey.getSecretKey(),
+					displayKey: apiKey.getDisplayKey(),
 				})),
 			},
 		} as AuthSessionDTO

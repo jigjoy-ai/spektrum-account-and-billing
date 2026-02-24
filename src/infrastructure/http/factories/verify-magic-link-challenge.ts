@@ -4,6 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import { verifyMagicLinkChallengeSchema } from "../schemas/verify-magic-link-challenge"
 import { AuthSession } from "@domain/auth-session"
 import { AuthSessionMapper } from "../mappers/auth-session-mapper"
+import { AuthSessionDTO } from "../dtos/auth-session"
 
 export function createVerifyMagicLinkChallengeHandler(
 	verifyMagicLinkChallengeUseCase: VerifyMagicLinkChallengeUseCase,
@@ -29,11 +30,9 @@ export function createVerifyMagicLinkChallengeHandler(
 			}
 
 			const authSession: AuthSession = await verifyMagicLinkChallengeUseCase.execute(params)
-			const authSessionDTO = AuthSessionMapper.toDTO(authSession)
+			const authSessionDTO: AuthSessionDTO = AuthSessionMapper.toDTO(authSession)
 
-			return Responses._200({
-				authSession: authSessionDTO,
-			})
+			return Responses._200(authSessionDTO)
 		} catch (error) {
 			return errorHandler(error)
 		}
