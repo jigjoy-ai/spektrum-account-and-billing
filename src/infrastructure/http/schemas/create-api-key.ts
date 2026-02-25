@@ -6,8 +6,7 @@ export const createApiKeySchema = {
 			type: "string",
 			minLength: 1,
 			maxLength: 25,
-			pattern: "^[a-zA-Z0-9]+$",
-			message: "Name must be alphanumeric and between 1 and 25 characters",
+			message: "Name must be string and between 1 and 25 characters",
 		},
 	},
 }
