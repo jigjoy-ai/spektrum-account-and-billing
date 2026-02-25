@@ -21,6 +21,8 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
 
             const data = parsedBody.data
 			const organizationId = data.custom_data.organizationId
+			const transactionId = data.id
+			const email = data.custom_data.email
             const payments = data.payments
             const creditAmount = payments.reduce((sum: number, payment: any) => sum + Number(payment.amount) / 100, 0)
 
@@ -30,7 +32,9 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
 
 			const params: ProcessCreditsPurchaseParams = {
 				creditAmount,
-				organizationId
+				organizationId,
+				transactionId,
+				email
 			}
 
 			console.log('Processing credits purchase for organization', JSON.stringify(params))

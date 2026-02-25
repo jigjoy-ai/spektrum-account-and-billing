@@ -2,7 +2,12 @@ import { createProcessCreditsPurchaseHandler } from "@infra/http/factories/proce
 import { ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
 import { ProcessCreditsPurchase } from "@app/use-cases/process-credits-purchase"
 import { organizationRepository } from "@infra/repositories/organization-repository"
+import { resendEmailSender } from "@infra/services/resend-email"
+import { PaddlePaymentProvider } from "@infra/services/paddle/paddle-payment-provider"
 
-export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(organizationRepository)
+const FROM_ADDRESS = process.env.FROM_ADDRESS as string
+
+const paddlePaymentProvider = new PaddlePaymentProvider()
+export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(resendEmailSender, FROM_ADDRESS, organizationRepository, paddlePaymentProvider)
 
 export const handler = createProcessCreditsPurchaseHandler(processCreditsPurchase)
