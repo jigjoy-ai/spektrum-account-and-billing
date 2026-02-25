@@ -479,6 +479,8 @@ Resources:
                 Variables:
                     ORGANIZATION_TABLE: !Ref OrganizationTable
                     ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
+                    FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
+                    RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
             Policies:
                 - Version: "2012-10-17"
                   Statement:
