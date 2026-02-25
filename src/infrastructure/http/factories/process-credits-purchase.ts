@@ -28,10 +28,6 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
 				throw new ValidationError("Credit amount must be greater than 0")
 			}
 
-			if (!organizationId) {
-				throw new ValidationError("Organization ID is required")
-			}
-
 			const params: ProcessCreditsPurchaseParams = {
 				creditAmount,
 				organizationId
