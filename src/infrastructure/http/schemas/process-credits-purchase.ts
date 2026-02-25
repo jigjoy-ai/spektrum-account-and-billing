@@ -12,11 +12,10 @@ export const processCreditsPurchaseSchema = {
             properties: {
                 custom_data: {
                     type: "object",
-                    required: ["email"],
+                    required: ["organizationId"],
                     properties: {
-                        email: {
+                        organizationId: {
                             type: "string",
-                            format: "email",
                         },
                     },
                 },

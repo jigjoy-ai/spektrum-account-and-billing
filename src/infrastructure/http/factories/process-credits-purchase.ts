@@ -24,11 +24,20 @@ export function createProcessCreditsPurchaseHandler(processCreditsPurchase: Proc
             const payments = data.payments
             const creditAmount = payments.reduce((sum: number, payment: any) => sum + Number(payment.amount) / 100, 0)
 
+			if (creditAmount <= 0) {
+				throw new ValidationError("Credit amount must be greater than 0")
+			}
+
+			if (!organizationId) {
+				throw new ValidationError("Organization ID is required")
+			}
 
 			const params: ProcessCreditsPurchaseParams = {
 				creditAmount,
 				organizationId
 			}
+
+			console.log('Processing credits purchase for organization', JSON.stringify(params))
 			
 			await processCreditsPurchase.execute(params)
 			return Responses._201({ message: "Credits added to organization balance" })
