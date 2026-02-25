@@ -27,6 +27,6 @@ export class VerifyMagicLinkChallenge implements VerifyMagicLinkChallengeUseCase
 		}
 		const apiKeys: ApiKey[] = await this.apiKeyRepository.getActiveByOrganizationId(organization.getId())
 
-		return AuthSession.create(accessToken, email, organization, apiKeys)
+		return AuthSession.create(accessToken, email, user.getId(), organization, apiKeys)
 	}
 }
