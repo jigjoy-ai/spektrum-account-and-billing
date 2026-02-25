@@ -18,7 +18,6 @@ export class VerifyMagicLinkChallenge implements VerifyMagicLinkChallengeUseCase
 		}
 
 		console.log(`Verifying magic link challenge for email: ${email}`)
-		console.log(`Challenge: ${challenge}`)
 		const accessToken: string = await this.identityManagementService.verifyAuthChallenge(email, challenge)
 		const organization = await this.organizationRepository.getByOwnerId(user.getId())
 		
