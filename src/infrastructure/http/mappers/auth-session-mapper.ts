@@ -6,6 +6,7 @@ export class AuthSessionMapper {
 		return {
 			accessToken: authSession.getAccessToken(),
 			userData: {
+				id: authSession.getUserId(),
 				organizationId: authSession.getOrganization().getId(),
 				email: authSession.getUserEmail(),
 				credits: authSession.getOrganization().getRemainingCredits(),
