@@ -1,7 +1,7 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { EmailSender } from "@app/ports/services/email-sender"
 import { SendMagicLinkChallengeParams, SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
-import { LoginEmailParams, LoginEmailFactory } from "@domain/login-email-factory"
+import { LoginEmailParams, EmailFactory } from "@domain/email-factory"
 import { MagicLinkBuilder } from "@app/services/magic-link-builder"
 import { Organization } from "@domain/organization"
 import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
@@ -47,7 +47,7 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			expirationInMinutes: this.EXPIRATION_MINUTES,
 		}
 
-		const emailWithMagicLink = LoginEmailFactory.create(loginEmailParams)
+		const emailWithMagicLink = EmailFactory.createLoginEmail(loginEmailParams)
 		await this.emailSender.sendEmail(emailWithMagicLink)
 	}
 }

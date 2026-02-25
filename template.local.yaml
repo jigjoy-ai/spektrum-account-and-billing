@@ -123,6 +123,10 @@ Resources:
                 Variables:
                     ORGANIZATION_TABLE: ""
                     ORGANIZATION_MEMBER_TABLE: ""
+                    FROM_ADDRESS: ""
+                    PADDLE_API_KEY: ""
+                    PADDLE_API_URL: ""
+                    RESEND_API_KEY: ""
             Events:
                 Api:
                     Type: Api
