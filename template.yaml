@@ -481,6 +481,8 @@ Resources:
                     ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
                     RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
+                    PADDLE_API_KEY: "{{resolve:secretsmanager:vars:SecretString:PADDLE_API_KEY}}"
+                    PADDLE_API_URL: "{{resolve:secretsmanager:vars:SecretString:PADDLE_API_URL}}"
             Policies:
                 - Version: "2012-10-17"
                   Statement:
