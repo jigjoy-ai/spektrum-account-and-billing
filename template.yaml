@@ -507,8 +507,8 @@ Resources:
                     TRANSACTION_TABLE: !Ref TransactionTable
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
                     RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
-                    PADDLE_API_KEY: "{{resolve:secretsmanager:vars:SecretString:PADDLE_API_KEY}}"
-                    PADDLE_API_URL: "{{resolve:secretsmanager:vars:SecretString:PADDLE_API_URL}}"
+                    PADDLE_API_KEY: "{{resolve:secretsmanager:vars:SecretString:PaddleApiKey}}"
+                    PADDLE_API_URL: "{{resolve:secretsmanager:vars:SecretString:PaddleApiUrl}}"
             Policies:
                 - Version: "2012-10-17"
                   Statement:
@@ -574,7 +574,7 @@ Outputs:
         Value: !Ref OrganizationTable
         Export:
             Name: !Sub "${AWS::StackName}-OrganizationTableName"
-    
+
     OrganizationMemberTableName:
         Value: !Ref OrganizationMemberTable
         Export:
