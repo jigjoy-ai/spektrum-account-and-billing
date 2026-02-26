@@ -127,6 +127,7 @@ Resources:
                     PADDLE_API_KEY: ""
                     PADDLE_API_URL: ""
                     RESEND_API_KEY: ""
+                    TRANSACTION_TABLE: ""
             Events:
                 Api:
                     Type: Api

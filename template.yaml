@@ -120,6 +120,31 @@ Resources:
                   Projection:
                       ProjectionType: ALL
 
+    TransactionTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: !Sub "${AWS::StackName}-Transaction"
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                - AttributeName: id
+                  AttributeType: S
+                - AttributeName: organizationId
+                  AttributeType: S
+                - AttributeName: createdAt
+                  AttributeType: S
+            KeySchema:
+                - AttributeName: id
+                  KeyType: HASH
+            GlobalSecondaryIndexes:
+                - IndexName: organizationIdGSI
+                  KeySchema:
+                      - AttributeName: organizationId
+                        KeyType: HASH
+                      - AttributeName: createdAt
+                        KeyType: RANGE
+                  Projection:
+                      ProjectionType: ALL
+
     JigJoyUserPool:
         Type: AWS::Cognito::UserPool
         Properties:
@@ -497,6 +522,8 @@ Resources:
                             - !Sub "${OrganizationTable.Arn}/index/*"
                             - !GetAtt OrganizationMemberTable.Arn
                             - !Sub "${OrganizationMemberTable.Arn}/index/*"
+                            - !GetAtt TransactionTable.Arn
+                            - !Sub "${TransactionTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
@@ -553,6 +580,11 @@ Outputs:
         Value: !Ref OrganizationMemberTable
         Export:
             Name: !Sub "${AWS::StackName}-OrganizationMemberTableName"
+
+    TransactionTableName:
+        Value: !Ref TransactionTable
+        Export:
+            Name: !Sub "${AWS::StackName}-TransactionTableName"
 
     CognitoUserPoolId:
         Value: !Ref JigJoyUserPool
