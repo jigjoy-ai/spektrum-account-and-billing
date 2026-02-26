@@ -504,6 +504,7 @@ Resources:
                 Variables:
                     ORGANIZATION_TABLE: !Ref OrganizationTable
                     ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
+                    TRANSACTION_TABLE: !Ref TransactionTable
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
                     RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
                     PADDLE_API_KEY: "{{resolve:secretsmanager:vars:SecretString:PADDLE_API_KEY}}"
