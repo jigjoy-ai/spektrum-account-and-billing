@@ -550,13 +550,11 @@ Resources:
                 - Version: "2012-10-17"
                   Statement:
                       - Effect: Allow
-                        Action: dynamodb:PutItem
-                        Resource: !GetAtt OrganizationTable.Arn
-                      - Effect: Allow
-                        Action: dynamodb:GetItem
-                        Resource: !GetAtt OrganizationTable.Arn
-                      - Effect: Allow
-                        Action: dynamodb:Query
+                        Action:
+                            - dynamodb:PutItem
+                            - dynamodb:GetItem
+                            - dynamodb:Query
+                            - dynamodb:BatchWriteItem
                         Resource:
                             - !GetAtt OrganizationTable.Arn
                             - !Sub "${OrganizationTable.Arn}/index/*"
