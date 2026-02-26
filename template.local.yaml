@@ -145,6 +145,32 @@ Resources:
                 EntryPoints:
                     - src/infrastructure/http/handlers/process-credits-purchase.ts
 
+    fetchTransactionsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: fetch-transactions.handler
+            Description: Fetch transactions (local)
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction/all
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/fetch-transactions.ts
+
     chargeFunction:
         Type: AWS::Serverless::Function
         Properties:
