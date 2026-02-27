@@ -135,7 +135,7 @@ Resources:
                     Type: Api
                     Properties:
                         RestApiId: !Ref LocalApi
-                        Path: /credits/purchase
+                        Path: /transaction
                         Method: POST
         Metadata:
             BuildMethod: esbuild
