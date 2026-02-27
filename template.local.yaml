@@ -17,6 +17,8 @@ Resources:
         Type: AWS::Serverless::Api
         Properties:
             StageName: local
+            BinaryMediaTypes:
+                - application/pdf
             Cors:
                 AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
                 AllowHeaders: "'content-type,authorization'"
@@ -144,6 +146,60 @@ Resources:
                 Minify: false
                 EntryPoints:
                     - src/infrastructure/http/handlers/process-credits-purchase.ts
+
+    fetchTransactionsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: fetch-transactions.handler
+            Description: Fetch transactions (local)
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction/all
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/fetch-transactions.ts
+
+    downloadInvoicePdfFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: download-invoice-pdf.handler
+            Description: Download invoice PDF (local)
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: ""
+                    PADDLE_API_KEY: ""
+                    PADDLE_API_URL: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction/{transactionId}/invoice
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/download-invoice-pdf.ts
 
     chargeFunction:
         Type: AWS::Serverless::Function

@@ -532,6 +532,68 @@ Resources:
                 Target: "es2020"
                 Sourcemap: true
 
+    fetchTransactionsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/fetch-transactions.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Fetch transactions
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: !Ref TransactionTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action: dynamodb:Query
+                        Resource:
+                            - !GetAtt TransactionTable.Arn
+                            - !Sub "${TransactionTable.Arn}/index/*"
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/fetch-transactions.ts
+
+    downloadInvoicePdfFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/download-invoice-pdf.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Download invoice PDF
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: !Ref TransactionTable
+                    PADDLE_API_KEY: "{{resolve:secretsmanager:vars:SecretString:PaddleApiKey}}"
+                    PADDLE_API_URL: "{{resolve:secretsmanager:vars:SecretString:PaddleApiUrl}}"
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action:
+                            - dynamodb:GetItem
+                        Resource:
+                            - !GetAtt TransactionTable.Arn
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/download-invoice-pdf.ts
+                    
     chargeFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -614,6 +676,16 @@ Outputs:
         Value: !GetAtt processCreditsPurchaseFunction.Arn
         Export:
             Name: !Sub "${AWS::StackName}-ProcessCreditsPurchaseFnArn"
+
+    FetchTransactionsFnArn:
+        Value: !GetAtt fetchTransactionsFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-FetchTransactionsFnArn"
+
+    DownloadInvoicePdfFnArn:
+        Value: !GetAtt downloadInvoicePdfFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-DownloadInvoicePdfFnArn"
 
     ChargeFnArn:
         Value: !GetAtt chargeFunction.Arn

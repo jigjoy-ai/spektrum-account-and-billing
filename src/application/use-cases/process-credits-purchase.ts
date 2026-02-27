@@ -26,7 +26,7 @@ export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
 
 
         const invoiceUrl = await this.paymentProvider.getInvoicePdfUrl(transactionId)
-        const newTransaction = Transaction.createWithId(transactionId, organizationId, creditAmount, TransactionStatus.COMPLETED, invoiceUrl)
+        const newTransaction = Transaction.createWithId(transactionId, organizationId, creditAmount, TransactionStatus.COMPLETED)
         await this.transactionRepository.save(newTransaction)
 
         const organization = await this.organizationRepository.getById(organizationId)
