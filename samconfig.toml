@@ -1,11 +1,17 @@
 version = 0.1
 
-[default.deploy.parameters]
+[dev.deploy.parameters]
 stack_name = "account-and-billing"
 resolve_s3 = true
 s3_prefix = "account-and-billing"
 region = "eu-west-1"
-profile = "spektrum-dev"
 capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
 image_repositories = []
-confirm_changeset = true
+
+[prod.deploy.parameters]
+stack_name = "account-and-billing"
+resolve_s3 = true
+s3_prefix = "account-and-billing"
+region = "eu-west-1"
+capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"
+image_repositories = []
