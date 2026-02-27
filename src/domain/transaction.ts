@@ -10,7 +10,6 @@ export class Transaction {
         private readonly organizationId: string,
         private readonly amount: number,
         private readonly status: TransactionStatus,
-        private readonly invoicePdfUrl: string,
         private readonly createdAt: string,
     ) {}
 
@@ -34,13 +33,9 @@ export class Transaction {
         return this.createdAt
     }
 
-    getInvoicePdfUrl(): string {
-        return this.invoicePdfUrl
-    }
-
-    static createWithId(id: string, organizationId: string, amount: number, status: TransactionStatus, invoicePdfUrl: string): Transaction {
+    static createWithId(id: string, organizationId: string, amount: number, status: TransactionStatus): Transaction {
         const createdAt = new Date().toISOString()
-        return new Transaction(id, organizationId, amount, status, invoicePdfUrl, createdAt)
+        return new Transaction(id, organizationId, amount, status, createdAt)
     }
 
     static rehydrate(
@@ -51,6 +46,6 @@ export class Transaction {
         invoicePdfUrl: string,
         createdAt: string,
     ): Transaction {
-        return new Transaction(id, organizationId, amount, status, invoicePdfUrl, createdAt)
+        return new Transaction(id, organizationId, amount, status, createdAt)
     }
 }

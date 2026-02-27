@@ -8,14 +8,20 @@ export const processCreditsPurchaseSchema = {
         },
         data: {
             type: "object",
-            required: ["custom_data", "payments"],
+            required: ["id", "custom_data", "payments"],
             properties: {
+                id: {
+                    type: "string",
+                },
                 custom_data: {
                     type: "object",
-                    required: ["organizationId"],
+                    required: ["organizationId", "email"],
                     properties: {
                         organizationId: {
                             type: "string",
+                        },
+                        email: {
+                            type: "email",
                         },
                     },
                 },

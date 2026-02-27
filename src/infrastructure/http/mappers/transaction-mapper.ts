@@ -8,7 +8,6 @@ export class TransactionMapper {
             organizationId: transaction.getOrganizationId(),
             amount: transaction.getAmount(),
             status: transaction.getStatus(),
-            invoicePdfUrl: transaction.getInvoicePdfUrl(),
             createdAt: transaction.getCreatedAt(),
         }
     }
