@@ -3,6 +3,5 @@ export interface TransactionRecord {
 	organizationId: string
 	amount: number
 	status: string
-	invoicePdfUrl: string
 	createdAt: string
 }

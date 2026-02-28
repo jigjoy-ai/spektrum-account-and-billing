@@ -43,7 +43,6 @@ export class Transaction {
         organizationId: string,
         amount: number,
         status: TransactionStatus,
-        invoicePdfUrl: string,
         createdAt: string,
     ): Transaction {
         return new Transaction(id, organizationId, amount, status, createdAt)

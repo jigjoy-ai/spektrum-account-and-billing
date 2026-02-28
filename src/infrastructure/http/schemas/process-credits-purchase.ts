@@ -21,7 +21,8 @@ export const processCreditsPurchaseSchema = {
                             type: "string",
                         },
                         email: {
-                            type: "email",
+                            type: "string",
+                            format: "email",
                         },
                     },
                 },
