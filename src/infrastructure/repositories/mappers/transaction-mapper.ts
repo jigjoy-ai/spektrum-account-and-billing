@@ -8,7 +8,6 @@ export class TransactionMapper {
 			organizationId: transaction.getOrganizationId(),
 			amount: transaction.getAmount(),
 			status: transaction.getStatus(),
-			invoicePdfUrl: transaction.getInvoicePdfUrl(),
 			createdAt: transaction.getCreatedAt(),
 		}
 	}
@@ -19,7 +18,6 @@ export class TransactionMapper {
 			record.organizationId,
 			record.amount,
 			record.status as TransactionStatus,
-			record.invoicePdfUrl,
 			record.createdAt,
 		)
 	}
