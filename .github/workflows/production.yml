@@ -65,7 +65,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  npm ci
+                  npm install
                   echo "$PWD/node_modules/.bin" >> $GITHUB_PATH
 
             - name: SAM Build
