@@ -4,6 +4,7 @@ import { SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-l
 import { resendEmailSender } from "@infra/services/resend-email"
 import { identityManagementService } from "@infra/services/cognito-identity-management"
 import { organizationRepository } from "@infra/repositories/organization-repository"
+import { templateRepository } from "@infra/repositories/html-email-template-repository"
 
 const DESTINATION_URL = process.env.DESTINATION_URL as string
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string
@@ -14,6 +15,7 @@ export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new 
 	organizationRepository,
 	FROM_ADDRESS,
 	DESTINATION_URL,
+	templateRepository,
 )
 
 export const handler = createSendMagicLinkChallengeHandler(sendMagicLinkChallengeUseCase)
