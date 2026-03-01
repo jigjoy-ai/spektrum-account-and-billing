@@ -14,20 +14,6 @@ export type PurchaseReceiptEmailParams = {
 }
 
 export class EmailFactory {
-	static createLoginEmail(params: LoginEmailParams): Email {
-		const subject = "JigJoy Login Link"
-
-		const body = `
-			<html>
-				<body>
-					<p>This is your one-time sign in link (it will expire in ${params.expirationInMinutes} mins):</p>
-					<a href="${params.loginLink}" target="_blank">Click here to login</a>
-				</body>
-			</html>
-			`.trim()
-
-		return new Email(params.recipient, params.sender, subject, body)
-	}
 
 	static createPurchaseReceiptEmail(params: PurchaseReceiptEmailParams): Email {
 		const subject = "JigJoy Purchase Receipt"
