@@ -6,7 +6,7 @@ import { identityManagementService } from "@infra/services/cognito-identity-mana
 import { organizationRepository } from "@infra/repositories/organization-repository"
 import { templateRepository } from "@infra/repositories/html-email-template-repository"
 
-const DESTINATION_URL = process.env.DESTINATION_URL as string
+const PLATFORM_URL = process.env.PLATFORM_URL as string
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string
 
 export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new SendMagicLinkChallenge(
@@ -14,7 +14,7 @@ export const sendMagicLinkChallengeUseCase: SendMagicLinkChallengeUseCase = new 
 	identityManagementService,
 	organizationRepository,
 	FROM_ADDRESS,
-	DESTINATION_URL,
+	PLATFORM_URL,
 	templateRepository,
 )
 

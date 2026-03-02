@@ -19,7 +19,7 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 		private readonly identityManagementService: IdentityManagementService,
 		private readonly organizationRepository: OrganizationRepository,
 		private readonly fromAddress: string,
-		private readonly destinationUrl: string,
+		private readonly platformUrl: string,
 		private readonly emailTemplateRepository: EmailTemplateRepository,
 	) {}
 
@@ -41,7 +41,8 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 				this.EXPIRATION_MINUTES,
 			)
 
-			const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
+			// welcome mail will send user to welcome page
+			const loginLink = MagicLinkBuilder.create(this.platformUrl, "welcome", email, challengeToken)
 
 			const template = new EmailTemplate("welcome", {
 				loginLink: loginLink,
@@ -58,7 +59,8 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 				this.EXPIRATION_MINUTES,
 			)
 
-			const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
+			// login mail will send user to workspace page
+			const loginLink = MagicLinkBuilder.create(this.platformUrl, "workspace", email, challengeToken)
 
 			// If the account exists, send login link email
 			const template = new EmailTemplate("login", {
