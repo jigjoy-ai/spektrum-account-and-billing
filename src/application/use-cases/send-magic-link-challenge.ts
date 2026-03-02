@@ -41,8 +41,8 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 				this.EXPIRATION_MINUTES,
 			)
 
-			// welcome mail will send user to welcome page
-			const loginLink = MagicLinkBuilder.create(this.platformUrl, "welcome", email, challengeToken)
+			// welcome mail will send user to onboarding page
+			const loginLink = MagicLinkBuilder.create(this.platformUrl, "onboarding", email, challengeToken)
 
 			const template = new EmailTemplate("welcome", {
 				loginLink: loginLink,
