@@ -1,6 +1,9 @@
 import { IdentityManagementService } from "@app/ports/services/identity-management-service"
 import { EmailSender } from "@app/ports/services/email-sender"
-import { SendMagicLinkChallengeParams, SendMagicLinkChallengeUseCase } from "@app/ports/use-cases/send-magic-link-challenge"
+import {
+	SendMagicLinkChallengeParams,
+	SendMagicLinkChallengeUseCase,
+} from "@app/ports/use-cases/send-magic-link-challenge"
 import { MagicLinkBuilder } from "@app/services/magic-link-builder"
 import { Organization } from "@domain/organization"
 import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
@@ -21,18 +24,9 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 	) {}
 
 	async execute(params: SendMagicLinkChallengeParams): Promise<void> {
-
 		const { email } = params
 
 		const userExists = await this.identityManagementService.exists(email)
-
-		// Token will be used to verify magic link
-		const challengeToken = await this.identityManagementService.issueAuthChallenge(
-			email,
-			this.EXPIRATION_MINUTES,
-		)
-		
-		const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
 
 		// If the account does not exist, create it and send welcome email
 		if (!userExists) {
@@ -41,27 +35,41 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			const newOrganization = Organization.create(user, freeCreditsUsd)
 			await this.organizationRepository.save(newOrganization)
 
-			const template = new EmailTemplate('welcome', {
-				loginLink: loginLink
+			// Token will be used to verify magic link
+			const challengeToken = await this.identityManagementService.issueAuthChallenge(
+				email,
+				this.EXPIRATION_MINUTES,
+			)
+
+			const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
+
+			const template = new EmailTemplate("welcome", {
+				loginLink: loginLink,
 			})
 			const html = this.emailTemplateRepository.render(template)
-	
-			const emailToSend = new Email(email, this.fromAddress, 'Welcome to JigJoy', html)
+
+			const emailToSend = new Email(email, this.fromAddress, "Welcome to JigJoy", html)
 
 			await this.emailSender.sendEmail(emailToSend)
 		} else {
+			// Token will be used to verify magic link
+			const challengeToken = await this.identityManagementService.issueAuthChallenge(
+				email,
+				this.EXPIRATION_MINUTES,
+			)
+
+			const loginLink = MagicLinkBuilder.create(this.destinationUrl, email, challengeToken)
+
 			// If the account exists, send login link email
-			const template = new EmailTemplate('login', {
+			const template = new EmailTemplate("login", {
 				loginLink: loginLink,
 				expirationInMinutes: this.EXPIRATION_MINUTES.toString(),
 			})
 			const html = this.emailTemplateRepository.render(template)
 
-			const emailToSend = new Email(email, this.fromAddress, 'JigJoy Login Link', html)
+			const emailToSend = new Email(email, this.fromAddress, "JigJoy Login Link", html)
 
 			await this.emailSender.sendEmail(emailToSend)
 		}
-
-
 	}
 }
