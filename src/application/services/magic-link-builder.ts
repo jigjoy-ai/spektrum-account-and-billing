@@ -1,8 +1,8 @@
 export class MagicLinkBuilder {
-	static create(destinationUrl: string, userEmail: string, challengeToken: string): string {
+	static create(platformUrl: string, page: string, userEmail: string, challengeToken: string): string {
 		const urlSafeEmail = encodeURIComponent(userEmail)
 		const urlSafeToken = encodeURIComponent(challengeToken)
-		const loginLink = `${destinationUrl}?email=${urlSafeEmail}&token=${urlSafeToken}`
+		const loginLink = `${platformUrl}/${page}?email=${urlSafeEmail}&token=${urlSafeToken}`
 
 		return loginLink
 	}

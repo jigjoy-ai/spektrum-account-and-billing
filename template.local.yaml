@@ -36,7 +36,7 @@ Resources:
                     KMS_KEY_ID: ""
                     USER_POOL_ID: ""
                     USER_POOL_CLIENT_ID: ""
-                    DESTINATION_URL: ""
+                    PLATFORM_URL: ""
                     FROM_ADDRESS: ""
                     RESEND_API_KEY: ""
             Events:

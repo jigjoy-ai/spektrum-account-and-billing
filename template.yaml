@@ -365,7 +365,7 @@ Resources:
                     USER_POOL_CLIENT_ID: !Ref WebClient
                     ORGANIZATION_TABLE: !Ref OrganizationTable
                     ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
-                    DESTINATION_URL: "{{resolve:secretsmanager:vars:SecretString:DestinationUrl}}"
+                    PLATFORM_URL: "{{resolve:secretsmanager:vars:SecretString:PlatformUrl}}"
                     FROM_ADDRESS: "{{resolve:secretsmanager:vars:SecretString:FromAddress}}"
                     RESEND_API_KEY: "{{resolve:secretsmanager:vars:SecretString:ResendApiKey}}"
             Policies:
