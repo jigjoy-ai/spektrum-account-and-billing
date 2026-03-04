@@ -5,10 +5,11 @@ import { organizationRepository } from "@infra/repositories/organization-reposit
 import { resendEmailSender } from "@infra/services/resend-email"
 import { PaddlePaymentProvider } from "@infra/services/paddle/paddle-payment-provider"
 import { transactionRepository } from "@infra/repositories/transaction-repository"
+import { templateRepository } from "@infra/repositories/html-email-template-repository"
 
 const FROM_ADDRESS = process.env.FROM_ADDRESS as string
 
 const paddlePaymentProvider = new PaddlePaymentProvider()
-export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(resendEmailSender, FROM_ADDRESS, organizationRepository, paddlePaymentProvider, transactionRepository)
+export const processCreditsPurchase: ProcessCreditsPurchaseUseCase = new ProcessCreditsPurchase(resendEmailSender, FROM_ADDRESS, organizationRepository, paddlePaymentProvider, transactionRepository, templateRepository)
 
 export const handler = createProcessCreditsPurchaseHandler(processCreditsPurchase)
