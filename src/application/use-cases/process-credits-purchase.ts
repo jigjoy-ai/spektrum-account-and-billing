@@ -1,9 +1,11 @@
+import { EmailTemplateRepository } from "@app/ports/repositories/email-template-repository"
 import { OrganizationRepository } from "@app/ports/repositories/organization-repository"
 import { TransactionRepository } from "@app/ports/repositories/transaction-repository"
 import { EmailSender } from "@app/ports/services/email-sender"
 import { PaymentProvider } from "@app/ports/services/payment-provider"
 import { ProcessCreditsPurchaseParams, ProcessCreditsPurchaseUseCase } from "@app/ports/use-cases/process-credits-purchase"
-import { EmailFactory, PurchaseReceiptEmailParams } from "@domain/email-factory"
+import { Email } from "@domain/email"
+import { EmailTemplate } from "@domain/email-template"
 import { Transaction, TransactionStatus } from "@domain/transaction"
 
 export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
@@ -13,7 +15,8 @@ export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
         private readonly fromAddress: string, 
         private readonly organizationRepository: OrganizationRepository,
         private readonly paymentProvider: PaymentProvider,
-        private readonly transactionRepository: TransactionRepository
+        private readonly transactionRepository: TransactionRepository,
+        private readonly emailTemplateRepository: EmailTemplateRepository
     ){ }
 
     async execute(params: ProcessCreditsPurchaseParams): Promise<void> {
@@ -38,17 +41,23 @@ export class ProcessCreditsPurchase implements ProcessCreditsPurchaseUseCase {
         organization.addCredits(creditAmount)
         await this.organizationRepository.save(organization)
 
+        const template = new EmailTemplate("purchase", {
+            numberOfCredits: creditAmount.toString(),
+            transactionId: transactionId,
+            estimatedTaskExecutions: (Number(creditAmount) * 2).toFixed(0),
+        })
+        const html = this.emailTemplateRepository.render(template)
 
-        const purchaseReceiptEmailParams: PurchaseReceiptEmailParams = {
-            recipient: email,
-            sender: this.fromAddress,
-            receiptUrl: invoiceUrl,
-        }
+        const attachments = [
+			{
+				filename: "invoice.pdf",
+				url: invoiceUrl,
+			},
+		]
 
-        console.log(`Sending purchase receipt email to ${email}`)
-
-        const purchaseReceiptEmail = EmailFactory.createPurchaseReceiptEmail(purchaseReceiptEmailParams)
-        await this.emailSender.sendEmail(purchaseReceiptEmail)
+        const emailToSend = new Email(email, this.fromAddress, "JigJoy Purchase Receipt", html, attachments)
+        
+        await this.emailSender.sendEmail(emailToSend)
 
     }
 

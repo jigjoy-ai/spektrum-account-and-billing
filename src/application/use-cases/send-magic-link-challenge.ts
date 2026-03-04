@@ -35,7 +35,6 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			const newOrganization = Organization.create(user, freeCreditsUsd)
 			await this.organizationRepository.save(newOrganization)
 
-			// Token will be used to verify magic link
 			const challengeToken = await this.identityManagementService.issueAuthChallenge(
 				email,
 				this.EXPIRATION_MINUTES,
@@ -53,7 +52,6 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 
 			await this.emailSender.sendEmail(emailToSend)
 		} else {
-			// Token will be used to verify magic link
 			const challengeToken = await this.identityManagementService.issueAuthChallenge(
 				email,
 				this.EXPIRATION_MINUTES,
@@ -62,7 +60,6 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			// login mail will send user to workspace page
 			const loginLink = MagicLinkBuilder.create(this.platformUrl, "workspace", email, challengeToken)
 
-			// If the account exists, send login link email
 			const template = new EmailTemplate("login", {
 				loginLink: loginLink,
 				expirationInMinutes: this.EXPIRATION_MINUTES.toString(),
