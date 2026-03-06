@@ -227,3 +227,30 @@ Resources:
                 Minify: false
                 EntryPoints:
                     - src/infrastructure/http/handlers/charge.ts
+
+    getCreditBalanceFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: get-credit-balance.handler
+            Description: Get credit balance (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /credits/balance
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/get-credit-balance.ts
