@@ -33,7 +33,7 @@ jobs:
     deploy:
         name: Deploy to Production
         needs: test
-        if: always() && github.event_name == 'workflow_dispatch' && !cancelled()
+        if: always() && !cancelled()
         runs-on: ubuntu-latest
         environment: production
 
