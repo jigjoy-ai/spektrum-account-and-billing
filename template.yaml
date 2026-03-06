@@ -593,7 +593,7 @@ Resources:
                 Sourcemap: true
                 EntryPoints:
                     - src/infrastructure/http/handlers/download-invoice-pdf.ts
-                    
+
     chargeFunction:
         Type: AWS::Serverless::Function
         Properties:
@@ -630,6 +630,37 @@ Resources:
                 Sourcemap: true
                 EntryPoints:
                     - src/infrastructure/http/handlers/charge.ts
+
+    getCreditBalanceFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/get-credit-balance.handler
+            Runtime: nodejs22.x
+            Architectures:
+                - x86_64
+            MemorySize: 128
+            Timeout: 100
+            Description: Get credit balance
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: !Ref OrganizationTable
+            Policies:
+                - Version: "2012-10-17"
+                  Statement:
+                      - Effect: Allow
+                        Action:
+                            - dynamodb:GetItem
+                        Resource:
+                            - !GetAtt OrganizationTable.Arn
+                            - !Sub "${OrganizationTable.Arn}/index/*"
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Minify: true
+                Target: "es2020"
+                Sourcemap: true
+                EntryPoints:
+                    - src/infrastructure/http/handlers/get-credit-balance.ts
 
 Outputs:
     OrganizationTableName:
@@ -691,3 +722,8 @@ Outputs:
         Value: !GetAtt chargeFunction.Arn
         Export:
             Name: !Sub "${AWS::StackName}-ChargeFnArn"
+
+    GetCreditBalanceFnArn:
+        Value: !GetAtt getCreditBalanceFunction.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-GetCreditBalanceFnArn"
