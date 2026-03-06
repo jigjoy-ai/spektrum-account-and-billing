@@ -1,43 +1,42 @@
 {
-    "name": "puzzle-box-serverless",
-    "description": "Serverless API for creating web applications from textual prompts",
-    "version": "0.0.1",
-    "private": true,
-    "dependencies": {
-        "@aws-sdk/client-dynamodb": "^3.398.0",
-        "@aws-sdk/lib-dynamodb": "^3.398.0",
-        "ajv": "^8.16.0",
-		"ajv-formats": "^3.0.1",
-        "esbuild": "^0.21.5"
-    },
-    "devDependencies": {
-		"@types/aws-lambda": "^8.10.140",
-		"@types/node": "^20.14.9",
-		"@types/uuid": "^10.0.0",
-		"aws-sdk-client-mock": "^2.0.0",
-		"jest": "^29.2.1",
+	"name": "account-and-billing",
+	"description": "Serverless API for account and billing",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"@aws-sdk/client-cognito-identity-provider": "^3.996.0",
+		"@aws-sdk/client-dynamodb": "^3.996.0",
+		"@aws-sdk/client-kms": "^3.996.0",
+		"@aws-sdk/lib-dynamodb": "^3.996.0",
+		"@heksagon/app": "^0.0.14",
+		"@heksagon/http": "^0.0.9",
+		"@jigjoy-ai/auth": "^0.1.0",
+		"@jigjoy-ai/serverless-core": "^0.0.5",
+		"resend": "^6.9.2",
+		"uuid": "^13.0.0"
+	},
+	"devDependencies": {
+		"@rstest/core": "^0.8.5",
+		"@rstest/coverage-istanbul": "^0.2.1",
+		"@types/aws-lambda": "^8.10.160",
+		"@types/node": "^25.3.0",
+		"@types/uuid": "^11.0.0",
+		"dotenv": "^17.3.1",
+		"esbuild": "^0.27.3",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.8.1",
+		"swagger-ui-watcher": "^2.1.14",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.5.2"
-    },
-    "scripts": {
-        "build": "sam build --profile Development",
-		"deploy": "sam deploy --profile Development",
-		"serve": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
-		"start": "sam local start-api --profile Development --port 8000 --region eu-west-1 --env-vars env.json",
-		"test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
-		"format": "prettier --write \"{src,packages}/**/*.{ts,tsx}\""
-    },
-    "jest": {
-        "testMatch": [
-            "**/__tests__/**/*.[jt]s?(x)",
-            "**/?(*.)+(spec|test).[jt]s?(x)",
-            "**/__tests__/**/*.mjs?(x)",
-            "**/?(*.)+(spec|test).mjs?(x)"
-        ],
-        "moduleFileExtensions": [
-            "mjs",
-            "js"
-        ]
-    }
+		"typescript": "^5.9.3"
+	},
+	"scripts": {
+		"build:local": "sam build --profile spektrum-dev -t template.local.yaml ",
+		"serve:local": "sam local start-api --profile spektrum-dev -t .aws-sam/build/template.yaml --port 8000 --region eu-west-1 --env-vars env.json",
+		"build:dev": "sam build --profile spektrum-dev -t template.yaml",
+		"deploy:dev": "sam deploy --profile spektrum-dev --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND",
+		"docs": "npx swagger-ui-watcher openapi.yaml --port 8080",
+		"test": "rstest -c rstest.config.ts",
+		"coverage": "rstest --coverage",
+		"format": "prettier --write \"src/**/*.{ts,tsx}\""
+	}
 }
-

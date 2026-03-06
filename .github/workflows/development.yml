@@ -1,0 +1,48 @@
+name: Deploy Account & Billing (Dev)
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - development
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+
+            - name: Configure npm for private packages
+              run: |
+                  echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" > ~/.npmrc
+                  echo "@jigjoy-ai:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+            - name: Setup SAM CLI
+              uses: aws-actions/setup-sam@v2
+              with:
+                  use-installer: true
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Install dependencies
+              run: |
+                  npm ci
+                  echo "$PWD/node_modules/.bin" >> $GITHUB_PATH
+
+            - name: SAM Build
+              run: sam build
+
+            - name: SAM Deploy
+              run: sam deploy --config-env dev --no-confirm-changeset --no-fail-on-empty-changeset

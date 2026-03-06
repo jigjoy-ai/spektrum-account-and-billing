@@ -1,0 +1,256 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: account-and-billing (LOCAL)
+
+Transform:
+    - AWS::Serverless-2016-10-31
+
+Globals:
+    Function:
+        Runtime: nodejs22.x
+        Architectures:
+            - x86_64
+        MemorySize: 128
+        Timeout: 100
+
+Resources:
+    LocalApi:
+        Type: AWS::Serverless::Api
+        Properties:
+            StageName: local
+            BinaryMediaTypes:
+                - application/pdf
+            Cors:
+                AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+                AllowHeaders: "'content-type,authorization'"
+                AllowOrigin: "'*'"
+
+    sendMagicLinkChallengeFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            Handler: src/infrastructure/http/handlers/send-magic-link-challenge.handler
+            Description: Send magic link challenge (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+                    KMS_KEY_ID: ""
+                    USER_POOL_ID: ""
+                    USER_POOL_CLIENT_ID: ""
+                    PLATFORM_URL: ""
+                    FROM_ADDRESS: ""
+                    RESEND_API_KEY: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /challenge/magic-link
+                        Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/send-magic-link-challenge.ts
+
+    verifyMagicLinkChallengeFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: verify-magic-link-challenge.handler
+            Description: Verify magic link challenge (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+                    USER_POOL_ID: ""
+                    USER_POOL_CLIENT_ID: ""
+                    KMS_KEY_ID: ""
+                    API_KEY_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /challenge/magic-link/verify
+                        Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/verify-magic-link-challenge.ts
+
+    createApiKeyFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: create-api-key.handler
+            Description: Create api key (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+                    API_KEY_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /api-key
+                        Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/create-api-key.ts
+
+    processCreditsPurchaseFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: process-credits-purchase.handler
+            Description: Process credits purchase (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+                    FROM_ADDRESS: ""
+                    PADDLE_API_KEY: ""
+                    PADDLE_API_URL: ""
+                    RESEND_API_KEY: ""
+                    TRANSACTION_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction
+                        Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/process-credits-purchase.ts
+
+    fetchTransactionsFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: fetch-transactions.handler
+            Description: Fetch transactions (local)
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction/all
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/fetch-transactions.ts
+
+    downloadInvoicePdfFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: download-invoice-pdf.handler
+            Description: Download invoice PDF (local)
+            Environment:
+                Variables:
+                    TRANSACTION_TABLE: ""
+                    PADDLE_API_KEY: ""
+                    PADDLE_API_URL: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /transaction/{transactionId}/invoice
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/download-invoice-pdf.ts
+
+    chargeFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: charge.handler
+            Description: Charge (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /credits/charge
+                        Method: POST
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/charge.ts
+
+    getCreditBalanceFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            CodeUri: .
+            Handler: get-credit-balance.handler
+            Description: Get credit balance (local)
+            Environment:
+                Variables:
+                    ORGANIZATION_TABLE: ""
+                    ORGANIZATION_MEMBER_TABLE: ""
+            Events:
+                Api:
+                    Type: Api
+                    Properties:
+                        RestApiId: !Ref LocalApi
+                        Path: /credits/balance
+                        Method: GET
+        Metadata:
+            BuildMethod: esbuild
+            BuildProperties:
+                Target: "es2020"
+                Platform: node
+                Sourcemap: true
+                Minify: false
+                EntryPoints:
+                    - src/infrastructure/http/handlers/get-credit-balance.ts
