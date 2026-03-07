@@ -644,15 +644,19 @@ Resources:
             Environment:
                 Variables:
                     ORGANIZATION_TABLE: !Ref OrganizationTable
+                    ORGANIZATION_MEMBER_TABLE: !Ref OrganizationMemberTable
             Policies:
                 - Version: "2012-10-17"
                   Statement:
                       - Effect: Allow
                         Action:
                             - dynamodb:GetItem
+                            - dynamodb:Query
                         Resource:
                             - !GetAtt OrganizationTable.Arn
                             - !Sub "${OrganizationTable.Arn}/index/*"
+                            - !GetAtt OrganizationMemberTable.Arn
+                            - !Sub "${OrganizationMemberTable.Arn}/index/*"
         Metadata:
             BuildMethod: esbuild
             BuildProperties:
