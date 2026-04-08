@@ -1,4 +1,4 @@
-name: Production - Account & Billing
+name: Deploy to Production Environment
 
 on:
     push:

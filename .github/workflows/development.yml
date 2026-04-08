@@ -1,4 +1,4 @@
-name: Deploy Account & Billing (Dev)
+name: Deploy to Development Environment
 
 on:
     workflow_dispatch:
