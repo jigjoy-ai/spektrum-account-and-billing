@@ -41,7 +41,7 @@ export class SendMagicLinkChallenge implements SendMagicLinkChallengeUseCase {
 			)
 
 			// welcome mail will send user to onboarding page if params.onboarding is true, otherwise it will send user to workspace page
-			const page = params.sdkOnboarding ? "onboarding" : "workspace"
+			const page = params.sdkUser ? "onboarding" : "workspace"
 			const loginLink = MagicLinkBuilder.create(this.platformUrl, page, email, challengeToken)
 
 			const template = new EmailTemplate("welcome", {
