@@ -1,4 +1,4 @@
-name: Production - Account & Billing
+name: Deploy to Prod
 
 on:
     push:
